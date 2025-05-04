@@ -1,0 +1,27 @@
+minimum_cumulusci_version: '4.3.0'
+project:
+    name: atlas-tasks
+    package:
+        name: atlas-tasks
+        api_version: '62.0'
+    dependencies:
+        - github: 'https://github.com/Atlas-Assistance-Dogs/atlas-dogs'
+    git:
+        default_branch: 'main'
+    source_format: sfdx
+
+tasks:
+    robot:
+        options:
+            suites: robot/atlas-tasks/tests
+            options:
+                outputdir: robot/atlas-tasks/results
+
+    robot_testdoc:
+        options:
+            path: robot/atlas-tasks/tests
+            output: robot/atlas-tasks/doc/atlas-tasks_tests.html
+
+    run_tests:
+        options:
+            required_org_code_coverage_percent: 75
