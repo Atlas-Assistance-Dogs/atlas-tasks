@@ -1,0 +1,31 @@
+public with sharing class EmailService {
+    public Id orgAddressId {get; private set;}
+    public EmailService() {
+
+        atlas1__AtlasSettings__c settings = atlas1__AtlasSettings__c.getOrgDefaults();
+        String emailName = settings.atlas1__OrgWideEmailName__c;
+        if (emailName == null) {
+            settings.atlas1__OrgWideEmailName__c = 'Atlas Assistance Dogs';
+            upsert settings;
+        }
+        OrgWideEmailAddress[] addresses = [SELECT Id
+                                           FROM OrgWideEmailAddress
+                                           WHERE DisplayName = :emailName];
+        if (addresses.size() > 0) {
+            orgAddressId = addresses[0].Id;
+        }
+    }
+
+    public EmailTemplate getTemplate(String name) {
+        atlas1__EmailTemplate__mdt et = atlas1__EmailTemplate__mdt.getInstance(name);
+        EmailTemplate template = [SELECT Id
+                                  FROM EmailTemplate
+                                  WHERE DeveloperName = :et.atlas1__Template__c];
+        return template;
+    }
+
+    // send email to contact
+    public void sendEmail(List<Messaging.SingleEmailMessage> emails) {
+        Messaging.sendEmail(emails);
+    }
+}
