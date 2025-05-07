@@ -9,6 +9,10 @@ project:
     git:
         default_branch: 'main'
     source_format: sfdx
+sources:
+    atlas:
+        github: https://github.com/Atlas-Assistance-Dogs/atlas-dogs
+        branch: cleanup-ci
 
 tasks:
     robot:
@@ -25,3 +29,10 @@ tasks:
     run_tests:
         options:
             required_org_code_coverage_percent: 75
+
+flows:
+  config_dev:
+    steps:
+      3:
+        flow: atlas:setup_data
+ 
