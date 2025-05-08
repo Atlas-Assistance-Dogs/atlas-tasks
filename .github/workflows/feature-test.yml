@@ -1,0 +1,17 @@
+name: Feature Test
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  feature-test:
+    runs-on: macos-latest
+    steps:
+      - name: "Run feature test"
+        uses: atlas-dogs/.github/workflows/feature-test.yml

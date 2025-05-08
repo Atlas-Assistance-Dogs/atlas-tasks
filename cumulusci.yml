@@ -13,6 +13,10 @@ sources:
     atlas:
         github: https://github.com/Atlas-Assistance-Dogs/atlas-dogs
         branch: cleanup-ci
+orgs:
+    scratch:
+        build:
+            config_file: orgs/build.json
 
 tasks:
     robot:

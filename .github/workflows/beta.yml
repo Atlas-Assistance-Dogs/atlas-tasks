@@ -1,0 +1,36 @@
+name: Upload Beta Release
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+    
+jobs:
+  release-beta:
+    runs-on: macos-latest
+    steps:
+      - name: "Checkout source code"
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup CumulusCI Environment
+        uses: atlas-dogs/.github/actions/setup-cci
+        with:
+          dev-hub-auth-url: "${{ secrets.DEV_HUB_AUTH_URL }}"
+          github-username: "deb761"
+          github-pat: "${{ secrets.ACCESS_TOKEN }}"
+          github-email: "${{ secrets.EMAIL }}"
+
+      - name: Upload to build org
+        run: cci flow run dependencies --org build
+
+      - name: Release a beta package
+        run: cci flow run release_2gp_beta --org build
+
+      - name: Test a beta package
+        run: cci flow run ci_beta --org beta

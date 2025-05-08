@@ -1,0 +1,37 @@
+name: Upload Production Release
+on:
+  workflow_dispatch:
+
+jobs:
+  release-beta:
+    runs-on: macos-latest
+    steps:
+      - name: "Checkout source code"
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup CumulusCI Environment
+        uses: ./.github/actions/setup-cci
+        with:
+          dev-hub-auth-url: "${{ secrets.DEV_HUB_AUTH_URL }}"
+          github-username: "deb761"
+          github-pat: "${{ secrets.ACCESS_TOKEN }}"
+          github-email: "${{ secrets.EMAIL }}"
+
+      - name: "Authenticate using SFDX_AUTH_URL"
+        run: |
+          echo ${{ secrets.PACKAGING_AUTH_URL }} | sf org login sfdx-url -a packaging -u
+          cci org import packaging
+
+      - name: Upload to packaging org
+        shell: bash
+        run: cci flow run ci_master --org packaging
+
+      - name: Release a production package
+        shell: bash
+        run: cci flow run release_production --org packaging
+
+      - name: Test the production release
+        shell: bash
+        run: cci flow run ci_release --org release
