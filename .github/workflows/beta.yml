@@ -19,7 +19,7 @@ jobs:
           fetch-depth: 0
 
       - name: Setup CumulusCI Environment
-        uses: atlas-dogs/.github/actions/setup-cci
+        uses: atlas-dogs/.github/actions/setup-cci@v1.11
         with:
           dev-hub-auth-url: "${{ secrets.DEV_HUB_AUTH_URL }}"
           github-username: "deb761"
