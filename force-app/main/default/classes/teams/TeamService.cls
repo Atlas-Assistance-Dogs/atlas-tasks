@@ -9,6 +9,13 @@ public with sharing class TeamService {
     relRepo = new RelationshipRepository();
   }
 
+  @testVisible
+  private TeamService(TeamRepository teamRepo, EmailService emailServ, RelationshipRepository relRepo) {
+    this.teamRepo = teamRepo;
+    this.emailServ = emailServ;
+    this.relRepo = relRepo;
+  }
+
   // Remind the client in a Team to submit training logs
   public void remindClients() {
     List<atlas1__Team__c> teams = teamRepo.getByStatus('In Training');

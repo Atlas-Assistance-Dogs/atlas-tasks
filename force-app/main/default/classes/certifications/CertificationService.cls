@@ -7,6 +7,12 @@ public with sharing class CertificationService {
     emailServ = new EmailService();
   }
 
+  @testVisible
+  private CertificationService(CertificationRepository certRepo, EmailService emailServ) {
+    this.certRepo = certRepo;
+    this.emailServ = emailServ;
+  }
+
   public void remindToGetCeus() {
     atlas1__Certification__c[] certs = certRepo.getActiveCerts();
 
