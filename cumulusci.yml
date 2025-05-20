@@ -6,13 +6,16 @@ project:
         api_version: '62.0'
     dependencies:
         - github: 'https://github.com/Atlas-Assistance-Dogs/atlas-dogs'
+    dependency_pins:
+        - github: https://github.com/Atlas-Assistance-Dogs/atlas-dogs
+          tag: beta/1.12-Beta_6
     git:
         default_branch: 'main'
     source_format: sfdx
 sources:
     atlas:
         github: https://github.com/Atlas-Assistance-Dogs/atlas-dogs
-        branch: cleanup-ci
+        branch: main
 orgs:
     scratch:
         build:

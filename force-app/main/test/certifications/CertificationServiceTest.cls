@@ -56,8 +56,8 @@ private class CertificationServiceTest {
     // act
     service.remindToGetCeus();
     // assert
-    System.assertEquals(5, mocks.actualCalls.size(), 'wrong number of calls');
-    Messaging.SingleEmailMessage[] messages = (Messaging.SingleEmailMessage[])mocks.actualCalls[4].args[0];
+    System.assertEquals(6, mocks.actualCalls.size(), 'wrong number of calls');
+    Messaging.SingleEmailMessage[] messages = (Messaging.SingleEmailMessage[])mocks.actualCalls[5].args[0];
     for (Integer i; i < certs.size(); i++) {
       Messaging.SingleEmailMessage message = messages[i];
       atlas1__Certification__c cert = certs[i];

@@ -1,7 +1,7 @@
 /**
  * This class contains unit tests for validating the behavior of Apex classes
  * and triggers.
-  */
+ */
 @isTest
 private class TeamServiceTest {
     private static MockProvider mocks;
@@ -61,14 +61,17 @@ private class TeamServiceTest {
         MockCallData getTeams = mocks.actualCalls[0];
         System.assertEquals('getByStatus', getTeams.methodName);
         System.assertEquals('In Training', getTeams.args[0]);
-        // the last call would be to send emails
+        // the next-to-last call would be to create email
+        MockCallData createEmail = mocks.actualCalls[mocks.actualCalls.size() - 2];
+        Id teamId = (Id) createEmail.args[0];
+        Id clientId = (Id) createEmail.args[1];
+        Id templateId = (Id) createEmail.args[2];
+        System.AssertEquals(team.Id, teamId);
+        System.assertEquals(team.atlas1__Client__c, clientId);
+        System.AssertEquals(template.Id, templateId);
         MockCallData data = mocks.actualCalls[mocks.actualCalls.size() - 1];
         List<Messaging.SingleEmailMessage> emails = (List<Messaging.SingleEmailMessage>)data.args[0];
         System.assertEquals(1, emails.size());
-        Messaging.SingleEmailMessage message = emails[0];
-        System.assertEquals(team.atlas1__Client__c, message.targetobjectid);
-        System.assertEquals(team.Id, message.whatid);
-        System.assertEquals(template.Id, message.templateid);
     }
 
     @isTest
@@ -89,18 +92,24 @@ private class TeamServiceTest {
         );
         mocks.expectedCalls.add(new MockCallData(emailSrv, 'getTemplate', template));
         mocks.expectedCalls.add(new MockCallData(emailSrv, 'sendEmail'));
+        mocks.expectedCalls.add(new MockCallData(emailSrv, 'createEmail'));
         service.remindClients();
         // Assert
+        // the 3rd to 8th calls would be to send emails
+        for (Integer i = 0; i < 5; i++) {
+            atlas1__Team__c team = teams[i];
+            MockCallData data = mocks.actualCalls[i + 2];
+            Id teamId = (Id) data.args[0];
+            Id clientId = (Id) data.args[1];
+            Id templateId = (Id) data.args[2];
+            System.AssertEquals(team.Id, teamId);
+            System.assertEquals(team.atlas1__Client__c, clientId);
+            System.AssertEquals(template.Id, templateId);
+        }
         // the last call would be to send emails
         MockCallData data = mocks.actualCalls[mocks.actualCalls.size() - 1];
         List<Messaging.SingleEmailMessage> emails = (List<Messaging.SingleEmailMessage>)data.args[0];
-        for (Integer i = 0; i < 5; i++) {
-            atlas1__Team__c team = teams[i];
-            Messaging.SingleEmailMessage message = emails[i];
-            System.assertEquals(team.atlas1__Client__c, message.targetobjectid);
-            System.assertEquals(team.Id, message.whatid);
-            System.assertEquals(template.Id, message.templateid);
-        }
+        System.assertEquals(5, emails.size());
     }
 
     private static Map<Id, Id> facilitatorToTeamIds = new Map<Id, Id>();
@@ -171,11 +180,16 @@ private class TeamServiceTest {
         MockCallData data = mocks.actualCalls[mocks.actualCalls.size() - 1];
         List<Messaging.SingleEmailMessage> emails = (List<Messaging.SingleEmailMessage>)data.args[0];
         System.assertEquals(7, emails.size());
-        for (Messaging.SingleEmailMessage message : emails) {
-            System.assert(facilitatorIds.contains(message.targetobjectid));
-            System.assertEquals(facilitatorToTeamIds.get(message.targetObjectId), message.whatid);
-            System.assertEquals(template.Id, message.templateid);
-            facilitatorIds.remove(message.targetobjectid);
+        for (MockCallData cdata : mocks.actualCalls) {
+            if (cdata.methodName == 'createEmail') {
+                Id teamId = (Id) cdata.args[0];
+                Id whoId = (Id) cdata.args[1];
+                Id templateId = (Id) cdata.args[2];
+                System.assert(facilitatorIds.contains(whoId));
+                System.assertEquals(facilitatorToTeamIds.get(whoId), teamId);
+                System.assertEquals(template.Id, templateId);
+                facilitatorIds.remove(whoId);
+            }
         }
         System.assertEquals(0, facilitatorIds.size(), 'should have messaged all facilitators');
     }
