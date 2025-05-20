@@ -14,4 +14,4 @@ jobs:
     runs-on: macos-latest
     steps:
       - name: "Run feature test"
-        uses: Atlas-Assistance-Dogs/atlas-dogs/.github/workflows/feature-test.yml
+        uses: Atlas-Assistance-Dogs/atlas-dogs/.github/workflows/feature-test.yml@main
