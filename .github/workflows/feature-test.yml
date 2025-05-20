@@ -5,10 +5,6 @@ on:
     branches: [main]
   workflow_dispatch:
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
-
 jobs:
   feature-test:
     uses: Atlas-Assistance-Dogs/atlas-dogs/.github/workflows/feature-test.yml@main
