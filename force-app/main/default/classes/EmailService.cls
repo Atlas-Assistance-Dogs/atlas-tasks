@@ -18,33 +18,34 @@ public with sharing class EmailService {
     }
 
     public EmailTemplate getTemplate(String name) {
-        EmailTemplate__mdt et = EmailTemplate__mdt.getInstance(name);
-        EmailTemplate template = [SELECT Id
-                                  FROM EmailTemplate
-                                  WHERE DeveloperName = :et.Template__c];
+        atlas1__EmailTemplate__mdt et = atlas1__EmailTemplate__mdt.getInstance(name);
+        EmailTemplate template = [SELECT Id, CreatedDate
+                                   FROM EmailTemplate
+                                   WHERE DeveloperName = :et.atlas1__Template__c AND IsActive = true
+                                   LIMIT 1];
         return template;
     }
 
     public Messaging.SingleEmailMessage createEmail(Id whatId, Id contactId, Id templateId) {
         Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
         if (orgAddressId != null) {
-          mail.setOrgWideEmailAddressId(orgAddressId);
+            mail.setOrgWideEmailAddressId(orgAddressId);
         }
         mail.setTargetObjectId(contactId);
         //Change with Template ID
         mail.setTemplateId(templateId);
-    
+
         //Record ID for which letter will be generated
         mail.setWhatId(whatId);
         mail.setBccSender(false);
         mail.setUseSignature(false);
         if (orgAddressId == null) {
-          mail.setSenderDisplayName('Atlas Assistance Dogs');
+            mail.setSenderDisplayName('Atlas Assistance Dogs');
         }
         mail.setSaveAsActivity(false);
         return mail;
-      }
-    
+    }
+
     // send email to contact
     public void sendEmail(List<Messaging.SingleEmailMessage> emails) {
         Messaging.sendEmail(emails);

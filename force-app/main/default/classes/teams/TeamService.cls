@@ -44,7 +44,10 @@ public with sharing class TeamService {
     Date today = Date.today();
     Map<Id, Id> teamContactIds = new Map<Id, Id>();
     for (atlas1__Team__c team : teams) {
-      Integer weeks = team.atlas1__TrainingStartDate__c.daysBetween(today) / 7;
+      Integer weeks = 1; // default #weeks to 1.  If no TrainingStartDate, remind team facilitator weekly
+      if (team.atlas1__TrainingStartDate__c != null) {
+        weeks = team.atlas1__TrainingStartDate__c.daysBetween(today) / 7;
+      }
       if (Math.mod(weeks, 2) == 1) {
         // remind the facilitators
         teamContactIds.put(team.atlas1__Client__c, team.Id);

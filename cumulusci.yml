@@ -2,14 +2,17 @@ minimum_cumulusci_version: '4.3.0'
 project:
     name: atlas-tasks
     package:
-        name: atlas-tasks
+        name: tasks
         namespace: atlas1
         api_version: '62.0'
     dependencies:
         - github: 'https://github.com/Atlas-Assistance-Dogs/atlas-dogs'
     dependency_pins:
         - github: https://github.com/Atlas-Assistance-Dogs/atlas-dogs
-          tag: beta/1.12-Beta_6
+          tag: beta/1.12-Beta_9
+    dependency_resolutions:
+        preproduction: include_beta
+        production: unlocked
     git:
         default_branch: 'main'
     source_format: sfdx

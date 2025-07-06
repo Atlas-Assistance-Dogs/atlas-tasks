@@ -1,4 +1,4 @@
 {
     "packageDirectories": [{"path": "force-app", "default": true}],
-     "namespace": null, "sourceApiVersion": "62.0"
-    }
+    "namespace": "atlas1", "sourceApiVersion": "62.0"
+}
