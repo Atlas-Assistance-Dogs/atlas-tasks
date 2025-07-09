@@ -1,7 +1,4 @@
-public with sharing class TaskRepository {
-    public TaskRepository() {
-
-    }
+public inherited sharing class TaskRepository {
     public Task[] create(Task[] tasks) {
         insert tasks;
         return tasks;

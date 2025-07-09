@@ -1,5 +1,5 @@
 @isTest
-private class TestBackgroundCheckRepository {
+private class BackgroundCheckRepositoryTest {
   @isTest
   static void getMatchingChecksForContacts_returnsEmpty_whenContactsIsNull() {
     BackgroundCheckRepository repo = new BackgroundCheckRepository();

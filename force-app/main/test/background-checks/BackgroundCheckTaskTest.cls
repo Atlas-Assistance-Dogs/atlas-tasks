@@ -2,7 +2,7 @@
  * This class contains unit tests for validating the behavior of Apex class BackgroundCheckTask
  */
 @isTest
-private class TestBackgroundCheckTask {
+private class BackgroundCheckTaskTest {
     private static MockProvider mocks;
     private static BackgroundCheckService service;
 
