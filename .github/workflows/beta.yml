@@ -30,7 +30,7 @@ jobs:
         run: cci flow run dependencies --org build
 
       - name: Release a beta package
-        run: sf package version create -x -w 100
+        run: sf package version create -x -w 100 --path force-app 
 
       - name: Test a beta package
         run: cci flow run ci_beta --org beta

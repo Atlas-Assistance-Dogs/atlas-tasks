@@ -15,9 +15,9 @@ To work on this project in a scratch org:
     b. Then restart the flow
 3. Run `cci org browser dev` to open the org in your browser.
 
-Package tasks is
+Package atlas-tasks is
 
- NAME       VALUE              
- ────────── ────────────────── 
- Package Id 0HoRg000000074jKAA
+ Successfully created the package version [08cRg0000000oZVIAY]. Subscriber Package Version Id: 04tRg000000bNP3IAM
+Package Installation URL: https://login.salesforce.com/packaging/installPackage.apexp?p0=04tRg000000bNP3IAM
+As an alternative, you can use the "sf package:install" command.
  
