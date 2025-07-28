@@ -7,7 +7,6 @@ public with sharing class EmailService {
         String emailName = settings.atlas1__OrgWideEmailName__c;
         if (emailName == null) {
             settings.atlas1__OrgWideEmailName__c = 'Atlas Assistance Dogs';
-            upsert settings;
         }
         OrgWideEmailAddress[] addresses = [SELECT Id
                                            FROM OrgWideEmailAddress

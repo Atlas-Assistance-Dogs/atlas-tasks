@@ -1,4 +1,34 @@
 {
-    "packageDirectories": [{"path": "force-app", "default": true}],
-    "namespace": "atlas1", "sourceApiVersion": "62.0"
+  "packageDirectories": [
+    {
+      "path": "force-app",
+      "default": true,
+      "package": "tasks",
+      "versionName": "ver 0.1",
+      "versionNumber": "0.1.0.NEXT",
+      "dependencies": []
+    },
+    {
+      "path": "force-app",
+      "package": "tasks",
+      "versionName": "ver 1.0",
+      "versionNumber": "1.0.0.NEXT",
+      "default": false,
+      "versionDescription": "initial version"
+    }
+  ],
+  "namespace": "",
+  "sourceApiVersion": "64.0",
+  "packageAliases": {
+    "contacts": "04t4w0000004ALTAA2",
+    "households": "04t4w000000gfNKAAY",
+    "donations": "04t4w000000gfNFAAY",
+    "relationships": "04t4w000001A00cAAC",
+    "affiliations": "04t4w000000tQ1HAAU",
+    "npsp": "04tKd000000ekOXIAY",
+    "volunteers": "04tHs000000vyWLIAY",
+    "dogs": "04tKa000002v7Y2IAI",
+    "tasks": "0HoRg000000074jKAA",
+    "tasks@0.1.0-1": "04tRg000000bNNRIA2"
+  }
 }

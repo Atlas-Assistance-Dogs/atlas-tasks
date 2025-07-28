@@ -6,10 +6,13 @@ project:
         namespace: atlas1
         api_version: '62.0'
     dependencies:
+        - github: "https://github.com/SalesforceFoundation/NPSP"
+        - github: "https://github.com/SalesforceFoundation/Volunteers-for-Salesforce"
         - github: 'https://github.com/Atlas-Assistance-Dogs/atlas-dogs'
-    dependency_resolutions:
-        preproduction: include_beta
-        production: unlocked
+          tag: beta/1.12-Beta_9
+    # dependency_resolutions:
+    #     preproduction: include_beta
+    #     production: unlocked
     git:
         default_branch: 'main'
     source_format: sfdx

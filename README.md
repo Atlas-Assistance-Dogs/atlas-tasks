@@ -14,3 +14,10 @@ To work on this project in a scratch org:
        `cci org browser dev`, edit the System Admin profile, and add all the Account record types
     b. Then restart the flow
 3. Run `cci org browser dev` to open the org in your browser.
+
+Package tasks is
+
+ NAME       VALUE              
+ ────────── ────────────────── 
+ Package Id 0HoRg000000074jKAA
+ 
