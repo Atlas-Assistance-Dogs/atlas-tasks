@@ -21,3 +21,11 @@ Package atlas-tasks is
 Package Installation URL: https://login.salesforce.com/packaging/installPackage.apexp?p0=04tRg000000bNP3IAM
 As an alternative, you can use the "sf package:install" command.
  
+ ## List package versions
+ `sf package version list`
+
+ ## Promote package version
+
+ `sf package version promote -p <value>`
+
+ Where -p is the package version ID (starts with 04t)

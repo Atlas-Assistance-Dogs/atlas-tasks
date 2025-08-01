@@ -1,5 +1,5 @@
 public with sharing class EmailService {
-    public Id orgAddressId { get; private set; }
+    public Id orgAddressId { get;private  set; }
 
     public EmailService() {
 
@@ -17,14 +17,14 @@ public with sharing class EmailService {
     }
 
     public EmailTemplate getTemplate(String name) {
-        atlas1__EmailTemplate__mdt et = atlas1__EmailTemplate__mdt.getInstance(name);
+        EmailTemplate__mdt et = EmailTemplate__mdt.getInstance(name);
         if (et == null) {
             return null;
         }
         EmailTemplate template = [SELECT Id, 
                                          CreatedDate
                                   FROM EmailTemplate
-                                  WHERE DeveloperName = :et.atlas1__Template__c AND IsActive = true
+                                  WHERE DeveloperName = :et.Template__c AND IsActive = true
                                   LIMIT 1];
         return template;
     }
@@ -51,7 +51,8 @@ public with sharing class EmailService {
 
     // send email to contact
     public void sendEmail(List<Messaging.SingleEmailMessage> emails) {
-        Messaging.sendEmail(emails);
+        // the second parameter is "allOrNothing" and defaults to true
+        Messaging.sendEmail(emails, false);
     }
 
 }

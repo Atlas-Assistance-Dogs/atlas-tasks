@@ -30,4 +30,15 @@ private class EmailServiceTest {
 
         System.assertEquals(null, template, 'address id matches');
     }
+
+    @isTest
+    static void getTemplate_returnsTrainerTemplate() {
+        EmailTemplate et = new EmailTemplate(DeveloperName = 'TrainerMonthAfter', FolderId = UserInfo.getUserId(), TemplateType = 'Text', Name = 'my template');
+        insert et;
+
+        EmailService service = new EmailService();
+        EmailTemplate template = service.getTemplate('TrainerMonthAfter');
+
+        System.assertEquals(et, template, 'address id matches');
+    }
 }
