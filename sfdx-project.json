@@ -7,14 +7,6 @@
       "versionName": "ver 0.1.1",
       "versionNumber": "0.1.1.NEXT",
       "dependencies": []
-    },
-    {
-      "path": "force-app",
-      "package": "atlas-tasks",
-      "versionName": "ver 0.1",
-      "versionNumber": "0.1.0.NEXT",
-      "default": false,
-      "versionDescription": ""
     }
   ],
   "namespace": "",
