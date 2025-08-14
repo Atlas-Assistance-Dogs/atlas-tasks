@@ -56,7 +56,7 @@ public with sharing class TeamService {
     if (teamContactIds.isEmpty()) {
       return;
     }
-    List<npe4__Relationship__c> relationships = relRepo.getCurrentRelated(teamContactIds.keySet(), 'Team Faciliator');
+    List<npe4__Relationship__c> relationships = relRepo.getCurrentRelated(teamContactIds.keySet(), 'Team Facilitator');
 
     // Loop through the teams and remind the faciltators for them
     List<Messaging.SingleEmailMessage> emails = new List<Messaging.SingleEmailMessage>();
