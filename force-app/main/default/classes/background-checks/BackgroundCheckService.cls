@@ -60,6 +60,9 @@ public with sharing class BackgroundCheckService {
             }
         }
 
+        // Find any existing tasks for these contacts
+        Task[] existingCreditTasks = taskRepo.getTasksByWhoId('Order credit check', creditIds);
+
         // Create a list of Tasks
         Task[] tasks = new List<Task>();
         // Create tasks to order background checks
@@ -70,7 +73,7 @@ public with sharing class BackgroundCheckService {
                 Status = 'Open', 
                 Priority = 'Normal', 
                 WhoId = contactId, 
-                ActivityDate = Date.today().addMonths(1)
+                ActivityDate = Date.today()
             ));
         }
         // Create tasks to order credit checks
@@ -81,7 +84,7 @@ public with sharing class BackgroundCheckService {
                 Status = 'Open', 
                 Priority = 'Normal', 
                 WhoId = contactId, 
-                ActivityDate = Date.today().addMonths(1)
+                ActivityDate = Date.today()
             ));
         }
 
