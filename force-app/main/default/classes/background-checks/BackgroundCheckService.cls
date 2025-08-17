@@ -36,13 +36,19 @@ public with sharing class BackgroundCheckService {
         Set<Id> contactIds = new Set<Id>();
         Set<Id> creditIds = new Set<Id>();
         Set<Id> criminalIds = new Set<Id>();
+        Set<Id> combinedIds = new Set<Id>();
         // Check for any contacts that need background checks
         Contact[] contacts = this.contactRepo.getContactsNeedingBackgroundChecks();
 
         for (Contact person : contacts) {
             contactIds.add(person.Id);
+            if (person.atlas1__VolunteerAccess__c.contains('Credit Check Required') && person.atlas1__VolunteerAccess__c.contains('Background Check Required')) {
+                combinedIds.add(person.Id);
+                continue 
+            }
             if (person.atlas1__VolunteerAccess__c.contains('Credit Check Required')) {
                 creditIds.add(person.Id);
+                continue 
             }
             if (person.atlas1__VolunteerAccess__c.contains('Background Check Required')) {
                 criminalIds.add(person.Id);
@@ -53,15 +59,18 @@ public with sharing class BackgroundCheckService {
 
         // Remove the contacts with recent-enough background checks from the list
         for (atlas1__BackgroundCheck__c check : checks) {
-            if (check.atlas1__Type__c == 'Criminal') {
-                criminalIds.remove(check.atlas1__Contact__c);
-            } else if (check.atlas1__Type__c == 'Credit') {
-                creditIds.remove(check.atlas1__Contact__c);
+            switch (check.atlas1__Type__c) {
+                case'Criminal&Credit' : combinedIds.remove(check.atlas1__Contact__c);
+                break;
+                case'Criminal' : criminalIds.remove(check.atlas1__Contact__c);
+                break;
+                case'Credit' : creditIds.remove(check.atlas1__Contact__c);
+                break;
             }
         }
 
         // Find any existing tasks for these contacts
-        Map<Id, Task[]> existingCreditTasks = taskRepo.getTasksByWhoId(creditIds, 'Order credit check');
+        Map<Id, Task[]> existingCreditTasks = taskRepo.getTasksByWhoId(creditIds, 'Order');
 
         // Create a list of Tasks
         Task[] tasks = new List<Task>();

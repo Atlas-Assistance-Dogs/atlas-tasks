@@ -1,27 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Profile xmlns="http://soap.sforce.com/2006/04/metadata">
     <classAccesses>
-        <apexClass>BackgroundCheckRepository</apexClass>
-        <enabled>true</enabled>
-    </classAccesses>
-    <classAccesses>
-        <apexClass>BackgroundCheckRepositoryTest</apexClass>
-        <enabled>true</enabled>
-    </classAccesses>
-    <classAccesses>
         <apexClass>BackgroundCheckService</apexClass>
-        <enabled>true</enabled>
-    </classAccesses>
-    <classAccesses>
-        <apexClass>BackgroundCheckServiceTest</apexClass>
-        <enabled>true</enabled>
-    </classAccesses>
-    <classAccesses>
-        <apexClass>BackgroundCheckTask</apexClass>
-        <enabled>true</enabled>
-    </classAccesses>
-    <classAccesses>
-        <apexClass>BackgroundCheckTaskTest</apexClass>
         <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
@@ -33,6 +13,7 @@
         <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
+        <apexClass>CertificationRepositoryTest</apexClass>
         <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
@@ -131,6 +112,11 @@
         <editable>false</editable>
         <field>TaskUser__mdt.Task__c</field>
         <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>atlas1__BackgroundCheck__c.atlas1__Type__c</field>
+        <readable>true</readable>
     </fieldPermissions>
     <layoutAssignments>
         <layout>TaskUser__mdt-TaskUser Layout</layout>
