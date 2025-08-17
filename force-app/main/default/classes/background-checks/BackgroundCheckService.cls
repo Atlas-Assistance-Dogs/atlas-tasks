@@ -61,7 +61,7 @@ public with sharing class BackgroundCheckService {
         }
 
         // Find any existing tasks for these contacts
-        Task[] existingCreditTasks = taskRepo.getTasksByWhoId('Order credit check', creditIds);
+        Map<Id, Task[]> existingCreditTasks = taskRepo.getTasksByWhoId(creditIds, 'Order credit check');
 
         // Create a list of Tasks
         Task[] tasks = new List<Task>();
