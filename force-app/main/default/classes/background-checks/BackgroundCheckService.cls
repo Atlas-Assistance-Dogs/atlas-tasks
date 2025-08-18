@@ -27,10 +27,13 @@ public with sharing class BackgroundCheckService {
         // find the cutoff for which background checks to remind
         Date threshold = Date.today().addYears(-1 * (Integer) settings.atlas1__BackgroundCheckRenewalYears__c).addMonths(1);
 
-        // Get the group to assign the task to
-        Group adminGroup = [SELECT Id
-                            FROM Group
-                            WHERE Name = 'Background Check Administrator' AND Type = 'Queue'];
+        // Get the users to assign the task to
+        TaskUser__mdt taskUser = [SELECT User__c
+                              FROM TaskUser__mdt
+                              WHERE Task__c = 'Background check' LIMIT 1];
+        User user = [SELECT Id
+                        FROM User
+                        WHERE Username = :taskUser.User__c AND IsActive = true Limit 1];
 
         // Make sure we only have one Background check per contact
         Set<Id> contactIds = new Set<Id>();
@@ -44,11 +47,11 @@ public with sharing class BackgroundCheckService {
             contactIds.add(person.Id);
             if (person.atlas1__VolunteerAccess__c.contains('Credit Check Required') && person.atlas1__VolunteerAccess__c.contains('Background Check Required')) {
                 combinedIds.add(person.Id);
-                continue 
+                continue;
             }
             if (person.atlas1__VolunteerAccess__c.contains('Credit Check Required')) {
                 creditIds.add(person.Id);
-                continue 
+                continue;
             }
             if (person.atlas1__VolunteerAccess__c.contains('Background Check Required')) {
                 criminalIds.add(person.Id);
@@ -59,25 +62,28 @@ public with sharing class BackgroundCheckService {
 
         // Remove the contacts with recent-enough background checks from the list
         for (atlas1__BackgroundCheck__c check : checks) {
-            switch (check.atlas1__Type__c) {
-                case'Criminal&Credit' : combinedIds.remove(check.atlas1__Contact__c);
-                break;
-                case'Criminal' : criminalIds.remove(check.atlas1__Contact__c);
-                break;
-                case'Credit' : creditIds.remove(check.atlas1__Contact__c);
-                break;
+            switch  on check.atlas1__Type__c {
+                when 'Criminal&Credit' {
+                    combinedIds.remove(check.atlas1__Contact__c);
+                }
+                when 'Criminal' {
+                    criminalIds.remove(check.atlas1__Contact__c);
+                }
+                when 'Credit' {
+                    creditIds.remove(check.atlas1__Contact__c);
+                }
             }
         }
 
         // Find any existing tasks for these contacts
-        Map<Id, Task[]> existingCreditTasks = taskRepo.getTasksByWhoId(creditIds, 'Order');
+        Map<Id, Task[]> existingCreditTasks = taskRepo.getTasksByWhoId(creditIds, 'Order % check');
 
         // Create a list of Tasks
         Task[] tasks = new List<Task>();
         // Create tasks to order background checks
         for (Id contactId : criminalIds) {
             tasks.add(new Task(
-                OwnerId = adminGroup.Id, 
+                OwnerId = user.Id, 
                 Subject = 'Order background check', 
                 Status = 'Open', 
                 Priority = 'Normal', 
@@ -88,7 +94,7 @@ public with sharing class BackgroundCheckService {
         // Create tasks to order credit checks
         for (Id contactId : creditIds) {
             tasks.add(new Task(
-                OwnerId = adminGroup.Id, 
+                OwnerId = user.Id, 
                 Subject = 'Order credit check', 
                 Status = 'Open', 
                 Priority = 'Normal', 
