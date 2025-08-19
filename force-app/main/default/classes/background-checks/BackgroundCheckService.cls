@@ -3,6 +3,11 @@ public with sharing class BackgroundCheckService {
     private ContactRepository contactRepo;
     private TaskRepository taskRepo;
 
+    final String subjectFormat = 'Order {0} check';
+    final String background = 'background';
+    final String credit = 'credit';
+    final String combined = 'background and credit';
+
     public BackgroundCheckService() {
         this.repo = new BackgroundCheckRepository();
         this.contactRepo = new ContactRepository();
@@ -76,15 +81,40 @@ public with sharing class BackgroundCheckService {
         }
 
         // Find any existing tasks for these contacts
-        Map<Id, Task[]> existingCreditTasks = taskRepo.getTasksByWhoId(creditIds, 'Order % check');
+        Map<Id, Task[]> existingCreditTasks = taskRepo.getTasksByWhoId(creditIds, 'order % check');
+
+        // Remove any contacts with open tasks from the list
+        for (Id contactId : existingCreditTasks.keySet()) {
+            Task[] existingTasks = existingCreditTasks.get(contactId);
+            for (Task t : existingCreditTasks.get(contactId)) {
+                if (t.Subject.contains(combined)) {
+                    combinedIds.remove(contactId);
+                } else if (t.Subject.contains(background)) {
+                    criminalIds.remove(contactId);
+                } else if (t.Subject.contains(credit)) {
+                    creditIds.remove(contactId);
+                }
+            }
+        }
 
         // Create a list of Tasks
         Task[] tasks = new List<Task>();
+        // Create tasks to order combined checks
+        for (Id contactId : combinedIds) {
+            tasks.add(new Task(
+                OwnerId = user.Id, 
+                Subject = String.format(subjectFormat, new Object[]{combined}), 
+                Status = 'Open', 
+                Priority = 'Normal', 
+                WhoId = contactId, 
+                ActivityDate = Date.today()
+            ));
+        }
         // Create tasks to order background checks
         for (Id contactId : criminalIds) {
             tasks.add(new Task(
                 OwnerId = user.Id, 
-                Subject = 'Order background check', 
+                Subject = String.format(subjectFormat, new Object[]{background}), 
                 Status = 'Open', 
                 Priority = 'Normal', 
                 WhoId = contactId, 
@@ -95,7 +125,7 @@ public with sharing class BackgroundCheckService {
         for (Id contactId : creditIds) {
             tasks.add(new Task(
                 OwnerId = user.Id, 
-                Subject = 'Order credit check', 
+                Subject = String.format(subjectFormat, new Object[]{credit}), 
                 Status = 'Open', 
                 Priority = 'Normal', 
                 WhoId = contactId, 
