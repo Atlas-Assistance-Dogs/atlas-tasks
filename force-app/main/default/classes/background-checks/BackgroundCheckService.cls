@@ -2,12 +2,10 @@ public with sharing class BackgroundCheckService {
     private BackgroundCheckRepository repo;
     private ContactRepository contactRepo;
     private TaskRepository taskRepo;
-
     final String subjectFormat = 'Order {0} check';
     final String background = 'background';
     final String credit = 'credit';
     final String combined = 'background and credit';
-
     public BackgroundCheckService() {
         this.repo = new BackgroundCheckRepository();
         this.contactRepo = new ContactRepository();
@@ -32,13 +30,11 @@ public with sharing class BackgroundCheckService {
         // find the cutoff for which background checks to remind
         Date threshold = Date.today().addYears(-1 * (Integer) settings.atlas1__BackgroundCheckRenewalYears__c).addMonths(1);
 
-        // Get the users to assign the task to
-        TaskUser__mdt taskUser = [SELECT User__c
-                              FROM TaskUser__mdt
-                              WHERE Task__c = 'Background check' LIMIT 1];
-        User user = [SELECT Id
-                        FROM User
-                        WHERE Username = :taskUser.User__c AND IsActive = true Limit 1];
+        User user = taskRepo.getBackgroundCheckUser();
+        if (user == null) {
+            return; // no user found, TaskRepository logs error
+        }
+        Id userId = user.Id;
 
         // Make sure we only have one Background check per contact
         Set<Id> contactIds = new Set<Id>();
@@ -102,8 +98,8 @@ public with sharing class BackgroundCheckService {
         // Create tasks to order combined checks
         for (Id contactId : combinedIds) {
             tasks.add(new Task(
-                OwnerId = user.Id, 
-                Subject = String.format(subjectFormat, new Object[]{combined}), 
+                OwnerId = userId, 
+                Subject = String.format(subjectFormat, new Object[]{ combined }), 
                 Status = 'Open', 
                 Priority = 'Normal', 
                 WhoId = contactId, 
@@ -113,8 +109,8 @@ public with sharing class BackgroundCheckService {
         // Create tasks to order background checks
         for (Id contactId : criminalIds) {
             tasks.add(new Task(
-                OwnerId = user.Id, 
-                Subject = String.format(subjectFormat, new Object[]{background}), 
+                OwnerId = userId, 
+                Subject = String.format(subjectFormat, new Object[]{ background }), 
                 Status = 'Open', 
                 Priority = 'Normal', 
                 WhoId = contactId, 
@@ -124,8 +120,8 @@ public with sharing class BackgroundCheckService {
         // Create tasks to order credit checks
         for (Id contactId : creditIds) {
             tasks.add(new Task(
-                OwnerId = user.Id, 
-                Subject = String.format(subjectFormat, new Object[]{credit}), 
+                OwnerId = userId, 
+                Subject = String.format(subjectFormat, new Object[]{ credit }), 
                 Status = 'Open', 
                 Priority = 'Normal', 
                 WhoId = contactId, 
