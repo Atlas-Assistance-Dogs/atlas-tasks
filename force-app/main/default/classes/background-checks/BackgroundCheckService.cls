@@ -12,6 +12,12 @@ public with sharing class BackgroundCheckService {
         this.taskRepo = new TaskRepository();
     }
 
+    private Id userId;
+        // Make sure we only have one Background check per contact
+       private Set<Id> contactIds = new Set<Id>();
+    private Set<Id> creditIds = new Set<Id>();
+    private Set<Id> criminalIds = new Set<Id>();
+    private Set<Id> combinedIds = new Set<Id>();
     @TestVisible
     private BackgroundCheckService(BackgroundCheckRepository bgcrepo, ContactRepository contactRepo, TaskRepository taskRepo) {
         this.repo = bgcrepo;
@@ -19,32 +25,39 @@ public with sharing class BackgroundCheckService {
         this.taskRepo = taskRepo;
     }
 
+    private void clearReminders() {
+        contactIds.clear();
+        creditIds.clear();
+        criminalIds.clear();
+        combinedIds.clear();
+    }
+
     public void createReminderTask() {
-        atlas1__AtlasSettings__c settings = atlas1__AtlasSettings__c.getOrgDefaults();
-        // check to see if this setting is missing
-        if (settings.atlas1__BackgroundCheckRenewalYears__c == null) {
-            settings.atlas1__BackgroundCheckRenewalYears__c = 1;
-            upsert settings;
-        }
-
-        // find the cutoff for which background checks to remind
-        Date threshold = Date.today().addYears(-1 * (Integer) settings.atlas1__BackgroundCheckRenewalYears__c).addMonths(1);
-
         User user = taskRepo.getBackgroundCheckUser();
         if (user == null) {
             return; // no user found, TaskRepository logs error
         }
-        Id userId = user.Id;
+        userId = user.Id;
 
-        // Make sure we only have one Background check per contact
-        Set<Id> contactIds = new Set<Id>();
-        Set<Id> creditIds = new Set<Id>();
-        Set<Id> criminalIds = new Set<Id>();
-        Set<Id> combinedIds = new Set<Id>();
+        findReminders();
+
+        removeMatchingChecks();
+
+        removeExistingTasks();
+
+        createTasks();
+    }
+
+    // find contacts that need to have background checks ordered
+    private void findReminders() {
+        clearReminders();
         // Check for any contacts that need background checks
         Contact[] contacts = this.contactRepo.getContactsNeedingBackgroundChecks();
 
         for (Contact person : contacts) {
+            if (contactIds.contains(person.Id)) {
+                continue;
+            }
             contactIds.add(person.Id);
             if (person.atlas1__VolunteerAccess__c.contains('Credit Check Required') && person.atlas1__VolunteerAccess__c.contains('Background Check Required')) {
                 combinedIds.add(person.Id);
@@ -58,6 +71,18 @@ public with sharing class BackgroundCheckService {
                 criminalIds.add(person.Id);
             }
         }
+    }
+
+    private void removeMatchingChecks() {
+        atlas1__AtlasSettings__c settings = atlas1__AtlasSettings__c.getOrgDefaults();
+        // check to see if this setting is missing
+        if (settings.atlas1__BackgroundCheckRenewalYears__c == null) {
+            settings.atlas1__BackgroundCheckRenewalYears__c = 1;
+            upsert settings;
+        }
+
+        // find the cutoff for which background checks to remind
+        Date threshold = Date.today().addYears(-1 * (Integer) settings.atlas1__BackgroundCheckRenewalYears__c).addMonths(1);
 
         atlas1__BackgroundCheck__c[] checks = repo.getMatchingChecksForContacts(contactIds, threshold);
 
@@ -75,25 +100,31 @@ public with sharing class BackgroundCheckService {
                 }
             }
         }
+    }
 
+    private void removeExistingTasks() {
         // Find any existing tasks for these contacts
-        Map<Id, Task[]> existingCreditTasks = taskRepo.getTasksByWhoId(creditIds, 'order % check');
+        Map<Id, Task[]> existingTasks = taskRepo.getTasksByWhoId(creditIds, 'order % check');
 
-        // Remove any contacts with open tasks from the list
-        for (Id contactId : existingCreditTasks.keySet()) {
-            Task[] existingTasks = existingCreditTasks.get(contactId);
-            for (Task t : existingCreditTasks.get(contactId)) {
-                if (t.Subject.contains(combined)) {
-                    combinedIds.remove(contactId);
-                } else if (t.Subject.contains(background)) {
-                    criminalIds.remove(contactId);
-                } else if (t.Subject.contains(credit)) {
-                    creditIds.remove(contactId);
+        if (existingTasks != null) {
+            // Remove any contacts with open tasks from the list
+            for (Id contactId : existingTasks.keySet()) {
+                Task[] tasks = existingTasks.get(contactId);
+                for (Task t : tasks) {
+                    if (t.Subject.contains(combined)) {
+                        combinedIds.remove(contactId);
+                    } else if (t.Subject.contains(background)) {
+                        criminalIds.remove(contactId);
+                    } else if (t.Subject.contains(credit)) {
+                        creditIds.remove(contactId);
+                    }
                 }
             }
         }
+    }
 
-        // Create a list of Tasks
+    // Create a list of Tasks
+    private void createTasks() {
         Task[] tasks = new List<Task>();
         // Create tasks to order combined checks
         for (Id contactId : combinedIds) {

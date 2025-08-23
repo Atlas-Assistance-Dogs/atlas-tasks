@@ -89,4 +89,16 @@ private class TaskRepositoryTest {
         System.Assert.areEqual(1, resp.get(c2.Id).size(), 'should have 1 element');
         System.Assert.areEqual(1, resp.get(c3.Id).size(), 'should have 1 element');
     }
+
+    @isTest
+    static void getBackgroundcheckUser_returnsNull_whenNoUser() {
+        User u = repo.getBackgroundcheckUser();
+        System.Assert.isNull(u, 'user should be null');
+    }
+    @IsTest
+    static void getBackgroundCheckUser_returnsUser_whenUserIsFound() {
+        User u = [SELECT Id, Name, Profile.Name, UserRole.Name FROM User WHERE UserRole.Name = 'Backgroundcheck'];
+        insert new User[]{u};
+        User u2 = repo.getBackgroundCheckUser();
+    }
 }
