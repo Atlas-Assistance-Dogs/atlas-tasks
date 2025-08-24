@@ -64,7 +64,7 @@ public inherited sharing class ContactRepository {
   public Contact[] getContactsNeedingBackgroundChecks() {
     // Check for any contacts that need background checks
     return [
-      SELECT Id, Name
+      SELECT Id, Name, atlas1__VolunteerAccess__c
       FROM Contact
       WHERE
         atlas1__VolunteerAccess__c INCLUDES (
