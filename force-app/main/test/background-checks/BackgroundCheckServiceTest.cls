@@ -22,6 +22,9 @@ public with sharing class BackgroundCheckServiceTest {
 
     service.createReminderTask();
     System.assertEquals(1, mocks.actualCalls.size(), 'should stop when no user');
+    // the first call would be to get the user to assign the tasks to
+    MockCallData getUser = mocks.actualCalls[0];
+    System.assertEquals('getBackgroundCheckUser', getUser.methodName);
   }
 
   @isTest
@@ -38,9 +41,6 @@ public with sharing class BackgroundCheckServiceTest {
 
     // Assert
     System.assert(!mocks.actualCalls.isEmpty());
-    // the first call would be to get the user to assign the tasks to
-    MockCallData getUser = mocks.actualCalls[0];
-    System.assertEquals('getBackgroundCheckUser', getUser.methodName);
     // the next call would be to get contacts
     MockCallData getContacts = mocks.actualCalls[1];
     System.assertEquals('getContactsNeedingBackgroundChecks', getContacts.methodName);
@@ -94,10 +94,10 @@ public with sharing class BackgroundCheckServiceTest {
     // Act
     service.createReminderTask();
 
-    // see if there is a call to create tasks, if there is, there should be no tasks
+    // see if there is a call to create tasks, if there is, there should be 4 tasks
     for (MockCallData call : mocks.actualCalls) {
       if (call.obj == taskRepo && call.methodName == 'create') {
-        System.assertEquals(5, ((List<Task>)call.args[0]).size());
+        System.assertEquals(4, ((List<Task>)call.args[0]).size());
       }
     }
   }
@@ -105,6 +105,9 @@ public with sharing class BackgroundCheckServiceTest {
   @isTest
   public static void createReminderTask_createsNoTasksWhenContactsWithAccessUpToDate() {
     makeData();
+    mocks.expectedCalls.add(new MockCallData(taskRepo, 'getBackgroundCheckUser', new User(
+      Id = MockProvider.createId(User.class)
+    )));
     Contact[] contacts = createContactsWithAccess();
     mocks.expectedCalls.add(new MockCallData(contactRepo, 'getContactsNeedingBackgroundChecks', contacts));
     mocks.expectedCalls.add(new MockCallData(bgcRepo, 'getMatchingChecksForContacts', new List<atlas1__BackgroundCheck__c>{ new atlas1__BackgroundCheck__c(
@@ -122,11 +125,7 @@ public with sharing class BackgroundCheckServiceTest {
     ), new atlas1__BackgroundCheck__c(
       atlas1__Contact__c = contacts[3].id, 
       atlas1__Date__c = Date.today().addMonths(-6), 
-      atlas1__Type__c = 'Credit'
-    ), new atlas1__BackgroundCheck__c(
-      atlas1__Contact__c = contacts[3].id, 
-      atlas1__Date__c = Date.today().addMonths(-7), 
-      atlas1__Type__c = 'Criminal'
+      atlas1__Type__c = 'Criminal&Credit'
     ) }));
     // Act
     service.createReminderTask();
@@ -212,7 +211,7 @@ public with sharing class BackgroundCheckServiceTest {
     // Act
     service.createReminderTask();
 
-    // see if there is a call to create tasks, if there is, there should be no tasks
+    // see if there is a call to create tasks, if there is, there should be one task to order Bandit's check
     for (MockCallData call : mocks.actualCalls) {
       if (call.obj == taskRepo && call.methodName == 'create') {
         System.assertEquals(1, ((List<Task>)call.args[0]).size());
