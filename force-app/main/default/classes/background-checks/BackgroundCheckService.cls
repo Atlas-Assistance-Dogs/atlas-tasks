@@ -13,8 +13,8 @@ public with sharing class BackgroundCheckService {
     }
 
     private Id userId;
-        // Make sure we only have one Background check per contact
-       private Set<Id> contactIds = new Set<Id>();
+    // Make sure we only have one Background check per contact
+    private Set<Id> contactIds = new Set<Id>();
     private Set<Id> creditIds = new Set<Id>();
     private Set<Id> criminalIds = new Set<Id>();
     private Set<Id> combinedIds = new Set<Id>();
