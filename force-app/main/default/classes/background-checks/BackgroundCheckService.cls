@@ -39,7 +39,9 @@ public with sharing class BackgroundCheckService {
         }
         userId = user.Id;
 
-        findReminders();
+        if (!findContacts()) {
+            return;
+        }
 
         removeMatchingChecks();
 
@@ -49,7 +51,7 @@ public with sharing class BackgroundCheckService {
     }
 
     // find contacts that need to have background checks ordered
-    private void findReminders() {
+    private Boolean findContacts() {
         clearReminders();
         // Check for any contacts that need background checks
         Contact[] contacts = this.contactRepo.getContactsNeedingBackgroundChecks();
@@ -71,6 +73,7 @@ public with sharing class BackgroundCheckService {
                 criminalIds.add(person.Id);
             }
         }
+        return contactIds.size() > 0;
     }
 
     private void removeMatchingChecks() {
