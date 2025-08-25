@@ -21,11 +21,15 @@ public with sharing class EmailService {
         if (et == null) {
             return null;
         }
-        EmailTemplate template = [SELECT Id, 
-                                         CreatedDate
-                                  FROM EmailTemplate
-                                  WHERE DeveloperName = :et.Template__c AND IsActive = true
-                                  LIMIT 1];
+        EmailTemplate[] templates = [SELECT Id, 
+                                            CreatedDate, DeveloperName
+                                     FROM EmailTemplate
+                                     WHERE DeveloperName = :et.Template__c AND IsActive = true
+                                     LIMIT 1];
+        if (templates.size() == 0) {
+            return null;
+        }
+        EmailTemplate template = templates[0];
         return template;
     }
 
