@@ -9,7 +9,7 @@ public inherited sharing class TaskRepository {
                                CreatedDate, 
                                OwnerId, 
                                Status, 
-                               Subject,
+                               Subject, 
                                WhoId
                         FROM Task
                         WHERE WhoId IN:contactIds AND Status <> 'Completed' AND Subject LIKE:subject];
@@ -28,7 +28,7 @@ public inherited sharing class TaskRepository {
 
     // Find the user to assign background check tasks to
     public User getBackgroundCheckUser() {
-                // Get the users to assign the task to
+        // Get the users to assign the task to
         TaskUser__mdt[] taskUsers = [SELECT User__c
                                      FROM TaskUser__mdt
                                      WHERE Task__c = 'Background check'];

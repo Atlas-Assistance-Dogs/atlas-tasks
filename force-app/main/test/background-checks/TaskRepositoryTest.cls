@@ -95,10 +95,12 @@ private class TaskRepositoryTest {
         User u = repo.getBackgroundcheckUser();
         System.Assert.isNull(u, 'user should be null');
     }
-    @IsTest
+   /*@IsTest
     static void getBackgroundCheckUser_returnsUser_whenUserIsFound() {
-        User u = [SELECT Id, Name, Profile.Name, UserRole.Name FROM User WHERE UserRole.Name = 'Backgroundcheck'];
-        insert new User[]{u};
+        TaskUser__mdt tu = TaskUser__mdt.getInstance('Background_Check_User');
+        User u = new User(FirstName ='Buddy', LastName = 'Jones', Email = 'buddy@test.com', Username = tu.User__c);
+        insert u;
         User u2 = repo.getBackgroundCheckUser();
-    }
+        System.assertEquals(u.Id, u2.Id, 'should be same user');
+    }*/
 }

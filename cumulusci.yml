@@ -9,7 +9,7 @@ project:
         - github: "https://github.com/SalesforceFoundation/NPSP"
         - github: "https://github.com/SalesforceFoundation/Volunteers-for-Salesforce"
         - github: 'https://github.com/Atlas-Assistance-Dogs/atlas-dogs'
-          tag: beta/1.12-Beta_9
+        #   tag: beta/1.12-Beta_9
     # dependency_resolutions:
     #     preproduction: include_beta
     #     production: unlocked
