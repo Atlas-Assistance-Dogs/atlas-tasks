@@ -193,7 +193,7 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
-        <field>EmailError__c.Text__c</field>
+        <field>EmailError__c.Message__c</field>
         <readable>false</readable>
     </fieldPermissions>
     <fieldPermissions>
