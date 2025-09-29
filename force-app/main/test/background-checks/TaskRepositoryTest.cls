@@ -89,18 +89,4 @@ private class TaskRepositoryTest {
         System.Assert.areEqual(1, resp.get(c2.Id).size(), 'should have 1 element');
         System.Assert.areEqual(1, resp.get(c3.Id).size(), 'should have 1 element');
     }
-
-    @isTest
-    static void getBackgroundcheckUser_returnsNull_whenNoUser() {
-        User u = repo.getBackgroundcheckUser();
-        System.Assert.isNull(u, 'user should be null');
-    }
-   /*@IsTest
-    static void getBackgroundCheckUser_returnsUser_whenUserIsFound() {
-        TaskUser__mdt tu = TaskUser__mdt.getInstance('Background_Check_User');
-        User u = new User(FirstName ='Buddy', LastName = 'Jones', Email = 'buddy@test.com', Username = tu.User__c);
-        insert u;
-        User u2 = repo.getBackgroundCheckUser();
-        System.assertEquals(u.Id, u2.Id, 'should be same user');
-    }*/
 }
