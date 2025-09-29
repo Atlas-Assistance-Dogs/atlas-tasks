@@ -12,7 +12,7 @@ public inherited sharing class TaskRepository {
                                Subject, 
                                WhoId
                         FROM Task
-                        WHERE WhoId IN:contactIds AND Status <> 'Completed' AND Subject LIKE:subject];
+                        WHERE WhoId IN :contactIds AND Status <> 'Completed' AND Subject LIKE :subject];
         Map<Id, Task[]> contactTaskMap = new Map<Id, Task[]>();
 
         for (Task task : tasks) {

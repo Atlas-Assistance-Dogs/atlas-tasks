@@ -107,7 +107,7 @@ public with sharing class BackgroundCheckService {
 
     private void removeExistingTasks() {
         // Find any existing tasks for these contacts
-        Map<Id, Task[]> existingTasks = taskRepo.getTasksByWhoId(creditIds, 'order % check');
+        Map<Id, Task[]> existingTasks = taskRepo.getTasksByWhoId(contactIds, 'order % check');
 
         if (existingTasks != null) {
             // Remove any contacts with open tasks from the list

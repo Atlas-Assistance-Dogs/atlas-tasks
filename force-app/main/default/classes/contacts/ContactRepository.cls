@@ -71,7 +71,8 @@ public inherited sharing class ContactRepository {
           'Credit Check Required',
           'Background Check Required'
         ) AND (
-          atlas1__BoardMemberStatus__c = 'Active' OR atlas1__FacilitatorStatus__c = 'Certified-Active' OR atlas1__LeadFacilitatorStatus__c = 'Active' OR GW_Volunteers__Volunteer_Status__c = 'Active'
+          atlas1__BoardMemberStatus__c = 'Active' OR atlas1__FacilitatorStatus__c = 'Certified-Active' OR atlas1__LeadFacilitatorStatus__c = 'Active' OR GW_Volunteers__Volunteer_Status__c = 'Active' OR
+          atlas1__TrainerStatus__c = 'Certified-Active' OR atlas1__ClientStatus__c = 'Certified'
         )
     ];
   }
