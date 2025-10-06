@@ -66,4 +66,8 @@ public with sharing class TeamService {
     emailServ.sendEmail(emails);
   }
 
+  // Create tasks related to teams
+  public void createTasks(atlas1__Team__c[] teams) {
+    
+  }
 }
