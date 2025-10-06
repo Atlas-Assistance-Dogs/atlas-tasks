@@ -63,6 +63,8 @@ public with sharing class BackgroundCheckService {
             contactIds.add(person.Id);
             if (person.atlas1__VolunteerAccess__c.contains('Credit Check Required') && person.atlas1__VolunteerAccess__c.contains('Background Check Required')) {
                 combinedIds.add(person.Id);
+                creditIds.add(person.Id);
+                criminalIds.add(person.Id);
                 continue;
             }
             if (person.atlas1__VolunteerAccess__c.contains('Credit Check Required')) {
@@ -94,7 +96,9 @@ public with sharing class BackgroundCheckService {
             switch  on check.atlas1__Type__c {
                 when 'Criminal&Credit' {
                     combinedIds.remove(check.atlas1__Contact__c);
-                }
+                    criminalIds.remove(check.atlas1__Contact__c);
+                    creditIds.remove(check.atlas1__Contact__c);
+                 }
                 when 'Criminal' {
                     criminalIds.remove(check.atlas1__Contact__c);
                 }
@@ -116,6 +120,8 @@ public with sharing class BackgroundCheckService {
                 for (Task t : tasks) {
                     if (t.Subject.contains(combined)) {
                         combinedIds.remove(contactId);
+                        criminalIds.remove(contactId);
+                        creditIds.remove(contactId);
                     } else if (t.Subject.contains(background)) {
                         criminalIds.remove(contactId);
                     } else if (t.Subject.contains(credit)) {
