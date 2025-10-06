@@ -227,10 +227,11 @@ public with sharing class BackgroundCheckServiceTest {
   @isTest
   public static void createReminderTask_whenBothNeededTaskOpenAndOneIn() {
     makeData();
-    // Get the group to assign the task to
+    Contact[] contacts = createContactsWithAccess();
     Contact bandit = contacts[3];
-    mocks.expectedCalls.add(new MockCallData(taskRepo, 'getBackgroundCheckUser', new User(
-      Id = MockProvider.createId(User.class))));
+    Id userId = MockProvider.createId(User.class);
+    // Get the group to assign the task to
+    mocks.expectedCalls.add(new MockCallData(taskRepo, 'getBackgroundCheckUser', new User(Id = userId)));
     mocks.expectedCalls.add(new MockCallData(contactRepo, 'getContactsNeedingBackgroundChecks', contacts));
     mocks.expectedCalls.add(new MockCallData(bgcRepo, 'getMatchingChecksForContacts', new List<atlas1__BackgroundCheck__c>{ new atlas1__BackgroundCheck__c(
       atlas1__Contact__c = bandit.id, 
@@ -250,11 +251,6 @@ public with sharing class BackgroundCheckServiceTest {
     for (MockCallData call : mocks.actualCalls) {
       if (call.obj == taskRepo && call.methodName == 'create') {
         System.assertEquals(0, ((List<Task>)call.args[0]).size());
-        Task task = ((List<Task>)call.args[0])[0];
-        System.assertEquals(bandit.Id, task.WhoId);
-        System.assert(task.Subject.contains('Order credit check'));
-        System.assertEquals(adminGroup.Id, task.OwnerId);
-        System.assertEquals(Date.today().addMonths(1), task.ActivityDate);
       }
     }
   }
