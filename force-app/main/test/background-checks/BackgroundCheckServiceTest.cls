@@ -97,7 +97,7 @@ public with sharing class BackgroundCheckServiceTest {
     // see if there is a call to create tasks, if there is, there should be 4 tasks
     for (MockCallData call : mocks.actualCalls) {
       if (call.obj == taskRepo && call.methodName == 'create') {
-        System.assertEquals(4, ((List<Task>)call.args[0]).size());
+        System.assertEquals(6, ((List<Task>)call.args[0]).size());
       }
     }
   }
@@ -215,6 +215,41 @@ public with sharing class BackgroundCheckServiceTest {
     for (MockCallData call : mocks.actualCalls) {
       if (call.obj == taskRepo && call.methodName == 'create') {
         System.assertEquals(1, ((List<Task>)call.args[0]).size());
+        Task task = ((List<Task>)call.args[0])[0];
+        System.assertEquals(bandit.Id, task.WhoId);
+        System.assert(task.Subject.contains('Order credit check'));
+        System.assertEquals(adminGroup.Id, task.OwnerId);
+        System.assertEquals(Date.today().addMonths(1), task.ActivityDate);
+      }
+    }
+  }
+
+  @isTest
+  public static void createReminderTask_whenBothNeededTaskOpenAndOneIn() {
+    makeData();
+    // Get the group to assign the task to
+    Contact bandit = contacts[3];
+    mocks.expectedCalls.add(new MockCallData(taskRepo, 'getBackgroundCheckUser', new User(
+      Id = MockProvider.createId(User.class))));
+    mocks.expectedCalls.add(new MockCallData(contactRepo, 'getContactsNeedingBackgroundChecks', contacts));
+    mocks.expectedCalls.add(new MockCallData(bgcRepo, 'getMatchingChecksForContacts', new List<atlas1__BackgroundCheck__c>{ new atlas1__BackgroundCheck__c(
+      atlas1__Contact__c = bandit.id, 
+      atlas1__Date__c = Date.today().addDays(-2), 
+      atlas1__Type__c = 'Credit'
+    ), new atlas1__BackgroundCheck__c(
+      atlas1__Contact__c = bandit.id, 
+      atlas1__Date__c = Date.today().addMonths(-12), 
+      atlas1__Type__c = 'Criminal'
+    ) }));
+    mocks.expectedCalls.add(new MockCallData(taskRepo, 'getTasksByWhoId', new Map<Id, List<Task>>{
+      bandit.Id => new List<Task>{ new Task(Subject = 'Order background and credit check', ActivityDate = Date.today().addDays(-1)) }}));
+    // Act
+    service.createReminderTask();
+
+    // see if there is a call to create tasks, if there is, there should be one task to order Bandit's check
+    for (MockCallData call : mocks.actualCalls) {
+      if (call.obj == taskRepo && call.methodName == 'create') {
+        System.assertEquals(0, ((List<Task>)call.args[0]).size());
         Task task = ((List<Task>)call.args[0])[0];
         System.assertEquals(bandit.Id, task.WhoId);
         System.assert(task.Subject.contains('Order credit check'));
