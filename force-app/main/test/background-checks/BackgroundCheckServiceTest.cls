@@ -225,12 +225,18 @@ public with sharing class BackgroundCheckServiceTest {
   }
 
   @isTest
-  public static void createReminderTask_whenBothNeededTaskOpenAndOneIn() {
+  public static void createReminderTask_createsNoTasks_whenBothNeededTaskOpenAndOneIn() {
     makeData();
-    Contact[] contacts = createContactsWithAccess();
-    Contact bandit = contacts[3];
+    Contact[] contacts = new Contact[] {new Contact(
+      Id = MockProvider.createId(Contact.class), 
+      FirstName = 'Bandit', 
+      LastName = 'Heeler', 
+      Email = 'bandit@test.com', 
+      atlas1__VolunteerAccess__c = 'Background Check Required;Credit Check Required'
+    ) };
+    Contact bandit = contacts[0];
     Id userId = MockProvider.createId(User.class);
-    // Get the group to assign the task to
+    // Get the user to assign the task to
     mocks.expectedCalls.add(new MockCallData(taskRepo, 'getBackgroundCheckUser', new User(Id = userId)));
     mocks.expectedCalls.add(new MockCallData(contactRepo, 'getContactsNeedingBackgroundChecks', contacts));
     mocks.expectedCalls.add(new MockCallData(bgcRepo, 'getMatchingChecksForContacts', new List<atlas1__BackgroundCheck__c>{ new atlas1__BackgroundCheck__c(
@@ -247,7 +253,7 @@ public with sharing class BackgroundCheckServiceTest {
     // Act
     service.createReminderTask();
 
-    // see if there is a call to create tasks, if there is, there should be one task to order Bandit's check
+    // see if there is a call to create tasks, if there is, there should be no new task to order Bandit's checks
     for (MockCallData call : mocks.actualCalls) {
       if (call.obj == taskRepo && call.methodName == 'create') {
         System.assertEquals(0, ((List<Task>)call.args[0]).size());

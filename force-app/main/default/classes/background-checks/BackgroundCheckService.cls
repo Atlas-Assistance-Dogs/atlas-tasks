@@ -118,8 +118,8 @@ public with sharing class BackgroundCheckService {
             for (Id contactId : existingTasks.keySet()) {
                 Task[] tasks = existingTasks.get(contactId);
                 for (Task t : tasks) {
+                    combinedIds.remove(contactId);
                     if (t.Subject.contains(combined)) {
-                        combinedIds.remove(contactId);
                         criminalIds.remove(contactId);
                         creditIds.remove(contactId);
                     } else if (t.Subject.contains(background)) {
