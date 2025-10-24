@@ -15,6 +15,31 @@
                 <default>true</default>
                 <label>Background check</label>
             </value>
+            <value>
+                <fullName>Administrator</fullName>
+                <default>false</default>
+                <label>Administrator</label>
+            </value>
+            <value>
+                <fullName>Client Manager</fullName>
+                <default>false</default>
+                <label>Client Manager</label>
+            </value>
+            <value>
+                <fullName>TF Manager</fullName>
+                <default>false</default>
+                <label>TF Manager</label>
+            </value>
+            <value>
+                <fullName>Trainer Manager</fullName>
+                <default>false</default>
+                <label>Trainer Manager</label>
+            </value>
+            <value>
+                <fullName>Client Support Coordinator</fullName>
+                <default>false</default>
+                <label>Client Support Coordinator</label>
+            </value>
         </valueSetDefinition>
     </valueSet>
 </CustomField>

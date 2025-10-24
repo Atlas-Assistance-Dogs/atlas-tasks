@@ -16,7 +16,7 @@ private class TeamServiceTest {
         teamRepo = (TeamRepository)mocks.createMock(TeamRepository.class);
         relationshipRepo = (RelationshipRepository)mocks.createMock(RelationshipRepository.class);
         emailSrv = (EmailService)mocks.createMock(EmailService.class);
-        service = new TeamService(teamRepo, emailSrv, relationshipRepo);
+        service = new TeamService(teamRepo, emailSrv, relationshipRepo, null, null);
     }
 
     @isTest

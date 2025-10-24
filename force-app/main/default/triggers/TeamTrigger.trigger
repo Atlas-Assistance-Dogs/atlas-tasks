@@ -5,11 +5,11 @@ trigger TeamTrigger on atlas1__Team__c(before update, after update ) {
             atlas1__Team__c oldTeam = Trigger.oldMap.get(team.Id);
 
             String oldStatus = oldTeam.atlas1__Status__c;
-            if (team.atlas1__Status__C == 'In-Training' && oldStatus != 'Onboarding') {
+            if (team.atlas1__Status__C == 'In-Training' && oldStatus == 'Onboarding') {
                 team.atlas1__TrainingStartDate__c = Date.today();
+                TeamTaskService service = new TeamTaskService();
+                service.handleTrainingStart(Trigger.new );
             }
         }
     }
-    TeamService service = new TeamService();
-    service.createTasks(Trigger.new );
 }

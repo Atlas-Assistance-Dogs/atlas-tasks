@@ -2,18 +2,23 @@ public with sharing class TeamService {
   TeamRepository teamRepo;
   EmailService emailServ;
   RelationshipRepository relRepo;
+  DogRepository dogRepo;
+  TaskRepository taskRepo;
 
   public TeamService() {
     teamRepo = new TeamRepository();
     emailServ = new EmailService();
     relRepo = new RelationshipRepository();
+    dogRepo = new DogRepository();
+    taskRepo = new TaskRepository();
   }
 
   @testVisible
-  private TeamService(TeamRepository teamRepo, EmailService emailServ, RelationshipRepository relRepo) {
+  private TeamService(TeamRepository teamRepo, EmailService emailServ, RelationshipRepository relRepo, DogRepository dogRepo, TaskRepository taskRepo) {
     this.teamRepo = teamRepo;
     this.emailServ = emailServ;
     this.relRepo = relRepo;
+    this.taskRepo = taskRepo;
   }
 
   // Remind the client in a Team to submit training logs
@@ -64,10 +69,5 @@ public with sharing class TeamService {
       emails.add(emailServ.createEmail(teamContactIds.get(relationship.npe4__Contact__c), relationship.npe4__RelatedContact__c, template.Id));
     }
     emailServ.sendEmail(emails);
-  }
-
-  // Create tasks related to teams
-  public void createTasks(atlas1__Team__c[] teams) {
-    
   }
 }

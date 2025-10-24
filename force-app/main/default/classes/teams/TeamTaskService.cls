@@ -1,0 +1,200 @@
+public class TeamTaskService {
+    // Repositories
+    TeamRepository teamRepo;
+    RelationshipRepository relRepo;
+    DogRepository dogRepo;
+    TaskRepository taskRepo;
+    // Users
+    User admin;
+    User clientManager;
+    User clientSupportCoordinator;
+    User tfManager;
+    User trainerManager;
+    // Constants
+    private static final String STATUS_NOT_STARTED = 'Not Started';
+    private static final String PRIORITY_NORMAL = 'Normal';
+    private static final Integer DAYS_ONE_MONTH = 30;
+    private static final Integer DAYS_FOUR_POINT_FIVE_MONTHS = 135;
+    private static final Integer DAYS_FIVE_MONTHS = 150;
+    private static final Integer DAYS_SIX_MONTHS = 180;
+    private static final Integer DAYS_EIGHT_MONTHS = 240;
+    private static final String SUBJECT_1MO_CLIENT = '1 mo in-training checkin due';
+    private static final String SUBJECT_1MO_TF = '1 mo in-training checkin due for TF';
+    private static final String SUBJECT_4_5MO = 'Check on client\'s courses and give Molly status';
+    private static final String SUBJECT_5MO_CLIENT = '5 mo client in-training checkin due.';
+    private static final String SUBJECT_5MO_TF = '5 mo in-training checkin due for TF';
+    private static final String SUBJECT_6MO = 'Check on dog spay/neuter status';
+    private static final String SUBJECT_8MO_CLIENT = '8 mo client in-training checkin due.';
+    private static final String SUBJECT_8MO_TF = '8 mo in-training checkin due for TF';
+    private static final String DESC_5MO_CLIENT = 'Check on practice PAT and class status';
+    private static final String DESC_8MO_CLIENT = 'Confirm spay, see if need extension';
+    public TeamTaskService() {
+        teamRepo = new TeamRepository();
+        relRepo = new RelationshipRepository();
+        dogRepo = new DogRepository();
+        taskRepo = new TaskRepository();
+        getUsers();
+    }
+
+    void getUsers() {
+        admin = taskRepo.getTaskUser('Administrator');
+        clientSupportCoordinator = taskRepo.getTaskUser('ClientSupportCoordinator');
+        clientManager = taskRepo.getTaskUser('ClientManager');
+        tfManager = taskRepo.getTaskUser('TFManager');
+        trainerManager = taskRepo.getTaskUser('TrainerManager');
+    }
+
+    @testVisible
+    private TeamTaskService(TeamRepository teamRepo, RelationshipRepository relRepo, DogRepository dogRepo, TaskRepository taskRepo) {
+        this.teamRepo = teamRepo;
+        this.relRepo = relRepo;
+        this.dogRepo = dogRepo;
+        this.taskRepo = taskRepo;
+        getUsers();
+    }
+
+    // Helper to construct a Task with defaults
+    class TaskFactory {
+        public atlas1__Team__c team { get;private  set; }
+
+        Id clientManagerId;
+        public TaskFactory(atlas1__Team__c team, Id clientManagerId) {
+            this.team = team;
+            this.clientManagerId = clientManagerId;
+        }
+
+        public Task createTask(String subject, String description) {
+            return new Task(
+                Subject = subject, 
+                WhatId = team.Id, 
+                WhoId = team.atlas1__Client__c, 
+                Description = description, 
+                Status = STATUS_NOT_STARTED, 
+                Priority = PRIORITY_NORMAL, 
+                OwnerId = clientManagerId, 
+                ActivityDate = Date.today()
+            );
+        }
+
+        public Task createTask(String subject, String description, Id ownerId) {
+            Task task = createTask(subject, description);
+            task.OwnerId = ownerId;
+            return task;
+        }
+
+    }
+
+    // Create tasks related to teams
+    public void handleTrainingStart(atlas1__Team__c[] teams) {
+        // get admin user
+        admin = taskRepo.getTaskUser('Administrator');
+        if (admin == null) {
+            return;
+        }
+        Date today = Date.today();
+        List<Task> tasks = new List<Task>();
+        for (atlas1__Team__c team : teams) {
+            TaskFactory tf = new TaskFactory(team, admin.Id);
+            tasks.add(tf.createTask('Client entered training', 'Confirm returns forms, assign courses, add to office hours'));
+        }
+        taskRepo.create(tasks);
+    }
+
+    // create the tasks related to team training
+    public void createTrainingTasks() {
+        List<atlas1__Team__c> teams = teamRepo.getByStatus('In Training');
+        if (teams.isEmpty()) {
+            return;
+        }
+        List<Task> tasks = new List<Task>();
+        for (atlas1__Team__c team : teams) {
+            if (team.atlas1__TrainingStartDate__c == null) {
+                team.atlas1__TrainingStartDate__c = Date.today();
+                teamRepo.modify(team);
+                handleTrainingStart(new atlas1__Team__c[]{ team });
+                continue;
+            }
+            tasks.addAll(teamTasks(team));
+        }
+        taskRepo.create(tasks);
+    }
+
+    // Create team training tasks for the admin and the client manager
+    // returns a list of tasks
+    private List<Task> teamTasks(atlas1__Team__c team) {
+        List<Task> tasks = new List<Task>();
+        Date today = Date.today();
+        Integer length = team.atlas1__TrainingStartDate__c.daysBetween(today);
+        TaskFactory tf = new TaskFactory(team, clientManager.Id);
+
+        switch  on length {
+            when 30 { // 1 month
+                tasks.addAll(createClientManagerTasks(tf, SUBJECT_1MO_CLIENT, SUBJECT_1MO_TF));
+            }
+            when 135 { // 4.5 months
+                if (admin != null) {
+                    tasks.add(tf.createTask(SUBJECT_4_5MO, null, admin.Id));
+                }
+            }
+            when 150 { // 5 months
+                tasks.addAll(createClientManagerTasks(tf, SUBJECT_5MO_CLIENT, SUBJECT_5MO_TF));
+            }
+            when 180 { // 6 months
+                if (admin != null) {
+                    atlas1__Dog__c dog = dogRepo.getById(team.atlas1__Dog__c);
+                    if (dog != null && !dog.atlas1__SpayedNeutered__c) {
+                        tasks.add(tf.createTask(SUBJECT_6MO, null, admin.Id));
+                    }
+                }
+            }
+            when 240 { // 8 months
+                tasks.addAll(createClientManagerTasks(tf, SUBJECT_8MO_CLIENT, SUBJECT_8MO_TF));
+            }
+        }
+        return tasks;
+    }
+
+    // create tasks for the client manager for the client and team facilitator
+    // tasks are due immediately, and assigned to the client manager
+    // return a list of tasks
+    Task[] createClientManagerTasks(TaskFactory tf, String clientSubject, String tfSubject) {
+        List<Task> tasks = new List<Task>();
+        if (clientManager == null) {
+            return tasks;
+        }
+        List<npe4__Relationship__c> relationships = relRepo.getCurrentRelated(new Set<Id>{ tf.team.atlas1__Client__c }, 'Team Facilitator');
+        Boolean hasTFs = relationships != null && !relationships.isEmpty();
+
+        tasks.add(tf.createTask(clientSubject, null));
+        if (hasTFs) {
+            for (npe4__Relationship__c rel : relationships) {
+                Task task = tf.createTask(SUBJECT_1MO_TF, null);
+                task.WhoId = rel.npe4__RelatedContact__c;
+                tasks.add(task);
+            }
+        }
+        return tasks;
+    }
+
+    // Create tasks related to teams
+    public void handleCertificationStart(atlas1__Team__c[] teams) {
+        if (clientSupportCoordinator == null) {
+            return;
+        }
+        Task[] tasks = new Task[]{ new Task(
+            Subject = 'begin client checkins', 
+            WhatId = teams[0].Id, 
+            WhoId = teams[0].atlas1__Client__c, 
+            Status = 'Not Started', 
+            Priority = 'Normal', 
+            OwnerId = clientSupportCoordinator.Id, 
+            ActivityDate = Date.today().addMonths(1)
+        ) };
+        taskRepo.create(tasks);
+    }
+
+    public void createCertificationTasks() {
+        List<atlas1__Team__c> teams = teamRepo.getByStatus('Certified-Active');
+    }
+
+}
