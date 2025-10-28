@@ -86,8 +86,6 @@ public class TeamTaskService {
 
     // Create tasks related to teams
     public void handleTrainingStart(atlas1__Team__c team) {
-        // get admin user
-        admin = taskRepo.getTaskUser('Administrator');
         if (admin == null) {
             return;
         }
