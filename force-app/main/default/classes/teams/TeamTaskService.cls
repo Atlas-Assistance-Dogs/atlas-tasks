@@ -85,7 +85,7 @@ public class TeamTaskService {
     }
 
     // Create tasks related to teams
-    public void handleTrainingStart(atlas1__Team__c[] teams) {
+    public void handleTrainingStart(atlas1__Team__c team) {
         // get admin user
         admin = taskRepo.getTaskUser('Administrator');
         if (admin == null) {
@@ -93,10 +93,8 @@ public class TeamTaskService {
         }
         Date today = Date.today();
         List<Task> tasks = new List<Task>();
-        for (atlas1__Team__c team : teams) {
-            TaskFactory tf = new TaskFactory(team, admin.Id);
-            tasks.add(tf.createTask('Client entered training', 'Confirm returns forms, assign courses, add to office hours'));
-        }
+        TaskFactory tf = new TaskFactory(team, admin.Id);
+        tasks.add(tf.createTask('Client entered training', 'Confirm returns forms, assign courses, add to office hours'));
         taskRepo.create(tasks);
     }
 
@@ -111,7 +109,7 @@ public class TeamTaskService {
             if (team.atlas1__TrainingStartDate__c == null) {
                 team.atlas1__TrainingStartDate__c = Date.today();
                 teamRepo.modify(team);
-                handleTrainingStart(new atlas1__Team__c[]{ team });
+                handleTrainingStart(team);
                 continue;
             }
             tasks.addAll(teamTasks(team));
@@ -128,18 +126,22 @@ public class TeamTaskService {
         TaskFactory tf = new TaskFactory(team, clientManager.Id);
 
         switch  on length {
-            when 30 { // 1 month
+            when 30 {
+                // 1 month
                 tasks.addAll(createClientManagerTasks(tf, SUBJECT_1MO_CLIENT, SUBJECT_1MO_TF));
             }
-            when 135 { // 4.5 months
+            when 135 {
+                // 4.5 months
                 if (admin != null) {
                     tasks.add(tf.createTask(SUBJECT_4_5MO, null, admin.Id));
                 }
             }
-            when 150 { // 5 months
+            when 150 {
+                // 5 months
                 tasks.addAll(createClientManagerTasks(tf, SUBJECT_5MO_CLIENT, SUBJECT_5MO_TF));
             }
-            when 180 { // 6 months
+            when 180 {
+                // 6 months
                 if (admin != null) {
                     atlas1__Dog__c dog = dogRepo.getById(team.atlas1__Dog__c);
                     if (dog != null && !dog.atlas1__SpayedNeutered__c) {
@@ -147,7 +149,8 @@ public class TeamTaskService {
                     }
                 }
             }
-            when 240 { // 8 months
+            when 240 {
+                // 8 months
                 tasks.addAll(createClientManagerTasks(tf, SUBJECT_8MO_CLIENT, SUBJECT_8MO_TF));
             }
         }
@@ -166,10 +169,11 @@ public class TeamTaskService {
         Boolean hasTFs = relationships != null && !relationships.isEmpty();
 
         tasks.add(tf.createTask(clientSubject, null));
-        if (hasTFs) {
+        if (hasTFs && tfManager != null) {
             for (npe4__Relationship__c rel : relationships) {
                 Task task = tf.createTask(SUBJECT_1MO_TF, null);
                 task.WhoId = rel.npe4__RelatedContact__c;
+                task.OwnerId = tfManager.Id;
                 tasks.add(task);
             }
         }
@@ -177,14 +181,14 @@ public class TeamTaskService {
     }
 
     // Create tasks related to teams
-    public void handleCertificationStart(atlas1__Team__c[] teams) {
+    public void handleCertificationStart(atlas1__Team__c team) {
         if (clientSupportCoordinator == null) {
             return;
         }
         Task[] tasks = new Task[]{ new Task(
             Subject = 'begin client checkins', 
-            WhatId = teams[0].Id, 
-            WhoId = teams[0].atlas1__Client__c, 
+            WhatId = team.Id, 
+            WhoId = team.atlas1__Client__c, 
             Status = 'Not Started', 
             Priority = 'Normal', 
             OwnerId = clientSupportCoordinator.Id, 
@@ -193,8 +197,47 @@ public class TeamTaskService {
         taskRepo.create(tasks);
     }
 
+    static final String FIRST_RENEWAL_SUBJECT = 'Client 1st recert due in 3 mo';
+    static final String YEARLY_RENEWAL_SUBJECT = 'Client recert due in 3 mo';
     public void createCertificationTasks() {
-        List<atlas1__Team__c> teams = teamRepo.getByStatus('Certified-Active');
+        if (clientManager == null) {
+            return;
+        }
+        List<atlas1__Team__c> teams = teamRepo.getByStatus('Certified');
+        Date today = Date.today();
+        List<Task> tasks = new List<Task>();
+        for (atlas1__Team__c team : teams) {
+            Integer length = today.daysBetween(team.atlas1__PatValidUntil__c);
+            // if PAT expiration is within 90 days, and there are no existing tasks for this client and subject
+            Task[] matching = taskRepo.getMatchingTasks(team.atlas1__Client__c, '%recert due in 3 mo%');
+            if (length <= 90 && matching.isEmpty()) {
+                if (team.atlas1__InitialCertificationDate__c.daysBetween(today) < 365) {
+                    tasks.add(new Task(
+                        Subject = FIRST_RENEWAL_SUBJECT, 
+                        Description = 'Checkin and schedule PAT', 
+                        WhatId = team.Id, 
+                        WhoId = team.atlas1__Client__c, 
+                        Status = 'Not Started', 
+                        Priority = 'Normal', 
+                        OwnerId = clientManager.Id, 
+                        ActivityDate = Date.today()
+                    ));
+                } else {
+                    tasks.add(new Task(
+                        Subject = YEARLY_RENEWAL_SUBJECT, 
+                        Description = 'Check vet paperwork, inform Molly', 
+                        WhatId = team.Id, 
+                        WhoId = team.atlas1__Client__c, 
+                        Status = 'Not Started', 
+                        Priority = 'Normal', 
+                        OwnerId = admin.Id, 
+                        ActivityDate = Date.today()
+                    ));
+
+                }
+            }
+
+        }
     }
 
 }

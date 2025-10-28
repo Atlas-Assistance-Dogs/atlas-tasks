@@ -25,6 +25,16 @@ public inherited sharing class TaskRepository {
         return contactTaskMap;
     }
 
+    public Task[] getMatchingTasks(Id contactId, String subject) {
+        return [SELECT Id, 
+                       CreatedDate, 
+                       OwnerId, 
+                       Status, 
+                       Subject
+                FROM Task
+                WHERE WhoId = :contactId AND Status <> 'Completed' AND Subject LIKE:subject];
+    }
+
     // Find the user to assign a check tasks to
     public User getTaskUser(String task) {
         // Get the users to assign the task to
@@ -45,4 +55,5 @@ public inherited sharing class TaskRepository {
         }
         return users[0];
     }
+
 }
