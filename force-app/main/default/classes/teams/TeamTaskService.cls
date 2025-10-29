@@ -21,10 +21,10 @@ public class TeamTaskService {
     private static final String SUBJECT_1MO_CLIENT = '1 mo in-training checkin due';
     private static final String SUBJECT_1MO_TF = '1 mo in-training checkin due for TF';
     private static final String SUBJECT_4_5MO = 'Check on client\'s courses and give Molly status';
-    private static final String SUBJECT_5MO_CLIENT = '5 mo client in-training checkin due.';
+    private static final String SUBJECT_5MO_CLIENT = '5 mo client in-training checkin due';
     private static final String SUBJECT_5MO_TF = '5 mo in-training checkin due for TF';
     private static final String SUBJECT_6MO = 'Check on dog spay/neuter status';
-    private static final String SUBJECT_8MO_CLIENT = '8 mo client in-training checkin due.';
+    private static final String SUBJECT_8MO_CLIENT = '8 mo client in-training checkin due';
     private static final String SUBJECT_8MO_TF = '8 mo in-training checkin due for TF';
     private static final String DESC_5MO_CLIENT = 'Check on practice PAT and class status';
     private static final String DESC_8MO_CLIENT = 'Confirm spay, see if need extension';
@@ -170,7 +170,7 @@ public class TeamTaskService {
         tasks.add(ctask);
         if (hasTFs && tfManager != null) {
             for (npe4__Relationship__c rel : relationships) {
-                Task task = tf.createTask(SUBJECT_1MO_TF, null);
+                Task task = tf.createTask(tfSubject, null);
                 task.WhoId = rel.npe4__RelatedContact__c;
                 task.OwnerId = tfManager.Id;
                 tasks.add(task);
@@ -210,7 +210,7 @@ public class TeamTaskService {
             // if PAT expiration is within 90 days, and there are no existing tasks for this client and subject
             Task[] matching = taskRepo.getMatchingTasks(team.atlas1__Client__c, '%recert due in 3 mo%');
             if (length <= 90 && matching.isEmpty()) {
-                if (team.atlas1__InitialCertificationDate__c.daysBetween(today) < 365) {
+                if (team.atlas1__InitialCertificationDate__c == null || team.atlas1__InitialCertificationDate__c.daysBetween(today) < 365) {
                     tasks.add(new Task(
                         Subject = FIRST_RENEWAL_SUBJECT, 
                         Description = 'Checkin and schedule PAT', 
@@ -235,8 +235,8 @@ public class TeamTaskService {
 
                 }
             }
-
         }
+        taskRepo.create(tasks);
     }
 
 }
