@@ -166,7 +166,8 @@ public class TeamTaskService {
         List<npe4__Relationship__c> relationships = relRepo.getCurrentRelated(new Set<Id>{ tf.team.atlas1__Client__c }, 'Team Facilitator');
         Boolean hasTFs = relationships != null && !relationships.isEmpty();
 
-        tasks.add(tf.createTask(clientSubject, null));
+        Task ctask = tf.createTask(clientSubject, null);
+        tasks.add(ctask);
         if (hasTFs && tfManager != null) {
             for (npe4__Relationship__c rel : relationships) {
                 Task task = tf.createTask(SUBJECT_1MO_TF, null);

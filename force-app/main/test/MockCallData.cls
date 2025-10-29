@@ -22,4 +22,10 @@ public class MockCallData {
     this.methodName = methodName;
     this.returnValue = returnValue;
   }
+  public MockCallData(Object obj, String methodName, Object returnValue, List<Object> args) {
+    this.obj = obj;
+    this.methodName = methodName;
+    this.returnValue = returnValue;
+    this.args = args;
+  }
 }
