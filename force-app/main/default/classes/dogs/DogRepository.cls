@@ -1,4 +1,4 @@
-public inherited sharing class DogRepository {
+public class DogRepository {
     public atlas1__Dog__c getById(Id dogId) {
         atlas1__Dog__c[] dogs = [SELECT Id, 
                                         Name, 
