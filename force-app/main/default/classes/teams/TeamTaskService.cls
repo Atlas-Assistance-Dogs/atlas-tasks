@@ -196,8 +196,10 @@ public class TeamTaskService {
         taskRepo.create(tasks);
     }
 
-    static final String FIRST_RENEWAL_SUBJECT = 'Client 1st recert due in 3 mo';
-    static final String YEARLY_RENEWAL_SUBJECT = 'Client recert due in 3 mo';
+    private static final String SUBJECT_CERT_FIRST_REMINDER = 'Client 1st recert due in 3 mo';
+    private static final String SUBJECT_CERT_REMINDER = 'Client recert due in 3 mo';
+    private static final String DESC_CERT_FIRST_REMINDER = 'Checkin and schedule PAT';
+    private static final String DESC_CERT_REMINDER = 'Check vet paperwork, inform Molly';
     public void createCertificationTasks() {
         if (clientManager == null) {
             return;
@@ -212,8 +214,8 @@ public class TeamTaskService {
             if (length <= 90 && matching.isEmpty()) {
                 if (team.atlas1__InitialCertificationDate__c == null || team.atlas1__InitialCertificationDate__c.daysBetween(today) < 365) {
                     tasks.add(new Task(
-                        Subject = FIRST_RENEWAL_SUBJECT, 
-                        Description = 'Checkin and schedule PAT', 
+                        Subject = SUBJECT_CERT_FIRST_REMINDER, 
+                        Description = DESC_CERT_FIRST_REMINDER, 
                         WhatId = team.Id, 
                         WhoId = team.atlas1__Client__c, 
                         Status = 'Not Started', 
@@ -221,10 +223,10 @@ public class TeamTaskService {
                         OwnerId = clientManager.Id, 
                         ActivityDate = Date.today()
                     ));
-                } else {
+                } else if (admin != null) {
                     tasks.add(new Task(
-                        Subject = YEARLY_RENEWAL_SUBJECT, 
-                        Description = 'Check vet paperwork, inform Molly', 
+                        Subject = SUBJECT_CERT_REMINDER, 
+                        Description = DESC_CERT_REMINDER, 
                         WhatId = team.Id, 
                         WhoId = team.atlas1__Client__c, 
                         Status = 'Not Started', 

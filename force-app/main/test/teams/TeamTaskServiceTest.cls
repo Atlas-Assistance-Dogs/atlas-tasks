@@ -83,15 +83,6 @@ private class TeamTaskServiceTest {
         System.assertEquals(expected.ActivityDate, t.ActivityDate, 'date does not match');
     }
 
-    private static MockCallData findCallByMethod(String methodName) {
-        for (MockCallData c : mocks.actualCalls) {
-            if (c.methodName == methodName)
-                return c;
-        }
-        System.assert(false, 'Expected call not found: ' + methodName);
-        return null;
-    }
-
     private static atlas1__Team__c newTeamWithTraining(Integer startOffsetDays) {
         return new atlas1__Team__c(
             Id = MockProvider.createId(atlas1__Team__c.class), 
@@ -106,7 +97,7 @@ private class TeamTaskServiceTest {
             Id = MockProvider.createId(atlas1__Team__c.class), 
             atlas1__Client__c = MockProvider.createId(Contact.class), 
             atlas1__Status__c = STATUS_CERTIFIED, 
-            atlas1__InitialCertificationDate__c = initialCertYearsAgo != null ? Date.today().addYears(-initialCertYearsAgo) : null, 
+            atlas1__InitialCertificationDate__c = initialCertYearsAgo != null ? Date.today().addYears(-initialCertYearsAgo).addMonths(3) : null, 
             atlas1__PatValidUntil__c = patValidDaysFromToday != null ? Date.today().addDays(patValidDaysFromToday) : null
         );
     }
@@ -135,7 +126,7 @@ private class TeamTaskServiceTest {
         // Act
         service.handleTrainingStart(team);
         // Assert
-        MockCallData createCall = findCallByMethod('create');
+        MockCallData createCall = mocks.findCallByMethod('create');
         Task[] tasks = (Task[])createCall.args[0];
         System.assertEquals(1, tasks.size(), 'expected one task');
         assertTask(new Task(
@@ -176,11 +167,11 @@ private class TeamTaskServiceTest {
         service.createTrainingTasks();
         // Assert
         System.assertEquals(8, mocks.actualCalls.size(), 'size does not match');
-        MockCallData data = findCallByMethod('getCurrentRelated');
+        MockCallData data = mocks.findCallByMethod('getCurrentRelated');
         Set<Id> ids = (Set<Id>)data.args[0];
         System.assertEquals(1, ids.size(), 'size should be 1');
         System.assertEquals(team.atlas1__Client__c, ids.iterator().next(), 'id does not match');
-        data = findCallByMethod('create');
+        data = mocks.findCallByMethod('create');
         Task[] tasks = (Task[])data.args[0];
         System.assertEquals(1, tasks.size(), 'size should be 1');
         Task task = tasks[0];
@@ -213,11 +204,11 @@ private class TeamTaskServiceTest {
         service.createTrainingTasks();
         // Assert
         System.assertEquals(8, mocks.actualCalls.size(), 'size does not match');
-        MockCallData data = findCallByMethod('getCurrentRelated');
+        MockCallData data = mocks.findCallByMethod('getCurrentRelated');
         Set<Id> ids = (Set<Id>)data.args[0];
         System.assertEquals(1, ids.size(), 'size should be 1');
         System.assertEquals(team.atlas1__Client__c, ids.iterator().next(), 'id does not match');
-        data = findCallByMethod('create');
+        data = mocks.findCallByMethod('create');
         Task[] tasks = (Task[])data.args[0];
         System.assertEquals(2, tasks.size(), 'size should be 2');
         // check Team Facilitator task here, Client is checked in previous test
@@ -243,7 +234,7 @@ private class TeamTaskServiceTest {
         service.createTrainingTasks();
         // Assert
         System.assertEquals(7, mocks.actualCalls.size(), 'size does not match');
-        MockCallData data = findCallByMethod('create');
+        MockCallData data = mocks.findCallByMethod('create');
 
         Task[] tasks = (Task[])data.args[0];
         System.assertEquals(1, tasks.size(), 'size should be 1');
@@ -271,11 +262,11 @@ private class TeamTaskServiceTest {
         service.createTrainingTasks();
         // Assert
         System.assertEquals(8, mocks.actualCalls.size(), 'size does not match');
-        MockCallData data = findCallByMethod('getCurrentRelated');
+        MockCallData data = mocks.findCallByMethod('getCurrentRelated');
         Set<Id> ids = (Set<Id>)data.args[0];
         System.assertEquals(1, ids.size(), 'size should be 1');
         System.assertEquals(team.atlas1__Client__c, ids.iterator().next(), 'id does not match');
-        data = findCallByMethod('create');
+        data = mocks.findCallByMethod('create');
         Task[] tasks = (Task[])data.args[0];
         System.assertEquals(1, tasks.size(), 'size should be 1');
         Task task = tasks[0];
@@ -309,11 +300,11 @@ private class TeamTaskServiceTest {
         service.createTrainingTasks();
         // Assert
         System.assertEquals(8, mocks.actualCalls.size(), 'size does not match');
-        MockCallData data = findCallByMethod('getCurrentRelated');
+        MockCallData data = mocks.findCallByMethod('getCurrentRelated');
         Set<Id> ids = (Set<Id>)data.args[0];
         System.assertEquals(1, ids.size(), 'size should be 1');
         System.assertEquals(team.atlas1__Client__c, ids.iterator().next(), 'id does not match');
-        data = findCallByMethod('create');
+        data = mocks.findCallByMethod('create');
         Task[] tasks = (Task[])data.args[0];
         System.assertEquals(2, tasks.size(), 'size should be 2');
         // check Team Facilitator task here, Client is checked in previous test
@@ -342,7 +333,7 @@ private class TeamTaskServiceTest {
         service.createTrainingTasks();
         // Assert
         System.assertEquals(8, mocks.actualCalls.size(), 'size does not match');
-        MockCallData data = findCallByMethod('create');
+        MockCallData data = mocks.findCallByMethod('create');
         Task[] tasks = (Task[])data.args[0];
         System.assertEquals(1, tasks.size(), 'size should be 1');
         Task task = tasks[0];
@@ -371,7 +362,7 @@ private class TeamTaskServiceTest {
         service.createTrainingTasks();
         // Assert
         System.assertEquals(8, mocks.actualCalls.size(), 'size does not match');
-        MockCallData data = findCallByMethod('create');
+        MockCallData data = mocks.findCallByMethod('create');
         Task[] tasks = (Task[])data.args[0];
         System.assertEquals(1, tasks.size(), 'size should be 1');
         Task task = tasks[0];
@@ -400,7 +391,7 @@ private class TeamTaskServiceTest {
         service.createTrainingTasks();
         // Assert
         System.assertEquals(8, mocks.actualCalls.size(), 'size does not match');
-        MockCallData data = findCallByMethod('create');
+        MockCallData data = mocks.findCallByMethod('create');
         Task[] tasks = (Task[])data.args[0];
         System.assertEquals(0, tasks.size(), 'size should be 0');
     }
@@ -419,11 +410,11 @@ private class TeamTaskServiceTest {
         service.createTrainingTasks();
         // Assert
         System.assertEquals(8, mocks.actualCalls.size(), 'size does not match');
-        MockCallData data = findCallByMethod('getCurrentRelated');
+        MockCallData data = mocks.findCallByMethod('getCurrentRelated');
         Set<Id> ids = (Set<Id>)data.args[0];
         System.assertEquals(1, ids.size(), 'size should be 1');
         System.assertEquals(team.atlas1__Client__c, ids.iterator().next(), 'id does not match');
-        data = findCallByMethod('create');
+        data = mocks.findCallByMethod('create');
         Task[] tasks = (Task[])data.args[0];
         System.assertEquals(1, tasks.size(), 'size should be 1');
         Task task = tasks[0];
@@ -536,10 +527,10 @@ private class TeamTaskServiceTest {
         service.createCertificationTasks();
         // Assert
         System.assertEquals(8, mocks.actualCalls.size(), 'size does not match');
-        MockCallData data = findCallByMethod('getMatchingTasks');
+        MockCallData data = mocks.findCallByMethod('getMatchingTasks');
         System.assertEquals(team.atlas1__Client__c, data.args[0], 'wrong first arg');
         System.assertEquals('%recert due in 3 mo%', data.args[1], 'wrong second arg');
-        data = findCallByMethod('create');
+        data = mocks.findCallByMethod('create');
         Task[] tasks = (Task[])data.args[0];
         System.assertEquals(1, tasks.size(), 'size should be 1');
         Task task = tasks[0];
@@ -549,6 +540,62 @@ private class TeamTaskServiceTest {
             OwnerId = clientManager.Id, 
             Subject = SUBJECT_CERT_FIRST_REMINDER, 
             Description = DESC_CERT_FIRST_REMINDER, 
+            ActivityDate = Date.today()
+        ), task);
+    }
+
+    @isTest
+    static void createCertificationTasks_doesNotCreateFirstReminder_whenMatchingExists() {
+        // Arrange
+        makeData();
+        setupUserReturns();
+        Date today = Date.today();
+        atlas1__Team__c team = newCertifiedTeam(1, 90);
+        atlas1__Team__c[] teams = new atlas1__Team__c[]{ team };
+        mocks.expectedCalls.add(new MockCallData(teamRepo, 'getByStatus', teams, new Object[]{ STATUS_CERTIFIED }));
+        Task existing = new Task(
+            Id = MockProvider.createId(Task.class), 
+            WhoId = team.atlas1__Client__c, 
+            Subject = SUBJECT_CERT_FIRST_REMINDER
+        );
+        mocks.expectedCalls.add(new MockCallData(taskRepo, 'getMatchingTasks', new Task[]{ existing }));
+        // Act
+        service.createCertificationTasks();
+        // Assert
+        MockCallData data = mocks.findCallByMethod('create');
+        Task[] tasks = (Task[])data.args[0];
+        System.assert(tasks.isEmpty(), 'Should not create when matching task exists');
+    }
+
+    @isTest
+    static void createCertificationTasks_createsReminderTask_whenNoMatching() {
+        makeData();
+        setupUserReturns();
+        atlas1__Team__c team = newCertifiedTeam(4, 90);
+        atlas1__Team__c[] teams = new atlas1__Team__c[]{ team };
+        Contact tf = new Contact(
+            Id = MockProvider.createId(Contact.class)
+        );
+
+        mocks.expectedCalls.add(new MockCallData(teamRepo, 'getByStatus', teams, new Object[]{ 'Certified' }));
+        mocks.expectedCalls.add(new MockCallData(taskRepo, 'getMatchingTasks', new Task[0]));
+        // Act
+        service.createCertificationTasks();
+        // Assert
+        System.assertEquals(8, mocks.actualCalls.size(), 'size does not match');
+        MockCallData data = mocks.findCallByMethod('getMatchingTasks');
+        System.assertEquals(team.atlas1__Client__c, data.args[0], 'wrong first arg');
+        System.assertEquals('%recert due in 3 mo%', data.args[1], 'wrong second arg');
+        data = mocks.findCallByMethod('create');
+        Task[] tasks = (Task[])data.args[0];
+        System.assertEquals(1, tasks.size(), 'size should be 1');
+        Task task = tasks[0];
+        assertTask(new Task(
+            WhoId = team.atlas1__Client__c, 
+            WhatId = team.Id, 
+            OwnerId = admin.Id, 
+            Subject = SUBJECT_CERT_REMINDER, 
+            Description = DESC_CERT_REMINDER, 
             ActivityDate = Date.today()
         ), task);
     }
@@ -571,42 +618,9 @@ private class TeamTaskServiceTest {
         // Act
         service.createCertificationTasks();
         // Assert
-        MockCallData data = findCallByMethod('create');
+        MockCallData data = mocks.findCallByMethod('create');
         Task[] tasks = (Task[])data.args[0];
         System.assert(tasks.isEmpty(), 'Should not create when matching task exists');
-    }
-
-    @isTest
-    static void createCertificationTasks_createsReminderTask_whenNoMatching() {
-        makeData();
-        setupUserReturns();
-        atlas1__Team__c team = newCertifiedTeam(4, 90);
-        atlas1__Team__c[] teams = new atlas1__Team__c[]{ team };
-        Contact tf = new Contact(
-            Id = MockProvider.createId(Contact.class)
-        );
-
-        mocks.expectedCalls.add(new MockCallData(teamRepo, 'getByStatus', teams, new Object[]{ 'Certified' }));
-        mocks.expectedCalls.add(new MockCallData(taskRepo, 'getMatchingTasks', new Task[0]));
-        // Act
-        service.createCertificationTasks();
-        // Assert
-        System.assertEquals(8, mocks.actualCalls.size(), 'size does not match');
-        MockCallData data = findCallByMethod('getMatchingTasks');
-        System.assertEquals(team.atlas1__Client__c, data.args[0], 'wrong first arg');
-        System.assertEquals('%recert due in 3 mo%', data.args[1], 'wrong second arg');
-        data = findCallByMethod('create');
-        Task[] tasks = (Task[])data.args[0];
-        System.assertEquals(1, tasks.size(), 'size should be 1');
-        Task task = tasks[0];
-        assertTask(new Task(
-            WhoId = team.atlas1__Client__c, 
-            WhatId = team.Id, 
-            OwnerId = admin.Id, 
-            Subject = SUBJECT_CERT_REMINDER, 
-            Description = DESC_CERT_REMINDER, 
-            ActivityDate = Date.today()
-        ), task);
     }
 
 }

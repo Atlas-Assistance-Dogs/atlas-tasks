@@ -61,10 +61,20 @@ public class MockProvider implements System.StubProvider {
     return null;
   }
 
+  public MockCallData findCallByMethod(String methodName) {
+    for (MockCallData c : actualCalls) {
+      if (c.methodName == methodName) {
+        return c;
+      }
+    }
+    System.assert(false, 'Expected call not found: ' + methodName);
+    return null;
+  }
+
   // validate that all actual calls were expected
   public void validateCalls() {
     for (MockCallData actual : actualCalls) {
-      System.assert(actual.matched);
+      System.assert(actual.matched, 'Call not made');
     }
   }
 
