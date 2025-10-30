@@ -190,7 +190,7 @@ private class TeamTaskServiceTest {
             OwnerId = clientManager.Id, 
             Subject = SUBJECT_1MO_CLIENT, 
             ActivityDate = Date.today()
-        ), t);
+        ), task);
     }
 
     @isTest
@@ -400,7 +400,7 @@ private class TeamTaskServiceTest {
         service.createTrainingTasks();
         // Assert
         System.assertEquals(8, mocks.actualCalls.size(), 'size does not match');
-        MockCallData data = findCallByMethod('creatae');
+        MockCallData data = findCallByMethod('create');
         Task[] tasks = (Task[])data.args[0];
         System.assertEquals(0, tasks.size(), 'size should be 0');
     }
@@ -516,7 +516,7 @@ private class TeamTaskServiceTest {
             WhatId = team.Id, 
             OwnerId = clientSupportCoordinator.Id, 
             Subject = SUBJECT_CERT_START, 
-            ActivityDate = Date.today()
+            ActivityDate = Date.today().addMonths(1)
         ), task);
     }
 
@@ -571,9 +571,9 @@ private class TeamTaskServiceTest {
         // Act
         service.createCertificationTasks();
         // Assert
-        for (MockCallData c : mocks.actualCalls) {
-            System.assertNotEquals('create', c.methodName, 'Should not create when matching task exists');
-        }
+        MockCallData data = findCallByMethod('create');
+        Task[] tasks = (Task[])data.args[0];
+        System.assert(tasks.isEmpty(), 'Should not create when matching task exists');
     }
 
     @isTest
