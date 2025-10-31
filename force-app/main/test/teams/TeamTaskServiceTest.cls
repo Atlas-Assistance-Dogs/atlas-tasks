@@ -155,6 +155,37 @@ private class TeamTaskServiceTest {
     }
 
     @isTest
+    static void createTrainingTasks_handlesTrainingStart() {
+
+        makeData();
+        setupUserReturns();
+        atlas1__Team__c team = new atlas1__Team__c(
+            Id = MockProvider.createId(atlas1__Team__c.class), 
+            atlas1__Client__c = MockProvider.createId(Contact.class), 
+            atlas1__Status__c = STATUS_IN_TRAINING
+        );
+        atlas1__Team__c[] teams = new atlas1__Team__c[]{ team };
+        mocks.expectedCalls.add(new MockCallData(teamRepo, 'getByStatus', teams));
+        // Act
+        service.createTrainingTasks();
+        // Assert
+        MockCallData data = mocks.findCallByMethod('modify');
+        atlas1__Team__c actual = (atlas1__Team__c)data.args[0];
+        System.assertEquals(Date.today(), actual.atlas1__TrainingStartDate__c, 'date does not match');
+        data = mocks.findCallByMethod('create');
+        Task[] tasks = (Task[])data.args[0];
+        System.assertEquals(1, tasks.size(), 'size should be 1');
+        assertTask(new Task(
+            WhoId = team.atlas1__Client__c, 
+            WhatId = team.Id, 
+            OwnerId = admin.Id, 
+            Subject = SUBJECT_TRAINING_START, 
+            Description = DESC_TRAINING_START, 
+            ActivityDate = Date.today()
+        ), tasks[0]);
+    }
+
+    @isTest
     static void createTrainingTasks_creates1monthTasksForClient() {
         makeData();
         setupUserReturns();
