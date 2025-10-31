@@ -59,6 +59,7 @@ private class TaskRepositoryTest {
         System.Assert.isTrue(result.isEmpty());
     }
 
+    @isTest
     static void getMatchingTasks_returnsTaskWhenTaskMatches() {
         Contact who = new Contact(
             FirstName = 'test', 
@@ -75,6 +76,7 @@ private class TaskRepositoryTest {
         System.Assert.isTrue(result.isEmpty());
     }
 
+    @isTest
     static void getMatchingTasks_returnsOnlyMatchingTasks() {
         Contact who = new Contact(
             FirstName = 'test', 
@@ -91,7 +93,8 @@ private class TaskRepositoryTest {
             Subject = 'Something else', 
             WhoId = who.Id
         ), new Task(
-            Subject = 'Subject'
+            Subject = 'Subject', 
+            Whoid = who.Id
         ) };
         insert tasks;
 
@@ -99,4 +102,11 @@ private class TaskRepositoryTest {
         System.Assert.areEqual(2, result.size());
     }
 
+    @isTest
+    static void getTaskUser_returnsNull_whenNoMatch() {
+        // Act
+        User user = repo.getTaskUser('test');
+        // Assert
+        System.Assert.areEqual(null, user, 'user should be null');
+    }
 }
