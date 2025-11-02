@@ -4,7 +4,7 @@ project:
     package:
         name: tasks
         namespace: atlas1
-        api_version: '62.0'
+        api_version: '65.0'
     dependencies:
         - github: "https://github.com/SalesforceFoundation/NPSP"
         - github: "https://github.com/SalesforceFoundation/Volunteers-for-Salesforce"

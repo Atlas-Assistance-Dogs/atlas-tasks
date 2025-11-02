@@ -38,10 +38,10 @@ public class TeamTaskService {
 
     void getUsers() {
         admin = taskRepo.getTaskUser('Administrator');
-        clientSupportCoordinator = taskRepo.getTaskUser('ClientSupportCoordinator');
-        clientManager = taskRepo.getTaskUser('ClientManager');
-        tfManager = taskRepo.getTaskUser('TFManager');
-        trainerManager = taskRepo.getTaskUser('TrainerManager');
+        clientSupportCoordinator = taskRepo.getTaskUser('Client Support Coordinator');
+        clientManager = taskRepo.getTaskUser('Client Manager');
+        tfManager = taskRepo.getTaskUser('TF Manager');
+        trainerManager = taskRepo.getTaskUser('Trainer Manager');
     }
 
     @testVisible
@@ -57,10 +57,12 @@ public class TeamTaskService {
     class TaskFactory {
         public atlas1__Team__c team { get;private  set; }
 
-        Id clientManagerId;
-        public TaskFactory(atlas1__Team__c team, Id clientManagerId) {
+        Id ownerId;
+        public TaskFactory(atlas1__Team__c team, User owner) {
             this.team = team;
-            this.clientManagerId = clientManagerId;
+            if (owner != null) {
+                this.ownerId = owner.Id;
+            }
         }
 
         public Task createTask(String subject, String description) {
@@ -71,7 +73,7 @@ public class TeamTaskService {
                 Description = description, 
                 Status = STATUS_NOT_STARTED, 
                 Priority = PRIORITY_NORMAL, 
-                OwnerId = clientManagerId, 
+                OwnerId = ownerId, 
                 ActivityDate = Date.today()
             );
         }
@@ -91,7 +93,7 @@ public class TeamTaskService {
         }
         Date today = Date.today();
         List<Task> tasks = new List<Task>();
-        TaskFactory tf = new TaskFactory(team, admin.Id);
+        TaskFactory tf = new TaskFactory(team, admin);
         tasks.add(tf.createTask('Client entered training', 'Confirm returns forms, assign courses, add to office hours'));
         taskRepo.create(tasks);
     }
@@ -121,7 +123,7 @@ public class TeamTaskService {
         List<Task> tasks = new List<Task>();
         Date today = Date.today();
         Integer length = team.atlas1__TrainingStartDate__c.daysBetween(today);
-        TaskFactory tf = new TaskFactory(team, clientManager.Id);
+        TaskFactory tf = new TaskFactory(team, clientManager);
 
         switch  on length {
             when 30 {
@@ -160,14 +162,13 @@ public class TeamTaskService {
     // return a list of tasks
     Task[] createClientManagerTasks(TaskFactory tf, String clientSubject, String tfSubject) {
         List<Task> tasks = new List<Task>();
-        if (clientManager == null) {
-            return tasks;
-        }
         List<npe4__Relationship__c> relationships = relRepo.getCurrentRelated(new Set<Id>{ tf.team.atlas1__Client__c }, 'Team Facilitator');
         Boolean hasTFs = relationships != null && !relationships.isEmpty();
 
-        Task ctask = tf.createTask(clientSubject, null);
-        tasks.add(ctask);
+        if (clientManager != null) {
+            Task ctask = tf.createTask(clientSubject, null);
+            tasks.add(ctask);
+        }
         if (hasTFs && tfManager != null) {
             for (npe4__Relationship__c rel : relationships) {
                 Task task = tf.createTask(tfSubject, null);

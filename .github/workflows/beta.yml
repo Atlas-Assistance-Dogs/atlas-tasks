@@ -1,8 +1,8 @@
 name: Upload Beta Release
 on:
-  push:
-    branches:
-      - main
+  # push:
+  #   branches:
+  #     - main
   workflow_dispatch:
 
 concurrency:
@@ -19,7 +19,7 @@ jobs:
           fetch-depth: 0
 
       - name: Setup CumulusCI Environment
-        uses: atlas-dogs/.github/actions/setup-cci@v1.11
+        uses: atlas-dogs/.github/actions/setup-cci@main
         with:
           dev-hub-auth-url: "${{ secrets.DEV_HUB_AUTH_URL }}"
           github-username: "deb761"
