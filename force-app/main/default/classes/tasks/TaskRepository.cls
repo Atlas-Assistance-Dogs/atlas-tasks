@@ -29,7 +29,7 @@ public inherited sharing class TaskRepository {
                         FROM User
                         WHERE Username = :taskUsers[0].User__c AND IsActive = true];
         if (users.size() == 0) {
-            System.debug('Cannot find user defined to assign background check reminder tasks');
+            System.debug(String.format('Cannot find user defined to {0} tasks', new Object[]{ task }));
             return null;
         }
         return users[0];
