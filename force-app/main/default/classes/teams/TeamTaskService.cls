@@ -128,7 +128,7 @@ public class TeamTaskService {
         switch  on length {
             when 30 {
                 // 1 month
-                tasks.addAll(createClientManagerTasks(tf, SUBJECT_1MO_CLIENT, SUBJECT_1MO_TF));
+                tasks.addAll(createClientManagerTasks(tf, SUBJECT_1MO_CLIENT, null, SUBJECT_1MO_TF));
             }
             when 135 {
                 // 4.5 months
@@ -138,7 +138,7 @@ public class TeamTaskService {
             }
             when 150 {
                 // 5 months
-                tasks.addAll(createClientManagerTasks(tf, SUBJECT_5MO_CLIENT, SUBJECT_5MO_TF));
+                tasks.addAll(createClientManagerTasks(tf, SUBJECT_5MO_CLIENT, DESC_5MO_CLIENT, SUBJECT_5MO_TF));
             }
             when 180 {
                 // 6 months
@@ -151,7 +151,7 @@ public class TeamTaskService {
             }
             when 240 {
                 // 8 months
-                tasks.addAll(createClientManagerTasks(tf, SUBJECT_8MO_CLIENT, SUBJECT_8MO_TF));
+                tasks.addAll(createClientManagerTasks(tf, SUBJECT_8MO_CLIENT, DESC_8MO_CLIENT, SUBJECT_8MO_TF));
             }
         }
         return tasks;
@@ -160,13 +160,13 @@ public class TeamTaskService {
     // create tasks for the client manager for the client and team facilitator
     // tasks are due immediately, and assigned to the client manager
     // return a list of tasks
-    Task[] createClientManagerTasks(TaskFactory tf, String clientSubject, String tfSubject) {
+    Task[] createClientManagerTasks(TaskFactory tf, String clientSubject, String clientDesc, String tfSubject) {
         List<Task> tasks = new List<Task>();
         List<npe4__Relationship__c> relationships = relRepo.getCurrentRelated(new Set<Id>{ tf.team.atlas1__Client__c }, 'Team Facilitator');
         Boolean hasTFs = relationships != null && !relationships.isEmpty();
 
         if (clientManager != null) {
-            Task ctask = tf.createTask(clientSubject, null);
+            Task ctask = tf.createTask(clientSubject, clientDesc);
             tasks.add(ctask);
         }
         if (hasTFs && tfManager != null) {
