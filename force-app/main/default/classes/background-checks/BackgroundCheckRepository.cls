@@ -1,8 +1,5 @@
 public inherited sharing class BackgroundCheckRepository {
-    public BackgroundCheckRepository() {
-    }
-
-    public atlas1__BackgroundCheck__c[] getMatchingChecksForContacts(Set<Id> contactIds, Date threshold) {
+     public atlas1__BackgroundCheck__c[] getMatchingChecksForContacts(Set<Id> contactIds, Date threshold) {
         return [SELECT Id, 
                        atlas1__Date__c, 
                        atlas1__Contact__c, 

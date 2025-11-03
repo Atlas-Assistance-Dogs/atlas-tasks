@@ -63,8 +63,6 @@ public with sharing class BackgroundCheckService {
             contactIds.add(person.Id);
             if (person.atlas1__VolunteerAccess__c.contains('Credit Check Required') && person.atlas1__VolunteerAccess__c.contains('Background Check Required')) {
                 combinedIds.add(person.Id);
-                creditIds.add(person.Id);
-                criminalIds.add(person.Id);
                 continue;
             }
             if (person.atlas1__VolunteerAccess__c.contains('Credit Check Required')) {

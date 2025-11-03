@@ -1,6 +1,5 @@
 public inherited sharing class ContactRepository {
-  public ContactRepository() {
-  }
+
   public Contact getPositionStatusForContact(Id contactId) {
     return [
       SELECT

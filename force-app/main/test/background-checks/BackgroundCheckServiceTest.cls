@@ -97,7 +97,7 @@ public with sharing class BackgroundCheckServiceTest {
     // see if there is a call to create tasks, if there is, there should be 4 tasks
     for (MockCallData call : mocks.actualCalls) {
       if (call.obj == taskRepo && call.methodName == 'create') {
-        System.assertEquals(6, ((List<Task>)call.args[0]).size());
+        System.assertEquals(4, ((List<Task>)call.args[0]).size());
       }
     }
   }
