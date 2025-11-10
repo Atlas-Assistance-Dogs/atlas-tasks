@@ -4,6 +4,7 @@ public class TeamTaskService {
     RelationshipRepository relRepo;
     DogRepository dogRepo;
     TaskRepository taskRepo;
+    PatRepository patRepo;
     // Users
     User admin;
     User clientManager;
@@ -33,6 +34,7 @@ public class TeamTaskService {
         relRepo = new RelationshipRepository();
         dogRepo = new DogRepository();
         taskRepo = new TaskRepository();
+        patRepo = new PatRepository();
         getUsers();
     }
 
@@ -45,11 +47,12 @@ public class TeamTaskService {
     }
 
     @testVisible
-    private TeamTaskService(TeamRepository teamRepo, RelationshipRepository relRepo, DogRepository dogRepo, TaskRepository taskRepo) {
+    private TeamTaskService(TeamRepository teamRepo, RelationshipRepository relRepo, DogRepository dogRepo, TaskRepository taskRepo, PatRepository patRepo) {
         this.teamRepo = teamRepo;
         this.relRepo = relRepo;
         this.dogRepo = dogRepo;
         this.taskRepo = taskRepo;
+        this.patRepo = patRepo;
         getUsers();
     }
 
@@ -180,8 +183,18 @@ public class TeamTaskService {
         return tasks;
     }
 
+    class PatException extends Exception {
+    }
+
     // Create tasks related to teams
     public void handleCertificationStart(atlas1__Team__c team) {
+        // Get the first PAT
+        atlas1__PublicAccessTest__c pat = patRepo.getFirstPat(team.Id);
+        if (pat == null) {
+            throw new PatException('No initial passing PAT found for team ' + team.Name);
+        }
+        // this is called by a trigger, so don't need to update here
+        team.atlas1__InitialCertificationDate__c = pat.atlas1__DateCompleted__c;
         if (clientSupportCoordinator == null) {
             return;
         }
