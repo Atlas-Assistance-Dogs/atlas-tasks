@@ -22,6 +22,21 @@ private class PatRepositoryTest {
         atlas1__PublicAccessTest__c pat = patRepo.getFirstPat(team.Id);
         System.assertEquals(null, pat, 'pat should be null');
     }
+    @isTest
+    static void getFirstPat_returnsNullWhenPatNotPassed() {
+        atlas1__Team__c team = TestTeam.create();
+        atlas1__PublicAccessTest__c p = new atlas1__PublicAccessTest__c(
+            atlas1__Team__c = team.Id, 
+            atlas1__DateCompleted__c = Date.today(), 
+            atlas1__Location__c = 'In Person', 
+            atlas1__Status__c = 'Pending Review', 
+            atlas1__Type__c = 'Initial'
+        );
+        insert p;
+
+        atlas1__PublicAccessTest__c pat = patRepo.getFirstPat(team.Id);
+        System.assertEquals(null, pat, 'PAT should be null');
+    }
 
     @isTest
     static void getFirstPat_returnsPatForExistingTeam() {
