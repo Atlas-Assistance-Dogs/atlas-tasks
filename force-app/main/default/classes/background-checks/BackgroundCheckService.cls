@@ -61,7 +61,7 @@ public with sharing class BackgroundCheckService {
                 continue;
             }
             contactIds.add(person.Id);
-            if (person.atlas1__VolunteerAccess__c.contains('Background & Credit Check Required') ) {
+            if (person.atlas1__VolunteerAccess__c.contains('Combined Background Check Required') ) {
                 combinedIds.add(person.Id);
                 continue;
             }

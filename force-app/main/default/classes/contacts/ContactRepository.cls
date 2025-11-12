@@ -69,7 +69,7 @@ public inherited sharing class ContactRepository {
       WHERE
         atlas1__VolunteerAccess__c INCLUDES (
           'Credit Check Required',
-          'Background Check Required'
+          'Background Check Required' // this would include `Combined Background Check Required`
         ) AND (
           atlas1__BoardMemberStatus__c IN :active OR atlas1__FacilitatorStatus__c IN :active OR atlas1__LeadFacilitatorStatus__c IN :active OR GW_Volunteers__Volunteer_Status__c IN :active OR
           atlas1__TrainerStatus__c IN :active OR atlas1__ClientStatus__c IN :active OR atlas1__StaffStatus__c IN :active
