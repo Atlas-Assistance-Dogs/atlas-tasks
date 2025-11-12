@@ -77,7 +77,7 @@ public with sharing class BackgroundCheckServiceTest {
       FirstName = 'Bandit', 
       LastName = 'Heeler', 
       Email = 'bandit@test.com', 
-      atlas1__VolunteerAccess__c = 'Background Check Required;Credit Check Required'
+      atlas1__VolunteerAccess__c = 'Combined Background Check Required'
     ) };
 
     return contacts;
@@ -97,7 +97,7 @@ public with sharing class BackgroundCheckServiceTest {
     // see if there is a call to create tasks, if there is, there should be 4 tasks
     for (MockCallData call : mocks.actualCalls) {
       if (call.obj == taskRepo && call.methodName == 'create') {
-        System.assertEquals(4, ((List<Task>)call.args[0]).size());
+        System.assertEquals(4, ((List<Task>)call.args[0]).size(), 'should create 4 tasks');
       }
     }
   }
@@ -133,7 +133,8 @@ public with sharing class BackgroundCheckServiceTest {
     // see if there is a call to create tasks, if there is, there should be no tasks
     for (MockCallData call : mocks.actualCalls) {
       if (call.obj == taskRepo && call.methodName == 'create') {
-        System.assert(((List<Task>)call.args[0]).isEmpty());
+        List<Task> tasks = (List<Task>)call.args[0];
+        System.assertEquals(0, tasks.size(), 'should not create any tasks');
       }
     }
   }
@@ -227,7 +228,7 @@ public with sharing class BackgroundCheckServiceTest {
   @isTest
   public static void createReminderTask_createsNoTasks_whenBothNeededTaskOpenAndOneIn() {
     makeData();
-    Contact[] contacts = new Contact[] {new Contact(
+    Contact[] contacts = new Contact[]{ new Contact(
       Id = MockProvider.createId(Contact.class), 
       FirstName = 'Bandit', 
       LastName = 'Heeler', 
@@ -237,7 +238,9 @@ public with sharing class BackgroundCheckServiceTest {
     Contact bandit = contacts[0];
     Id userId = MockProvider.createId(User.class);
     // Get the user to assign the task to
-    mocks.expectedCalls.add(new MockCallData(taskRepo, 'getBackgroundCheckUser', new User(Id = userId)));
+    mocks.expectedCalls.add(new MockCallData(taskRepo, 'getBackgroundCheckUser', new User(
+      Id = userId
+    )));
     mocks.expectedCalls.add(new MockCallData(contactRepo, 'getContactsNeedingBackgroundChecks', contacts));
     mocks.expectedCalls.add(new MockCallData(bgcRepo, 'getMatchingChecksForContacts', new List<atlas1__BackgroundCheck__c>{ new atlas1__BackgroundCheck__c(
       atlas1__Contact__c = bandit.id, 
@@ -248,8 +251,10 @@ public with sharing class BackgroundCheckServiceTest {
       atlas1__Date__c = Date.today().addMonths(-12), 
       atlas1__Type__c = 'Criminal'
     ) }));
-    mocks.expectedCalls.add(new MockCallData(taskRepo, 'getTasksByWhoId', new Map<Id, List<Task>>{
-      bandit.Id => new List<Task>{ new Task(Subject = 'Order background and credit check', ActivityDate = Date.today().addDays(-1)) }}));
+    mocks.expectedCalls.add(new MockCallData(taskRepo, 'getTasksByWhoId', new Map<Id, List<Task>>{ bandit.Id => new List<Task>{ new Task(
+      Subject = 'Order background and credit check', 
+      ActivityDate = Date.today().addDays(-1)
+    ) } }));
     // Act
     service.createReminderTask();
 
