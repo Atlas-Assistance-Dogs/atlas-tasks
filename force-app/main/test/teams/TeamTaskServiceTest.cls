@@ -545,6 +545,24 @@ private class TeamTaskServiceTest {
     }
 
     @isTest
+    static void handleCertificationStart_doesNotSetsInitialCertificationDateWhenAlreadySet() {
+        makeData();
+        setupUserReturns();
+        Date initDate = Date.today().addDays(-1);
+        atlas1__Team__c team = new atlas1__Team__c(
+            Id = MockProvider.createId(atlas1__Team__c.class),
+            atlas1__InitialCertificationDate__c = initDate
+        );
+        mocks.expectedCalls.add(new MockCallData(patRepo, 'getFirstPat', new atlas1__PublicAccessTest__c(
+            atlas1__DateCompleted__c = Date.today()
+        ), new Object[]{ team.Id }));
+
+        service.handleCertificationStart(team);
+
+        System.assertEquals(initDate, team.atlas1__InitialCertificationDate__c, 'Initial Certification Date does not match');
+    }
+
+    @isTest
     static void handleCertificationStart_returnsWhenNoCoordinator() {
         makeData();
         service = new TeamTaskService(teamRepo, relationshipRepo, dogRepo, taskRepo, patRepo);

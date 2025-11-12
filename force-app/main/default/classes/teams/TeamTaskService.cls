@@ -193,8 +193,10 @@ public class TeamTaskService {
         if (pat == null) {
             throw new PatException('No initial passing PAT found for team ' + team.Name);
         }
-        // this is called by a trigger, so don't need to update here
-        team.atlas1__InitialCertificationDate__c = pat.atlas1__DateCompleted__c;
+        if (team.atlas1__InitialCertificationDate__c == null) {
+            // this is called by a trigger, so don't need to update here
+            team.atlas1__InitialCertificationDate__c = pat.atlas1__DateCompleted__c;
+        }
         if (clientSupportCoordinator == null) {
             return;
         }
