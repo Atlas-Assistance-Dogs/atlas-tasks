@@ -9,7 +9,7 @@ private class EmailServiceTest {
 
         Id emailId = service.orgAddressId;
 
-        System.assert(true, 'service instantiation error');
+        System.assertEquals(null, emailId, 'service instantiation error');
     }
 
     @isTest
@@ -22,7 +22,12 @@ private class EmailServiceTest {
 
     @isTest
     static void getTemplate_returnsEmptyWhenTemplateNotFound() {
-        EmailTemplate et = new EmailTemplate(DeveloperName = 'mine', FolderId = UserInfo.getUserId(), TemplateType = 'Text', Name = 'my template');
+        EmailTemplate et = new EmailTemplate(
+            DeveloperName = 'mine', 
+            FolderId = UserInfo.getUserId(), 
+            TemplateType = 'Text', 
+            Name = 'my template'
+        );
         insert et;
 
         EmailService service = new EmailService();
@@ -33,12 +38,48 @@ private class EmailServiceTest {
 
     @isTest
     static void getTemplate_returnsTrainerTemplate() {
-        EmailTemplate et = new EmailTemplate(DeveloperName = 'TrainerMonthAfter', FolderId = UserInfo.getUserId(), TemplateType = 'Text', Name = 'my template');
+        EmailTemplate et = new EmailTemplate(
+            DeveloperName = 'Trainer_Month_After', 
+            IsActive = true, 
+            FolderId = UserInfo.getUserId(), 
+            TemplateType = 'Text', 
+            Name = 'my template'
+        );
         insert et;
 
         EmailService service = new EmailService();
         EmailTemplate template = service.getTemplate('TrainerMonthAfter');
 
-        System.assertEquals(et, template, 'address id matches');
+        System.assertEquals(et.Id, template.Id, 'returned wrong template');
     }
+
+    @isTest
+    static void createEmail_returnsEmail() {
+        EmailService service = new EmailService();
+        Id whatId = MockProvider.createId(atlas1__Team__c.class);
+        Id whoId = MockProvider.createId(Contact.class);
+        Id templateId = MockProvider.createId(emailTemplate.class);
+        Messaging.SingleEmailMessage email = service.createEmail(whatId, whoId, templateId);
+
+        System.Assert.isTrue(email != null, 'email is null');
+        System.assertEquals(whatId, email.whatId, 'whatId does not match');
+        System.assertEquals(whoId, email.targetObjectId, 'whoId does not match');
+        System.assertEquals(templateId, email.templateId, 'templateId does not match');
+    }
+
+    @isTest
+    static void sendEmail_sendsEmail() {
+        EmailService service = new EmailService();
+        Id whatId = MockProvider.createId(atlas1__Team__c.class);
+        Id whoId = MockProvider.createId(Contact.class);
+        Id templateId = MockProvider.createId(emailTemplate.class);
+        Messaging.SingleEmailMessage email = service.createEmail(whatId, whoId, templateId);
+
+        Test.StartTest();
+        service.sendEmail(new Messaging.SingleEmailMessage[]{ email });
+        Integer invocations = Limits.getEmailInvocations();
+        Test.StopTest();
+        System.assertEquals(1, invocations, 'An email has not been sent');
+    }
+
 }

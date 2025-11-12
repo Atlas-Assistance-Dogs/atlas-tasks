@@ -51,7 +51,7 @@ public class MockProvider implements System.StubProvider {
     // See if this call was expected, for now we will just match object and
     // methodName
     for (MockCallData expected : expectedCalls) {
-      if (stubbedObject == expected.obj && stubbedMethodName == expected.methodName) {
+      if (stubbedObject == expected.obj && stubbedMethodName == expected.methodName && (expected.args == null || expected.args == listOfArgs)) {
         expected.matched = true;
         actual.matched = true;
         return expected.returnValue;
@@ -61,10 +61,20 @@ public class MockProvider implements System.StubProvider {
     return null;
   }
 
+  public MockCallData findCallByMethod(String methodName) {
+    for (MockCallData c : actualCalls) {
+      if (c.methodName == methodName) {
+        return c;
+      }
+    }
+    System.assert(false, 'Expected call not found: ' + methodName);
+    return null;
+  }
+
   // validate that all actual calls were expected
   public void validateCalls() {
     for (MockCallData actual : actualCalls) {
-      System.assert(actual.matched);
+      System.assert(actual.matched, 'Call not made');
     }
   }
 
