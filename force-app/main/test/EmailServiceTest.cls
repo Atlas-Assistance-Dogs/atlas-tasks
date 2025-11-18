@@ -44,7 +44,6 @@ private class EmailServiceTest {
             FolderId = UserInfo.getUserId(), 
             TemplateType = 'Text', 
             Name = 'my template'
-            IsActive = true
         );
         insert et;
 

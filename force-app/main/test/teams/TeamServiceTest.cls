@@ -175,7 +175,7 @@ private class TeamServiceTest {
         // first parameter is client contact ids
         System.assertEquals(clientIds, getFac.args[0]);
         // second parameter is type
-        System.assertEquals('Team Faciliator', getFac.args[1]);
+        System.assertEquals('Team Facilitator', getFac.args[1]);
         // the last call would be to send emails
         MockCallData data = mocks.actualCalls[mocks.actualCalls.size() - 1];
         List<Messaging.SingleEmailMessage> emails = (List<Messaging.SingleEmailMessage>)data.args[0];

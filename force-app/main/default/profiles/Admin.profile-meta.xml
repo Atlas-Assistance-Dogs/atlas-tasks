@@ -13,6 +13,7 @@
         <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
+        <apexClass>DogRepository</apexClass>
         <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
@@ -63,6 +64,7 @@
         <apexClass>TeamServiceTest</apexClass>
         <enabled>true</enabled>
     </classAccesses>
+    <classAccesses>
         <apexClass>TeamTaskServiceTest</apexClass>
         <enabled>true</enabled>
     </classAccesses>
@@ -86,8 +88,6 @@
         <apexClass>TeamServiceTest</apexClass>
         <enabled>true</enabled>
     </classAccesses>
-    <classAccesses>
-    <custom>false</custom>
     <fieldPermissions>
         <editable>false</editable>
         <field>EmailError__c.Fields__c</field>

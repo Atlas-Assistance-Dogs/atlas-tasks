@@ -33,7 +33,7 @@ public with sharing class BackgroundCheckService {
     }
 
     public void createReminderTask() {
-        User user = taskRepo.getBackgroundCheckUser();
+        User user = taskRepo.getTaskUser('Background check');
         if (user == null) {
             return; // no user found, TaskRepository logs error
         }

@@ -18,19 +18,19 @@ public with sharing class BackgroundCheckServiceTest {
   @isTest
   static void createReminderTask_exitsWhenNoUserSetup() {
     makeData();
-    mocks.expectedCalls.add(new MockCallData(taskRepo, 'getBackgroundCheckUser', null));
+    mocks.expectedCalls.add(new MockCallData(taskRepo, 'getTaskUser', null));
 
     service.createReminderTask();
     System.assertEquals(1, mocks.actualCalls.size(), 'should stop when no user');
     // the first call would be to get the user to assign the tasks to
     MockCallData getUser = mocks.actualCalls[0];
-    System.assertEquals('getBackgroundCheckUser', getUser.methodName);
+    System.assertEquals('getTaskUser', getUser.methodName);
   }
 
   @isTest
   static void createReminderTask_createsNoTasksWhenNoContactsWithAccess() {
     makeData();
-    mocks.expectedCalls.add(new MockCallData(taskRepo, 'getBackgroundCheckUser', new User(
+    mocks.expectedCalls.add(new MockCallData(taskRepo, 'getTaskUser', new User(
       Id = MockProvider.createId(User.class)
     )));
     mocks.expectedCalls.add(new MockCallData(contactRepo, 'getContactsNeedingBackgroundChecks', new List<Contact>()));
@@ -86,7 +86,7 @@ public with sharing class BackgroundCheckServiceTest {
   @isTest
   public static void createReminderTask_createsTasksWhenContactsWithAccess() {
     makeData();
-    mocks.expectedCalls.add(new MockCallData(taskRepo, 'getBackgroundCheckUser', new User(
+    mocks.expectedCalls.add(new MockCallData(taskRepo, 'getTaskUser', new User(
       Id = MockProvider.createId(User.class)
     )));
     mocks.expectedCalls.add(new MockCallData(contactRepo, 'getContactsNeedingBackgroundChecks', createContactsWithAccess()));
@@ -105,7 +105,7 @@ public with sharing class BackgroundCheckServiceTest {
   @isTest
   public static void createReminderTask_createsNoTasksWhenContactsWithAccessUpToDate() {
     makeData();
-    mocks.expectedCalls.add(new MockCallData(taskRepo, 'getBackgroundCheckUser', new User(
+    mocks.expectedCalls.add(new MockCallData(taskRepo, 'getTaskUser', new User(
       Id = MockProvider.createId(User.class)
     )));
     Contact[] contacts = createContactsWithAccess();
@@ -238,7 +238,7 @@ public with sharing class BackgroundCheckServiceTest {
     Contact bandit = contacts[0];
     Id userId = MockProvider.createId(User.class);
     // Get the user to assign the task to
-    mocks.expectedCalls.add(new MockCallData(taskRepo, 'getBackgroundCheckUser', new User(
+    mocks.expectedCalls.add(new MockCallData(taskRepo, 'getTaskUser', new User(
       Id = userId
     )));
     mocks.expectedCalls.add(new MockCallData(contactRepo, 'getContactsNeedingBackgroundChecks', contacts));
