@@ -68,17 +68,26 @@ private class EmailServiceTest {
     }
 
     @isTest
+    static void createEmail_fillsInEmail() {
+        EmailService service = new EmailService();
+        Id teamId = MockProvider.createId(atlas1__Team__c.class);
+        Id contactId = MockProvider.createId(Contact.class);
+        Id templateId = MockProvider.createId(EmailTemplate.class);
+        Messaging.SingleEmailMessage message = service.createEmail(teamId, contactId, templateId);
+
+        System.assertEquals(teamId, message.whatId, 'team id does not match');
+        System.assertEquals(contactId, message.targetObjectId, 'contact id does not match');
+        System.assertEquals(templateId, message.templateId, 'template id does not match');
+    }
+
+    @isTest
     static void sendEmail_sendsEmail() {
         EmailService service = new EmailService();
-        Id whatId = MockProvider.createId(atlas1__Team__c.class);
-        Id whoId = MockProvider.createId(Contact.class);
-        Id templateId = MockProvider.createId(emailTemplate.class);
-        Messaging.SingleEmailMessage email = service.createEmail(whatId, whoId, templateId);
-
-        Test.StartTest();
-        service.sendEmail(new Messaging.SingleEmailMessage[]{ email });
+        Test.startTest();
+        service.sendEmail(new Messaging.SingleEmailMessage[]{new Messaging.SingleEmailMessage()});
         Integer invocations = Limits.getEmailInvocations();
         Test.StopTest();
+
         System.assertEquals(1, invocations, 'An email has not been sent');
     }
 

@@ -21,11 +21,16 @@ public with sharing class EmailService {
         if (et == null) {
             return null;
         }
-        EmailTemplate template = [SELECT Id, 
-                                         CreatedDate
-                                  FROM EmailTemplate
-                                  WHERE DeveloperName = :et.Template__c AND IsActive = true
-                                  LIMIT 1];
+        EmailTemplate[] templates = [SELECT Id, 
+                                            CreatedDate, 
+                                            DeveloperName
+                                     FROM EmailTemplate
+                                     WHERE DeveloperName = :et.Template__c AND IsActive = true
+                                     LIMIT 1];
+        if (templates.size() == 0) {
+            return null;
+        }
+        EmailTemplate template = templates[0];
         return template;
     }
 
@@ -49,10 +54,24 @@ public with sharing class EmailService {
         return mail;
     }
 
-    // send email to contact
+    // send email to contact.  Create EmailError records for failed emails.
     public void sendEmail(List<Messaging.SingleEmailMessage> emails) {
         // the second parameter is "allOrNothing" and defaults to true
-        Messaging.sendEmail(emails, false);
+        Messaging.SendEmailResult[] result = Messaging.sendEmail(emails, false);
+        EmailError__c[] errors = new List<EmailError__c>();
+        for (Messaging.SendEmailResult res : result) {
+            if (!res.isSuccess()) {
+                for (Messaging.SendEmailError err : res.errors) {
+                    errors.add(new EmailError__c(
+                        Fields__c = String.join(err.getFields(), ','), 
+                        Message__c = err.message, 
+                        StatusCode__c = err.getStatusCode().toString(), 
+                        TargetObjectId__c = err.getTargetObjectId()
+                    ));
+                }
+            }
+        }
+        insert errors;
     }
 
 }
