@@ -193,6 +193,9 @@
         <readable>true</readable>
     </fieldPermissions>
     <layoutAssignments>
+        <layout>Contact-atlas1__Atlas Contact Layout</layout>
+    </layoutAssignments>
+    <layoutAssignments>
         <layout>EmailError__c-Email Error Layout</layout>
     </layoutAssignments>
     <layoutAssignments>
