@@ -1,0 +1,8 @@
+- object: Contact
+  fields:
+      BackgroundCheck__c:
+        random_choice:
+          - Not Required
+          - Criminal
+          - Credit
+          - Criminal and Credit

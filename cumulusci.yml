@@ -46,4 +46,9 @@ flows:
     steps:
       3:
         flow: atlas:setup_data
+      4:
+        task: update_data
+        options:
+            recipe: datasets/update.recipe.yml
+            object: Contact
  
