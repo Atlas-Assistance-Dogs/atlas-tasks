@@ -61,15 +61,15 @@ public with sharing class BackgroundCheckService {
                 continue;
             }
             contactIds.add(person.Id);
-            if (person.BackgroundCheck__c.contains('Combined Background Check') ) {
+            if (person.BackgroundCheck__c == 'Criminal and Credit') {
                 combinedIds.add(person.Id);
                 continue;
             }
-            if (person.BackgroundCheck__c.contains('Credit Check')) {
+            if (person.BackgroundCheck__c == 'Credit') {
                 creditIds.add(person.Id);
                 continue;
             }
-            if (person.BackgroundCheck__c.contains('Background Check')) {
+            if (person.BackgroundCheck__c == 'Criminal') {
                 criminalIds.add(person.Id);
             }
         }
@@ -92,9 +92,9 @@ public with sharing class BackgroundCheckService {
         // Remove the contacts with recent-enough background checks from the list
         for (atlas1__BackgroundCheck__c check : checks) {
             switch  on check.atlas1__Type__c {
-                when 'Criminal&Credit' {
+                when 'Criminal and Credit' {
                     combinedIds.remove(check.atlas1__Contact__c);
-                  }
+                }
                 when 'Criminal' {
                     criminalIds.remove(check.atlas1__Contact__c);
                 }
@@ -114,9 +114,9 @@ public with sharing class BackgroundCheckService {
             for (Id contactId : existingTasks.keySet()) {
                 Task[] tasks = existingTasks.get(contactId);
                 for (Task t : tasks) {
-                     if (t.Subject.contains(combined)) {
+                    if (t.Subject.contains(combined)) {
                         combinedIds.remove(contactId);
-                     } else if (t.Subject.contains(background)) {
+                    } else if (t.Subject.contains(background)) {
                         criminalIds.remove(contactId);
                     } else if (t.Subject.contains(credit)) {
                         creditIds.remove(contactId);

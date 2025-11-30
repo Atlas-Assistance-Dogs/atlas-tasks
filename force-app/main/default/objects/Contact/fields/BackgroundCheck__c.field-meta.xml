@@ -16,19 +16,19 @@
                 <label>Not Required</label>
             </value>
             <value>
-                <fullName>Background Check</fullName>
+                <fullName>Criminal</fullName>
                 <default>false</default>
-                <label>Background Check</label>
+                <label>Criminal</label>
             </value>
             <value>
-                <fullName>Credit Check</fullName>
+                <fullName>Credit</fullName>
                 <default>false</default>
-                <label>Credit Check</label>
+                <label>Credit</label>
             </value>
             <value>
-                <fullName>Combined Background Check</fullName>
+                <fullName>Criminal and Credit</fullName>
                 <default>false</default>
-                <label>Combined Background Check Required</label>
+                <label>Criminal and Credit</label>
             </value>
         </valueSetDefinition>
     </valueSet>

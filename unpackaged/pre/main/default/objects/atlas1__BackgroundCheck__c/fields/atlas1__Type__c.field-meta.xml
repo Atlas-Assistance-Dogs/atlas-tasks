@@ -21,9 +21,9 @@
                 <label>Credit</label>
             </value>
             <value>
-                <fullName>Criminal&amp;Credit</fullName>
+                <fullName>Criminal and Credit</fullName>
                 <default>false</default>
-                <label>Criminal&amp;Credit</label>
+                <label>Criminal and Credit</label>
             </value>
         </valueSetDefinition>
     </valueSet>
