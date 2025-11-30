@@ -44,7 +44,7 @@ private class BackgroundCheckRepositoryTest {
       FirstName = 'Bluey', 
       LastName = 'Heeler', 
       Email = 'bluey@test.com', 
-      atlas1__VolunteerAccess__c = 'Credit Check Required'
+      BackgroundCheck__c = 'Credit Check'
     );
     insert bluey;
     atlas1__BackgroundCheck__c check = new atlas1__BackgroundCheck__c(
@@ -68,7 +68,7 @@ private class BackgroundCheckRepositoryTest {
       FirstName = 'Bluey', 
       LastName = 'Heeler', 
       Email = 'bluey@test.com', 
-      atlas1__VolunteerAccess__c = 'Credit Check Required'
+      BackgroundCheck__c = 'Credit Check'
     );
     insert bluey;
     atlas1__BackgroundCheck__c check = new atlas1__BackgroundCheck__c(
@@ -92,7 +92,7 @@ private class BackgroundCheckRepositoryTest {
       FirstName = 'Bluey', 
       LastName = 'Heeler', 
       Email = 'bluey@test.com', 
-      atlas1__VolunteerAccess__c = 'Credit Check Required'
+      BackgroundCheck__c = 'Credit Check'
     );
     insert bluey;
     atlas1__BackgroundCheck__c check = new atlas1__BackgroundCheck__c(
@@ -116,13 +116,13 @@ private class BackgroundCheckRepositoryTest {
       FirstName = 'Bluey', 
       LastName = 'Heeler', 
       Email = 'bluey@test.com', 
-      atlas1__VolunteerAccess__c = 'Credit Check Required'
+      BackgroundCheck__c = 'Credit Check'
     );
     Contact bingo = new Contact(
       FirstName = 'Bingo', 
       LastName = 'Heeler', 
       Email = 'bingo@test.com', 
-      atlas1__VolunteerAccess__c = 'Background Check Required'
+      BackgroundCheck__c = 'Background Check'
     );
 
     insert new List<Contact>{ bluey, bingo };
@@ -151,13 +151,13 @@ private class BackgroundCheckRepositoryTest {
       FirstName = 'Bluey', 
       LastName = 'Heeler', 
       Email = 'bluey@test.com', 
-      atlas1__VolunteerAccess__c = 'Credit Check Required'
+      BackgroundCheck__c = 'Credit Check'
     );
     Contact bingo = new Contact(
       FirstName = 'Bingo', 
       LastName = 'Heeler', 
       Email = 'bingo@test.com', 
-      atlas1__VolunteerAccess__c = 'Background Check Required'
+      BackgroundCheck__c = 'Background Check'
     );
 
     insert new List<Contact>{ bluey, bingo };
@@ -186,7 +186,7 @@ private class BackgroundCheckRepositoryTest {
       FirstName = 'Bluey', 
       LastName = 'Heeler', 
       Email = 'bluey@test.com', 
-      atlas1__VolunteerAccess__c = 'Combined Background Check Required'
+      BackgroundCheck__c = 'Combined Background Check'
     );
     insert bluey;
     atlas1__BackgroundCheck__c check = new atlas1__BackgroundCheck__c(
@@ -210,7 +210,7 @@ private class BackgroundCheckRepositoryTest {
       FirstName = 'Bluey', 
       LastName = 'Heeler', 
       Email = 'bluey@test.com', 
-      atlas1__VolunteerAccess__c = 'Combined Background Check Required'
+      BackgroundCheck__c = 'Combined Background Check'
     );
     insert bluey;
     atlas1__BackgroundCheck__c[] checks = new atlas1__BackgroundCheck__c[]{ new atlas1__BackgroundCheck__c(
@@ -239,7 +239,7 @@ private class BackgroundCheckRepositoryTest {
       FirstName = 'Bluey', 
       LastName = 'Heeler', 
       Email = 'bluey@test.com', 
-      atlas1__VolunteerAccess__c = 'Combined Background Check Required'
+      BackgroundCheck__c = 'Combined Background Check'
     );
     insert bluey;
     atlas1__BackgroundCheck__c[] checks = new List<atlas1__BackgroundCheck__c>{ new atlas1__BackgroundCheck__c(

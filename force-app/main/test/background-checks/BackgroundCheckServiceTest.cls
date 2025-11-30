@@ -59,25 +59,25 @@ public with sharing class BackgroundCheckServiceTest {
       FirstName = 'Bluey', 
       LastName = 'Heeler', 
       Email = 'bluey@test.com', 
-      atlas1__VolunteerAccess__c = 'Credit Check Required'
+      BackgroundCheck__c = 'Credit Check'
     ), new Contact(
       Id = MockProvider.createId(Contact.class), 
       FirstName = 'Bingo', 
       LastName = 'Heeler', 
       Email = 'bingo@test.com', 
-      atlas1__VolunteerAccess__c = 'Background Check Required'
+      BackgroundCheck__c = 'Background Check'
     ), new Contact(
       Id = MockProvider.createId(Contact.class), 
       FirstName = 'Chilli', 
       LastName = 'Heeler', 
       Email = 'chilli@test.com', 
-      atlas1__VolunteerAccess__c = 'Background Check Required'
+      BackgroundCheck__c = 'Background Check'
     ), new Contact(
       Id = MockProvider.createId(Contact.class), 
       FirstName = 'Bandit', 
       LastName = 'Heeler', 
       Email = 'bandit@test.com', 
-      atlas1__VolunteerAccess__c = 'Combined Background Check Required'
+      BackgroundCheck__c = 'Combined Background Check'
     ) };
 
     return contacts;
@@ -233,7 +233,7 @@ public with sharing class BackgroundCheckServiceTest {
       FirstName = 'Bandit', 
       LastName = 'Heeler', 
       Email = 'bandit@test.com', 
-      atlas1__VolunteerAccess__c = 'Background Check Required;Credit Check Required'
+      BackgroundCheck__c = 'Background Check;Credit Check'
     ) };
     Contact bandit = contacts[0];
     Id userId = MockProvider.createId(User.class);

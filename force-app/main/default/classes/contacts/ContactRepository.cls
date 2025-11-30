@@ -65,14 +65,11 @@ public inherited sharing class ContactRepository {
     String[] inactive = new String[]{'Inactive', 'None'};
     // Check for any contacts that need background checks
     return [
-      SELECT Id, Name, atlas1__VolunteerAccess__c
+      SELECT Id, Name, BackgroundCheck__c
       FROM Contact
       WHERE
-        atlas1__VolunteerAccess__c INCLUDES (
-          'Credit Check Required',
-          'Background Check Required',
-          'Combined Background Check Required'
-        ) AND (
+        BackgroundCheck__c != 'Not Required' AND BackgroundCheck__c != null
+        AND (
           atlas1__BoardMemberStatus__c IN :active OR atlas1__FacilitatorStatus__c IN :active OR atlas1__LeadFacilitatorStatus__c IN :active OR GW_Volunteers__Volunteer_Status__c IN :active OR
           atlas1__TrainerStatus__c IN :active OR atlas1__ClientStatus__c IN :active OR atlas1__StaffStatus__c NOT IN :inactive
         )

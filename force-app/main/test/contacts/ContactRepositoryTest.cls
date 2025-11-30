@@ -26,7 +26,7 @@ private class ContactRepositoryTest {
       FirstName = 'Bluey', 
       LastName = 'Heeler', 
       Email = 'bluey@test.com', 
-      atlas1__VolunteerAccess__c = 'Active Projects- Academy'
+      BackgroundCheck__c = 'Not Required'
     );
     insert bluey;
     ContactRepository repo = new ContactRepository();
@@ -35,79 +35,78 @@ private class ContactRepositoryTest {
   }
 
   @isTest
-    static void getContactsNeedingBackgroundChecks_returnsEmpty_whenContactsNotActive(){
-        Contact[] contacts = new Contact[]{
-           new Contact(
-            FirstName = 'Bluey',
-            LastName = 'Heeler',
-            Email = 'bluey@test.com',
-            atlas1__VolunteerAccess__c = 'Background Check Required'
-        ),new Contact(
-            FirstName = 'Bingo',
-            LastName = 'Heeler',
-            Email = 'bingo@test.com',
-            atlas1__VolunteerAccess__c = 'Credit Check Required'
-        ),new Contact(
-            FirstName = 'Bluey',
-            LastName = 'Heeler',
-            Email = 'bluey@test.com',
-            atlas1__VolunteerAccess__c = 'Background Check Required;Credit Check Required'
-        )};
-        insert contacts;
-        ContactRepository repo = new ContactRepository();
-        Contact[] result = repo.getContactsNeedingBackgroundChecks();
-       System.assert(result.isEmpty());
-    }
-    @isTest
-    static void getContactsNeedingBackgroundChecks_returnsContact_whenContactNeedsCriminal(){
-    Contact bluey = new Contact(
+  static void getContactsNeedingBackgroundChecks_returnsEmpty_whenContactsNotActive() {
+    Contact[] contacts = new Contact[]{ new Contact(
       FirstName = 'Bluey', 
       LastName = 'Heeler', 
       Email = 'bluey@test.com', 
-            GW_Volunteers__Volunteer_Status__c = 'Active',
-      atlas1__VolunteerAccess__c = 'Background Check Required'
-    );
-    insert bluey;
+      BackgroundCheck__c = 'Background Check'
+    ), new Contact(
+      FirstName = 'Bingo', 
+      LastName = 'Heeler', 
+      Email = 'bingo@test.com', 
+      BackgroundCheck__c = 'Credit Check'
+    ), new Contact(
+      FirstName = 'Bluey', 
+      LastName = 'Heeler', 
+      Email = 'bluey@test.com', 
+      BackgroundCheck__c = 'Combined Background Check'
+    ) };
+    insert contacts;
     ContactRepository repo = new ContactRepository();
     Contact[] result = repo.getContactsNeedingBackgroundChecks();
-    Contact puppy = result[0];
-    System.assertEquals(bluey.Id, puppy.Id);
-    System.assertEquals(bluey.atlas1__VolunteerAccess__c, puppy.atlas1__VolunteerAccess__c);
+    System.assert(result.isEmpty());
   }
 
   @isTest
-    static void getContactsNeedingBackgroundChecks_returnsContact_whenContactNeedsCredit(){
+  static void getContactsNeedingBackgroundChecks_returnsContact_whenContactNeedsCriminal() {
     Contact bluey = new Contact(
       FirstName = 'Bluey', 
       LastName = 'Heeler', 
       Email = 'bluey@test.com', 
-            atlas1__BoardMemberStatus__c = 'Active',
-      atlas1__VolunteerAccess__c = 'Credit Check Required'
+      GW_Volunteers__Volunteer_Status__c = 'Active', 
+      BackgroundCheck__c = 'Background Check'
     );
     insert bluey;
     ContactRepository repo = new ContactRepository();
     Contact[] result = repo.getContactsNeedingBackgroundChecks();
     Contact puppy = result[0];
     System.assertEquals(bluey.Id, puppy.Id);
-    System.assertEquals(bluey.atlas1__VolunteerAccess__c, puppy.atlas1__VolunteerAccess__c);
+    System.assertEquals(bluey.BackgroundCheck__c, puppy.BackgroundCheck__c);
   }
 
   @isTest
-    static void getContactsNeedingBackgroundChecks_returnsContact_whenContactNeedsBoth(){
+  static void getContactsNeedingBackgroundChecks_returnsContact_whenContactNeedsCredit() {
     Contact bluey = new Contact(
       FirstName = 'Bluey', 
       LastName = 'Heeler', 
       Email = 'bluey@test.com', 
-            atlas1__FacilitatorStatus__c = 'Certified-Active',
-      atlas1__VolunteerAccess__c = 'Background Check Required;Credit Check Required'
+      atlas1__BoardMemberStatus__c = 'Active', 
+      BackgroundCheck__c = 'Credit Check'
     );
     insert bluey;
     ContactRepository repo = new ContactRepository();
     Contact[] result = repo.getContactsNeedingBackgroundChecks();
     Contact puppy = result[0];
     System.assertEquals(bluey.Id, puppy.Id);
-    System.assert(bluey.atlas1__VolunteerAccess__c.contains('Background Check Required'));
-    System.assert(bluey.atlas1__VolunteerAccess__c.contains('Credit Check Required'));
+    System.assertEquals(bluey.BackgroundCheck__c, puppy.BackgroundCheck__c);
+  }
+
+  @isTest
+  static void getContactsNeedingBackgroundChecks_returnsContact_whenContactNeedsBoth() {
+    Contact bluey = new Contact(
+      FirstName = 'Bluey', 
+      LastName = 'Heeler', 
+      Email = 'bluey@test.com', 
+      atlas1__FacilitatorStatus__c = 'Certified-Active', 
+      BackgroundCheck__c = 'Combined Background Check'
+    );
+    insert bluey;
+    ContactRepository repo = new ContactRepository();
+    Contact[] result = repo.getContactsNeedingBackgroundChecks();
+    Contact puppy = result[0];
+    System.assertEquals(bluey.Id, puppy.Id);
+    System.assert(bluey.BackgroundCheck__c.contains('Combined Background Check'));
   }
 
   @isTest
