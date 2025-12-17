@@ -8,7 +8,7 @@ private class ContactRepositoryTest {
     }
 
     @isTest
-    static void getContactsNeedingBackgroundChecks_returnsEmpty_whenNoContactsWithVolunteerAccess() {
+    static void getContactsNeedingBackgroundChecks_returnsEmpty_whenNoContactsWithVBackgroundCheckSet() {
         Contact bluey = new Contact(
             FirstName = 'Bluey', 
             LastName = 'Heeler', 

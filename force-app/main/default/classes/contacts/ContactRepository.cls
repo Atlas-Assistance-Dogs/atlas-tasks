@@ -70,8 +70,13 @@ public inherited sharing class ContactRepository {
       WHERE
         BackgroundCheck__c != 'Not Required' AND BackgroundCheck__c != null
         AND (
-          atlas1__BoardMemberStatus__c IN :active OR atlas1__FacilitatorStatus__c IN :active OR atlas1__LeadFacilitatorStatus__c IN :active OR GW_Volunteers__Volunteer_Status__c IN :active OR
-          atlas1__TrainerStatus__c IN :active OR atlas1__ClientStatus__c IN :active OR atlas1__StaffStatus__c NOT IN :inactive
+          (atlas1__Positions__c INCLUDES ('Board Member') AND atlas1__BoardMemberStatus__c IN :active) OR
+          (atlas1__Positions__c INCLUDES ('Team Facilitator') AND atlas1__FacilitatorStatus__c IN :active) OR
+          (atlas1__Positions__c INCLUDES ('Lead Facilitator') AND atlas1__LeadFacilitatorStatus__c IN :active) OR
+          (atlas1__Positions__c INCLUDES ('Volunteer') AND GW_Volunteers__Volunteer_Status__c IN :active) OR
+          (atlas1__Positions__c INCLUDES ('Trainer') AND atlas1__TrainerStatus__c IN :active) OR
+          (atlas1__Positions__c INCLUDES ('Client') AND atlas1__ClientStatus__c IN :active) OR
+          (atlas1__Positions__c INCLUDES ('Staff') AND atlas1__StaffStatus__c NOT IN :inactive)
         )
     ];
   }
