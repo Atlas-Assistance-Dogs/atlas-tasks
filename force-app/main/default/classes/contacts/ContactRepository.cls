@@ -61,7 +61,7 @@ public inherited sharing class ContactRepository {
   }
 
   public Contact[] getContactsNeedingBackgroundChecks() {
-    String[] active = new String[]{'Onboarding', 'In Training', 'Active', 'Certified-Active'};
+    String[] active = new String[]{'Onboarding', 'In Training', 'Active', 'Certified-Active', 'Certified'};
     String[] inactive = new String[]{'Inactive', 'None'};
     // Check for any contacts that need background checks
     return [

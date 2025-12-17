@@ -4,7 +4,7 @@ private class ContactRepositoryTest {
     static void getContactsNeedingBackgroundChecks_returnsEmpty_whenNoContacts() {
         ContactRepository repo = new ContactRepository();
         Contact[] result = repo.getContactsNeedingBackgroundChecks();
-        System.assert(result.isEmpty());
+        System.assert(result.isEmpty(), 'should be empty');
     }
 
     @isTest
@@ -12,12 +12,14 @@ private class ContactRepositoryTest {
         Contact bluey = new Contact(
             FirstName = 'Bluey', 
             LastName = 'Heeler', 
-            Email = 'bluey@test.com'
+            Email = 'bluey@test.com',
+            atlas1__Positions__c = 'Client',
+            atlas1__ClientStatus__c = 'In Training'
         );
         insert bluey;
         ContactRepository repo = new ContactRepository();
         Contact[] result = repo.getContactsNeedingBackgroundChecks();
-        System.assert(result.isEmpty());
+        System.assert(result.isEmpty(), 'should be empty');
     }
 
     @isTest
@@ -26,12 +28,14 @@ private class ContactRepositoryTest {
             FirstName = 'Bluey', 
             LastName = 'Heeler', 
             Email = 'bluey@test.com', 
+            atlas1__Positions__c = 'Client',
+            atlas1__ClientStatus__c = 'Certified',
             BackgroundCheck__c = 'Not Required'
         );
         insert bluey;
         ContactRepository repo = new ContactRepository();
         Contact[] result = repo.getContactsNeedingBackgroundChecks();
-        System.assert(result.isEmpty());
+        System.assert(result.isEmpty(), 'should be empty');
     }
 
     @isTest
@@ -40,22 +44,26 @@ private class ContactRepositoryTest {
             FirstName = 'Bluey', 
             LastName = 'Heeler', 
             Email = 'bluey@test.com', 
+            atlas1__Positions__c = 'Client',
             BackgroundCheck__c = 'Credit'
         ), new Contact(
             FirstName = 'Bingo', 
             LastName = 'Heeler', 
             Email = 'bingo@test.com', 
+            atlas1__Positions__c = 'Client',
+            atlas1__ClientStatus__c = 'Initial Inquiry',
             BackgroundCheck__c = 'Credit'
         ), new Contact(
             FirstName = 'Bluey', 
             LastName = 'Heeler', 
             Email = 'bluey@test.com', 
+            atlas1__ClientStatus__c = 'Onboarding',
             BackgroundCheck__c = 'Criminal and Credit'
         ) };
         insert contacts;
         ContactRepository repo = new ContactRepository();
         Contact[] result = repo.getContactsNeedingBackgroundChecks();
-        System.assert(result.isEmpty());
+        System.assert(result.isEmpty(), 'should be empty');
     }
 
     @isTest
@@ -64,6 +72,7 @@ private class ContactRepositoryTest {
             FirstName = 'Bluey', 
             LastName = 'Heeler', 
             Email = 'bluey@test.com', 
+            atlas1__Positions__c = 'Volunteer',
             GW_Volunteers__Volunteer_Status__c = 'Active', 
             BackgroundCheck__c = 'Criminal'
         );
@@ -71,8 +80,8 @@ private class ContactRepositoryTest {
         ContactRepository repo = new ContactRepository();
         Contact[] result = repo.getContactsNeedingBackgroundChecks();
         Contact puppy = result[0];
-        System.assertEquals(bluey.Id, puppy.Id);
-        System.assertEquals(bluey.BackgroundCheck__c, puppy.BackgroundCheck__c);
+        System.assertEquals(bluey.Id, puppy.Id, 'should be equal');
+        System.assertEquals(bluey.BackgroundCheck__c, puppy.BackgroundCheck__c, 'should be equal');
     }
 
     @isTest
@@ -81,6 +90,7 @@ private class ContactRepositoryTest {
             FirstName = 'Bluey', 
             LastName = 'Heeler', 
             Email = 'bluey@test.com', 
+            atlas1__Positions__c = 'Board Member',
             atlas1__BoardMemberStatus__c = 'Active', 
             BackgroundCheck__c = 'Credit'
         );
@@ -88,8 +98,8 @@ private class ContactRepositoryTest {
         ContactRepository repo = new ContactRepository();
         Contact[] result = repo.getContactsNeedingBackgroundChecks();
         Contact puppy = result[0];
-        System.assertEquals(bluey.Id, puppy.Id);
-        System.assertEquals(bluey.BackgroundCheck__c, puppy.BackgroundCheck__c);
+        System.assertEquals(bluey.Id, puppy.Id, 'should be equal');
+        System.assertEquals(bluey.BackgroundCheck__c, puppy.BackgroundCheck__c, 'should be equal');
     }
 
     @isTest
@@ -98,6 +108,7 @@ private class ContactRepositoryTest {
             FirstName = 'Bluey', 
             LastName = 'Heeler', 
             Email = 'bluey@test.com', 
+            atlas1__Positions__c = 'Team Facilitator',
             atlas1__FacilitatorStatus__c = 'Certified-Active', 
             BackgroundCheck__c = 'Criminal and Credit'
         );
@@ -105,8 +116,8 @@ private class ContactRepositoryTest {
         ContactRepository repo = new ContactRepository();
         Contact[] result = repo.getContactsNeedingBackgroundChecks();
         Contact puppy = result[0];
-        System.assertEquals(bluey.Id, puppy.Id);
-        System.assert(bluey.BackgroundCheck__c.contains('Criminal and Credit'));
+        System.assertEquals(bluey.Id, puppy.Id, 'should be equal');
+        System.assert(bluey.BackgroundCheck__c.contains('Criminal and Credit'), 'should contain Criminal and Credit');
     }
 
     @isTest
@@ -129,7 +140,7 @@ private class ContactRepositoryTest {
         ContactRepository repo = new ContactRepository();
         Set<Id> facilitators = repo.getActiveFacilitators();
 
-        System.assertEquals(new Set<Id>(), facilitators);
+        System.assertEquals(new Set<Id>(), facilitators, 'should be empty set');
     }
 
     @isTest
@@ -175,7 +186,7 @@ private class ContactRepositoryTest {
         ContactRepository repo = new ContactRepository();
         Set<Id> facilitators = repo.getActiveFacilitators();
 
-        System.assertEquals(new Set<Id>(), facilitators);
+        System.assertEquals(new Set<Id>(), facilitators, 'should be empty set');
     }
 
     @isTest
@@ -221,7 +232,7 @@ private class ContactRepositoryTest {
         ContactRepository repo = new ContactRepository();
         Set<Id> facilitators = repo.getActiveFacilitators();
 
-        System.assertEquals(new Set<Id>{ facs[3].id }, facilitators);
+        System.assertEquals(new Set<Id>{ facs[3].id }, facilitators, 'should be set with just one');
     }
 
     @isTest
@@ -267,7 +278,7 @@ private class ContactRepositoryTest {
         ContactRepository repo = new ContactRepository();
         Set<Id> facilitators = repo.getActiveFacilitators();
 
-        System.assertEquals(new Set<Id>{ facs[3].id, facs[5].id }, facilitators);
+        System.assertEquals(new Set<Id>{ facs[3].id, facs[5].id }, facilitators, 'should have 2 facilitators');
     }
 
     @isTest
@@ -296,21 +307,21 @@ private class ContactRepositoryTest {
         Contact actual = repo.getPositionStatusForContact(vala.Id);
 
         // Assert
-        System.assertEquals(vala.Id, actual.Id);
-        System.assertEquals(new Set<String>(vala.atlas1__Positions__c.split(';')), new Set<String>(actual.atlas1__Positions__c.split(';')));
-        System.assertEquals(vala.atlas1__BoardMemberStatus__c, actual.atlas1__BoardMemberStatus__c);
-        System.assertEquals(vala.atlas1__ClientCertificationValidUntil__c, actual.atlas1__ClientCertificationValidUntil__c);
-        System.assertEquals(vala.atlas1__ClientStatus__c, actual.atlas1__ClientStatus__c);
-        System.assertEquals(vala.atlas1__FacilitatorCertAgreementReceived__c, actual.atlas1__FacilitatorCertAgreementReceived__c);
-        System.assertEquals(vala.atlas1__FacilitatorStatus__c, actual.atlas1__FacilitatorStatus__c);
-        System.assertEquals(vala.GW_Volunteers__Volunteer_Status__c, actual.GW_Volunteers__Volunteer_Status__c);
-        System.assertEquals(vala.atlas1__LeadFacilitatorStatus__c, actual.atlas1__LeadFacilitatorStatus__c);
-        System.assertEquals(vala.atlas1__PuppyCertAgreementReceived__c, actual.atlas1__PuppyCertAgreementReceived__c);
-        System.assertEquals(vala.atlas1__PuppyRaiserStatus__c, actual.atlas1__PuppyRaiserStatus__c);
-        System.assertEquals(vala.atlas1__StaffStatus__c, actual.atlas1__StaffStatus__c);
-        System.assertEquals(vala.atlas1__StaffStatus__c, actual.atlas1__StaffStatus__c);
-        System.assertEquals(vala.atlas1__TrainerCertAgreementReceived__c, actual.atlas1__TrainerCertAgreementReceived__c);
-        System.assertEquals(vala.atlas1__TrainerStatus__c, actual.atlas1__TrainerStatus__c);
+        System.assertEquals(vala.Id, actual.Id, 'id should match');
+        System.assertEquals(new Set<String>(vala.atlas1__Positions__c.split(';')), new Set<String>(actual.atlas1__Positions__c.split(';')), 'should match');
+        System.assertEquals(vala.atlas1__BoardMemberStatus__c, actual.atlas1__BoardMemberStatus__c, 'board member status should match');
+        System.assertEquals(vala.atlas1__ClientCertificationValidUntil__c, actual.atlas1__ClientCertificationValidUntil__c, 'client cert date should match');
+        System.assertEquals(vala.atlas1__ClientStatus__c, actual.atlas1__ClientStatus__c, 'client status should match');
+        System.assertEquals(vala.atlas1__FacilitatorCertAgreementReceived__c, actual.atlas1__FacilitatorCertAgreementReceived__c, 'facilitator agreement date should match');
+        System.assertEquals(vala.atlas1__FacilitatorStatus__c, actual.atlas1__FacilitatorStatus__c, 'facilitator status should match');
+        System.assertEquals(vala.GW_Volunteers__Volunteer_Status__c, actual.GW_Volunteers__Volunteer_Status__c, 'volunteer status should match');
+        System.assertEquals(vala.atlas1__LeadFacilitatorStatus__c, actual.atlas1__LeadFacilitatorStatus__c, 'lead facilitator status should match');
+        System.assertEquals(vala.atlas1__PuppyCertAgreementReceived__c, actual.atlas1__PuppyCertAgreementReceived__c, 'puppy cert agreement date should match');
+        System.assertEquals(vala.atlas1__PuppyRaiserStatus__c, actual.atlas1__PuppyRaiserStatus__c, 'puppy raiser status should match');
+        System.assertEquals(vala.atlas1__StaffStatus__c, actual.atlas1__StaffStatus__c, 'staff status should match');
+        System.assertEquals(vala.atlas1__StandaloneStatus__c, actual.atlas1__StandaloneStatus__c, 'standalone status should match');
+        System.assertEquals(vala.atlas1__TrainerCertAgreementReceived__c, actual.atlas1__TrainerCertAgreementReceived__c, 'trainer cert date should match');
+        System.assertEquals(vala.atlas1__TrainerStatus__c, actual.atlas1__TrainerStatus__c, 'trainer status should match');
     }
 
     @isTest
@@ -344,7 +355,7 @@ private class ContactRepositoryTest {
     public static void getClientStatus_returnsNull_whenNotFound() {
         ContactRepository repo = new ContactRepository();
         Contact actual = repo.getClientStatus(MockProvider.createId(Contact.class));
-        System.assertEquals(null, actual, 'should be nul');
+        System.assertEquals(null, actual, 'should be null');
     }
 
     @isTest
