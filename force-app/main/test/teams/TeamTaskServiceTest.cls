@@ -10,6 +10,7 @@ private class TeamTaskServiceTest {
     private static DogRepository dogRepo;
     private static TaskRepository taskRepo;
     private static PatRepository patRepo;
+    private static EmailService emailServ;
     // Users
     private static User admin;
     private static User clientManager;
@@ -43,6 +44,7 @@ private class TeamTaskServiceTest {
         dogRepo = (DogRepository)mocks.createMock(DogRepository.class);
         taskRepo = (TaskRepository)mocks.createMock(TaskRepository.class);
         patRepo = (PatRepository)mocks.createMock(PatRepository.class);
+        emailServ = (EmailService)mocks.createmock(EmailService.class);
 
         // create the users
         admin = new User(
@@ -74,7 +76,7 @@ private class TeamTaskServiceTest {
         mocks.expectedCalls.add(new MockCallData(taskRepo, 'getTaskUser', tfManager, new Object[]{ 'TF Manager' }));
         mocks.expectedCalls.add(new MockCallData(taskRepo, 'getTaskUser', trainerManager, new Object[]{ 'Trainer Manager' }));
         // creating the service so it gets the users
-        service = new TeamTaskService(teamRepo, relationshipRepo, dogRepo, taskRepo, patRepo);
+        service = new TeamTaskService(teamRepo, relationshipRepo, dogRepo, taskRepo, patRepo, emailServ);
     }
 
     private static void assertTask(Task expected, Task t) {
@@ -109,7 +111,7 @@ private class TeamTaskServiceTest {
     @isTest
     static void handleTrainingStart_returnsWhenNoAdmin() {
         makeData();
-        service = new TeamTaskService(teamRepo, relationshipRepo, dogRepo, taskRepo, patRepo);
+        service = new TeamTaskService(teamRepo, relationshipRepo, dogRepo, taskRepo, patRepo, emailServ);
         atlas1__Team__c team = new atlas1__Team__c(
             Id = MockProvider.createId(atlas1__Team__c.class)
         );
@@ -513,7 +515,7 @@ private class TeamTaskServiceTest {
     @isTest
     static void handleCertificationStart_throwsExceptionWhenNoPassingPat() {
         makeData();
-        service = new TeamTaskService(teamRepo, relationshipRepo, dogRepo, taskRepo, patRepo);
+        service = new TeamTaskService(teamRepo, relationshipRepo, dogRepo, taskRepo, patRepo, emailServ);
         atlas1__Team__c team = new atlas1__Team__c(
             Id = MockProvider.createId(atlas1__Team__c.class),
             Name = 'Test Team'
@@ -565,7 +567,7 @@ private class TeamTaskServiceTest {
     @isTest
     static void handleCertificationStart_returnsWhenNoCoordinator() {
         makeData();
-        service = new TeamTaskService(teamRepo, relationshipRepo, dogRepo, taskRepo, patRepo);
+        service = new TeamTaskService(teamRepo, relationshipRepo, dogRepo, taskRepo, patRepo, emailServ);
         atlas1__Team__c team = new atlas1__Team__c(
             Id = MockProvider.createId(atlas1__Team__c.class)
         );

@@ -5,6 +5,7 @@ public class TeamTaskService {
     DogRepository dogRepo;
     TaskRepository taskRepo;
     PatRepository patRepo;
+    EmailService emailServ;
     // Users
     User admin;
     User clientManager;
@@ -35,6 +36,7 @@ public class TeamTaskService {
         dogRepo = new DogRepository();
         taskRepo = new TaskRepository();
         patRepo = new PatRepository();
+        emailServ = new EmailService();
         getUsers();
     }
 
@@ -47,12 +49,13 @@ public class TeamTaskService {
     }
 
     @testVisible
-    private TeamTaskService(TeamRepository teamRepo, RelationshipRepository relRepo, DogRepository dogRepo, TaskRepository taskRepo, PatRepository patRepo) {
+    private TeamTaskService(TeamRepository teamRepo, RelationshipRepository relRepo, DogRepository dogRepo, TaskRepository taskRepo, PatRepository patRepo, EmailService emailServ) {
         this.teamRepo = teamRepo;
         this.relRepo = relRepo;
         this.dogRepo = dogRepo;
         this.taskRepo = taskRepo;
         this.patRepo = patRepo;
+        this.emailServ = emailServ;
         getUsers();
     }
 
@@ -255,6 +258,22 @@ public class TeamTaskService {
             }
         }
         taskRepo.create(tasks);
+    }
+
+    // check the dog status and send any emails needed to the client
+    private void checkDogStatus(atlas1__Team__c team) {
+        Date today = Date.today();
+        // we only want to send these emails on the first of the month
+        if (today.day() != 1) {
+            return;
+        }
+        atlas1__Dog__c dog = dogRepo.getById(team.atlas1__Dog__c);
+        if (dog == null) {
+            return; // this shouldn't happen, but checking just to be safe
+        }
+        if ((dog.atlas1__VaccineDueRabies__c != null && today.daysBetween(dog.atlas1__VaccineDueRabies__c) <= 60) || (dog.atlas1__PhysicalExamDue__c != null && today.daysBetween(dog.atlas1__PhysicalExamDue__c) <= 60)) {
+            EmailTemplate template = emailServ.getTemplate('DogVacExamsReminder');
+        }
     }
 
 }
