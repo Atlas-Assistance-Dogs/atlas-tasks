@@ -7,6 +7,10 @@
       "versionName": "ver 0.1.4",
       "versionNumber": "0.1.4.NEXT",
       "dependencies": []
+    },
+    {
+      "path": "unpackaged/pre",
+      "default": false
     }
   ],
   "namespace": "",
