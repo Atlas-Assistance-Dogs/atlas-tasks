@@ -16,7 +16,7 @@ private class TeamServiceTest {
         teamRepo = (TeamRepository)mocks.createMock(TeamRepository.class);
         relationshipRepo = (RelationshipRepository)mocks.createMock(RelationshipRepository.class);
         emailSrv = (EmailService)mocks.createMock(EmailService.class);
-        service = new TeamService(teamRepo, emailSrv, relationshipRepo, null, null);
+        service = new TeamService(teamRepo, emailSrv, relationshipRepo);
     }
 
     @isTest
@@ -268,4 +268,8 @@ private class TeamServiceTest {
         System.assertEquals(0, emails.size());
     }
 
+    @isTest
+    static void checkDogStatus_sendsNoEmails_whenNoTeams() {
+
+    }
 }
