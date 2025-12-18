@@ -221,7 +221,6 @@ public class TeamTaskService {
             return;
         }
         List<atlas1__Team__c> teams = teamRepo.getByStatus('Certified');
-
         Date today = Date.today();
         List<Task> tasks = new List<Task>();
         for (atlas1__Team__c team : teams) {

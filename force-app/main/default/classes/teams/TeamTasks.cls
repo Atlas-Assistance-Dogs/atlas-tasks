@@ -14,6 +14,5 @@ global class TeamTasks implements Schedulable {
   global void execute(SchedulableContext SC) {
     service.createTrainingTasks();
     service.createCertificationTasks();
-    service.checkDogStatus();
   }
 }
