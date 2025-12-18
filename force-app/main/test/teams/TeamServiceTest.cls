@@ -25,16 +25,16 @@ private class TeamServiceTest {
         mocks.expectedCalls.add(new MockCallData(teamRepo, 'getByStatus', new List<atlas1__Team__c>()));
         service.remindClients();
         // Assert
-        System.assert(!mocks.actualCalls.isEmpty());
+        System.Assert.isFalse(mocks.actualCalls.isEmpty(), 'calls should not be empty');
         // the first call would be to get teams
         MockCallData getTeams = mocks.actualCalls[0];
-        System.assertEquals('getByStatus', getTeams.methodName);
-        System.assertEquals('In Training', getTeams.args[0]);
+        System.assertEquals('getByStatus', getTeams.methodName, 'first call should be getByStatus');
+        System.assertEquals('In Training', getTeams.args[0], 'status should be In Training');
         // see if there is a call to sendEmail, if there is, there should be no
         // emails
         for (MockCallData call : mocks.actualCalls) {
             if (call.obj == emailSrv && call.methodName == 'sendEmail') {
-                System.assert(((List<Messaging.SingleEmailMessage>)call.args[0]).isEmpty());
+                System.assert(((List<Messaging.SingleEmailMessage>)call.args[0]).isEmpty(), 'emails should be empty');
             }
         }
     }
@@ -224,10 +224,10 @@ private class TeamServiceTest {
         // Act
         service.remindFacilitators();
         // Assert
-        System.assert(!mocks.actualCalls.isEmpty());
+        System.Assert.isFalse(mocks.actualCalls.isEmpty(), 'should have at least one call');
         // the first call would be to get teams
         MockCallData getTeams = mocks.actualCalls[0];
-        System.assertEquals('In Training', getTeams.args[0]);
+        System.assertEquals('In Training', getTeams.args[0], 'first arg should be In Training');
         // the fourth call would be to get facilitators
         MockCallData getFac;
         MockCallData sendEmail;
@@ -239,8 +239,8 @@ private class TeamServiceTest {
                 sendEmail = mockCall;
             }
         }
-        System.assertEquals(null, getFac);
-        System.assertEquals(null, sendEmail);
+        System.Assert.isNull(getFac, 'facilitator should be null');
+        System.Assert.isNull(sendEmail, 'sendEmail should be null');
     }
 
     @isTest
@@ -261,15 +261,86 @@ private class TeamServiceTest {
         mocks.expectedCalls.add(new MockCallData(relationshipRepo, 'getCurrentRelated', relationships));
         service.remindFacilitators();
         // Assert
-        System.assert(!mocks.actualCalls.isEmpty());
+        System.Assert.isFalse(mocks.actualCalls.isEmpty(), 'calls should not be empty');
         // the last call would be to send emails
         MockCallData data = mocks.actualCalls[mocks.actualCalls.size() - 1];
         List<Messaging.SingleEmailMessage> emails = (List<Messaging.SingleEmailMessage>)data.args[0];
-        System.assertEquals(0, emails.size());
+        System.assertEquals(0, emails.size(), 'no emails should be sent');
     }
 
     @isTest
     static void checkDogStatus_sendsNoEmails_whenNoTeams() {
-
+        makeData();
+        mocks.expectedCalls.add(new MockCallData(teamRepo, 'getActiveDogs', new atlas1__Team__c[]{  }));
+        // Act
+        service.checkDogStatus();
+        // Assert
+        System.Assert.areEqual(1, mocks.actualCalls.size(), 'no emails should be sent');
     }
+
+    @isTest
+    static void checkDogStatus_sendsEmails_whenTeamsWithDogVetDatesWithin60days() {
+        makeData();
+        atlas1__Team__c[] teams = new atlas1__Team__c[]{ new atlas1__Team__c(
+            atlas1__Client__c = MockProvider.createId(Contact.class), 
+            atlas1__Dog__r = new atlas1__Dog__c(
+                Id = MockProvider.createId(atlas1__Dog__c.class), 
+                atlas1__VaccineDueRabies__c = Date.today().addDays(60), 
+                atlas1__PhysicalExamDue__c = Date.today().addMonths(3)
+            )
+        ), new atlas1__Team__c(
+            atlas1__Client__c = MockProvider.createId(Contact.class), 
+            atlas1__Dog__r = new atlas1__Dog__c(
+                Id = MockProvider.createId(atlas1__Dog__c.class), 
+                atlas1__VaccineDueRabies__c = Date.today().addDays(365), 
+                atlas1__PhysicalExamDue__c = Date.today().addDays(60)
+            )
+        ), new atlas1__Team__c(
+            atlas1__Client__c = MockProvider.createId(Contact.class), 
+            atlas1__Dog__r = new atlas1__Dog__c(
+                Id = MockProvider.createId(atlas1__Dog__c.class), 
+                atlas1__VaccineDueRabies__c = Date.today().addDays(35), 
+                atlas1__PhysicalExamDue__c = Date.today().addDays(35)
+            )
+        ), new atlas1__Team__c(
+            atlas1__Client__c = MockProvider.createId(Contact.class), 
+            atlas1__Dog__r = new atlas1__Dog__c(
+                Id = MockProvider.createId(atlas1__Dog__c.class), 
+                atlas1__VaccineDueRabies__c = Date.today(), 
+                atlas1__PhysicalExamDue__c = Date.today()
+            )
+        ) };
+        atlas1__Team__c[] allTeams = new atlas1__Team__c[]{ new atlas1__Team__c(), new atlas1__Team__c(
+            atlas1__Dog__r = new atlas1__Dog__c()
+        ), new atlas1__Team__c(
+            atlas1__Dog__r = new atlas1__Dog__c(
+                atlas1__VaccineDueRabies__c = Date.today().addMonths(3), 
+                atlas1__PhysicalExamDue__c = Date.today().addMonths(3)
+            )
+        ) };
+        allTeams.addAll(teams);
+        mocks.expectedCalls.add(new MockCallData(teamRepo, 'getActiveDogs', allTeams));
+        Id templateId = MockProvider.createId(EmailTemplate.class);
+        mocks.expectedCalls.add(new MockCallData(emailSrv, 'getTemplate', new EmailTemplate(
+            Id = templateId
+        )));
+        // Act
+        service.checkDogStatus();
+        // Assert
+        MockCallData call = mocks.findCallByMethod('sendEmail');
+        Messaging.SingleEmailMessage[] messages = (Messaging.SingleEmailMessage[])call.args[0];
+        System.Assert.areEqual(4, messages.size(), '4 emails should be sent');
+
+        Integer idx = 0;
+        for (MockCallData c : mocks.actualCalls) {
+            if (c.methodName == 'createEmail') {
+                atlas1__Team__c team = teams[idx];
+                System.Assert.areEqual(team.atlas1__Dog__r.Id, c.args[0]);
+                System.Assert.areEqual(team.atlas1__Client__c, c.args[1]);
+                System.Assert.areEqual(templateId, c.args[2]);
+                idx++;
+            }
+        }
+    }
+
 }

@@ -70,15 +70,18 @@ public inherited sharing class TeamService {
   public void checkDogStatus() {
     Date today = Date.today();
     List<atlas1__Team__c> teams = teamRepo.getActiveDogs();
+    if (teams.isEmpty()) {
+      return;
+    }
     List<messaging.SingleEmailMessage> emails = new List<messaging.SingleEmailMessage>();
+    EmailTemplate template = emailServ.getTemplate('DogVacExamsReminder');
     for (atlas1__Team__c team : teams) {
       if (team.atlas1__Dog__r == null) {
-        return; // this shouldn't happen, but checking just to be safe
+        continue; // this shouldn't happen, but checking just to be safe
       }
       atlas1__Dog__c dog = team.atlas1__Dog__r;
       if ((dog.atlas1__VaccineDueRabies__c != null && today.daysBetween(dog.atlas1__VaccineDueRabies__c) <= 60) ||
         (dog.atlas1__PhysicalExamDue__c != null && today.daysBetween(dog.atlas1__PhysicalExamDue__c) <= 60)) {
-        EmailTemplate template = emailServ.getTemplate('DogVacExamsReminder');
         emails.add(emailServ.createEmail(dog.Id, team.atlas1__Client__c, template.Id));
       }
     }
