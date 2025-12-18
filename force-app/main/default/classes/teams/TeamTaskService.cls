@@ -224,6 +224,7 @@ public class TeamTaskService {
             return;
         }
         List<atlas1__Team__c> teams = teamRepo.getByStatus('Certified');
+
         Date today = Date.today();
         List<Task> tasks = new List<Task>();
         for (atlas1__Team__c team : teams) {
@@ -261,19 +262,26 @@ public class TeamTaskService {
     }
 
     // check the dog status and send any emails needed to the client
-    private void checkDogStatus(atlas1__Team__c team) {
+    public void checkDogStatus() {
         Date today = Date.today();
         // we only want to send these emails on the first of the month
         if (today.day() != 1) {
             return;
         }
-        atlas1__Dog__c dog = dogRepo.getById(team.atlas1__Dog__c);
-        if (dog == null) {
-            return; // this shouldn't happen, but checking just to be safe
+        List<atlas1__Team__c> teams = teamRepo.getActiveDogs();
+        List<messaging.SingleEmailMessage> emails = new List<messaging.SingleEmailMessage>();
+        for (atlas1__Team__c team : teams) {
+            if (team.atlas1__Dog__r == null) {
+                return; // this shouldn't happen, but checking just to be safe
+            }
+            atlas1__Dog__c dog = team.atlas1__Dog__r;
+            if ((dog.atlas1__VaccineDueRabies__c != null && today.daysBetween(dog.atlas1__VaccineDueRabies__c) <= 60) ||
+                (dog.atlas1__PhysicalExamDue__c != null && today.daysBetween(dog.atlas1__PhysicalExamDue__c) <= 60)) {
+                EmailTemplate template = emailServ.getTemplate('DogVacExamsReminder');
+                emails.add(emailServ.createEmail(dog.Id, team.atlas1__Client__c, template.Id));
+            }
         }
-        if ((dog.atlas1__VaccineDueRabies__c != null && today.daysBetween(dog.atlas1__VaccineDueRabies__c) <= 60) || (dog.atlas1__PhysicalExamDue__c != null && today.daysBetween(dog.atlas1__PhysicalExamDue__c) <= 60)) {
-            EmailTemplate template = emailServ.getTemplate('DogVacExamsReminder');
-        }
+        emailServ.sendEmail(emails);
     }
 
 }
