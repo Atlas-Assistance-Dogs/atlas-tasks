@@ -75,6 +75,9 @@ public inherited sharing class TeamService {
     }
     List<messaging.SingleEmailMessage> emails = new List<messaging.SingleEmailMessage>();
     EmailTemplate template = emailServ.getTemplate('DogVacExamsReminder');
+    if (template == null) {
+      return;
+    }
     for (atlas1__Team__c team : teams) {
       if (team.atlas1__Dog__r == null) {
         continue; // this shouldn't happen, but checking just to be safe

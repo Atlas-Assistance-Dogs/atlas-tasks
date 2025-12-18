@@ -56,22 +56,22 @@ private class TeamServiceTest {
         mocks.expectedCalls.add(new MockCallData(teamRepo, 'getByStatus', new List<atlas1__Team__c>{ team }));
         service.remindClients();
         // Assert
-        System.assert(!mocks.actualCalls.isEmpty());
+        System.Assert.isFalse(mocks.actualCalls.isEmpty(), 'should not be empty');
         // the first call would be to get teams
         MockCallData getTeams = mocks.actualCalls[0];
-        System.assertEquals('getByStatus', getTeams.methodName);
-        System.assertEquals('In Training', getTeams.args[0]);
+        System.assertEquals('getByStatus', getTeams.methodName, 'method name should be getByStatus');
+        System.assertEquals('In Training', getTeams.args[0], 'first argument should be In Training');
         // the next-to-last call would be to create email
         MockCallData createEmail = mocks.actualCalls[mocks.actualCalls.size() - 2];
         Id teamId = (Id) createEmail.args[0];
         Id clientId = (Id) createEmail.args[1];
         Id templateId = (Id) createEmail.args[2];
-        System.AssertEquals(team.Id, teamId);
-        System.assertEquals(team.atlas1__Client__c, clientId);
-        System.AssertEquals(template.Id, templateId);
+        System.AssertEquals(team.Id, teamId, 'teamId should match');
+        System.assertEquals(team.atlas1__Client__c, clientId, 'clientId should match');
+        System.AssertEquals(template.Id, templateId, 'templateId should match');
         MockCallData data = mocks.actualCalls[mocks.actualCalls.size() - 1];
         List<Messaging.SingleEmailMessage> emails = (List<Messaging.SingleEmailMessage>)data.args[0];
-        System.assertEquals(1, emails.size());
+        System.assertEquals(1, emails.size(), 'should have 1 email');
     }
 
     @isTest
@@ -102,14 +102,14 @@ private class TeamServiceTest {
             Id teamId = (Id) data.args[0];
             Id clientId = (Id) data.args[1];
             Id templateId = (Id) data.args[2];
-            System.AssertEquals(team.Id, teamId);
-            System.assertEquals(team.atlas1__Client__c, clientId);
-            System.AssertEquals(template.Id, templateId);
+            System.AssertEquals(team.Id, teamId, 'teamId should match');
+            System.assertEquals(team.atlas1__Client__c, clientId, 'clientId should match');
+            System.AssertEquals(template.Id, templateId, 'templateId should match');
         }
         // the last call would be to send emails
         MockCallData data = mocks.actualCalls[mocks.actualCalls.size() - 1];
         List<Messaging.SingleEmailMessage> emails = (List<Messaging.SingleEmailMessage>)data.args[0];
-        System.assertEquals(5, emails.size());
+        System.assertEquals(5, emails.size(), 'size should be 5');
     }
 
     private static Map<Id, Id> facilitatorToTeamIds = new Map<Id, Id>();
@@ -159,10 +159,10 @@ private class TeamServiceTest {
         // Act
         service.remindFacilitators();
         // Assert
-        System.assert(!mocks.actualCalls.isEmpty());
+        System.Assert.isFalse(mocks.actualCalls.isEmpty(), 'actual calls should not be empty');
         // the first call would be to get teams
         MockCallData getTeams = mocks.actualCalls[0];
-        System.assertEquals('In Training', getTeams.args[0]);
+        System.assertEquals('In Training', getTeams.args[0], 'first argument should be In Training');
         // find the call to get facilitators
         MockCallData getFac;
         for (MockCallData mockCall : mocks.actualCalls) {
@@ -171,23 +171,23 @@ private class TeamServiceTest {
                 break;
             }
         }
-        System.assertNotEquals(null, getFac);
+        System.Assert.isNotNull(getFac, 'getFac should not be null');
         // first parameter is client contact ids
-        System.assertEquals(clientIds, getFac.args[0]);
+        System.assertEquals(clientIds, getFac.args[0], 'first arge should be clientIds');
         // second parameter is type
-        System.assertEquals('Team Facilitator', getFac.args[1]);
+        System.assertEquals('Team Facilitator', getFac.args[1], 'second arge should be Team Facilitator');
         // the last call would be to send emails
         MockCallData data = mocks.actualCalls[mocks.actualCalls.size() - 1];
         List<Messaging.SingleEmailMessage> emails = (List<Messaging.SingleEmailMessage>)data.args[0];
-        System.assertEquals(7, emails.size());
+        System.assertEquals(7, emails.size(), 'should have 7 emails');
         for (MockCallData cdata : mocks.actualCalls) {
             if (cdata.methodName == 'createEmail') {
                 Id teamId = (Id) cdata.args[0];
                 Id whoId = (Id) cdata.args[1];
                 Id templateId = (Id) cdata.args[2];
-                System.assert(facilitatorIds.contains(whoId));
-                System.assertEquals(facilitatorToTeamIds.get(whoId), teamId);
-                System.assertEquals(template.Id, templateId);
+                System.assert(facilitatorIds.contains(whoId), 'facilitator ids should include whoId');
+                System.assertEquals(facilitatorToTeamIds.get(whoId), teamId, 'teamId should match whoId');
+                System.assertEquals(template.Id, templateId, 'template should match');
                 facilitatorIds.remove(whoId);
             }
         }
@@ -201,7 +201,7 @@ private class TeamServiceTest {
         // Act
         service.remindFacilitators();
         // Assert
-        System.assert(!mocks.actualCalls.isEmpty());
+        System.Assert.isFalse(mocks.actualCalls.isEmpty(), 'no calls should have been made');
         // the fourth call would be to get facilitators
         MockCallData getFac;
         MockCallData sendEmail;
@@ -213,8 +213,8 @@ private class TeamServiceTest {
                 sendEmail = mockCall;
             }
         }
-        System.assertEquals(null, getFac);
-        System.assertEquals(null, sendEmail);
+        System.Assert.isNull(getFac, 'should not call getFacilitator');
+        System.Assert.isNull(sendEmail, 'should not call sendEmail');
     }
 
     @isTest
@@ -276,6 +276,17 @@ private class TeamServiceTest {
         service.checkDogStatus();
         // Assert
         System.Assert.areEqual(1, mocks.actualCalls.size(), 'no emails should be sent');
+    }
+
+    @isTest
+    static void checkDogStatus_sendsNoEmails_whenNoTemplate() {
+        makeData();
+        mocks.expectedCalls.add(new MockCallData(teamRepo, 'getActiveDogs', new atlas1__Team__c[]{ new atlas1__Team__c() }));
+        mocks.expectedCalls.add(new MockCallData(emailSrv, 'getTemplate', null));
+        // Act
+        service.checkDogStatus();
+        // Assert
+        System.Assert.areEqual(2, mocks.actualCalls.size(), 'no emails should be sent');
     }
 
     @isTest
