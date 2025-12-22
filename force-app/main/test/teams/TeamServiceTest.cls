@@ -320,14 +320,26 @@ private class TeamServiceTest {
                 atlas1__VaccineDueRabies__c = Date.today(), 
                 atlas1__PhysicalExamDue__c = Date.today()
             )
+        ), new atlas1__Team__c(
+            atlas1__Client__c = MockProvider.createId(Contact.class), 
+            atlas1__Dog__r = new atlas1__Dog__c(
+                Id = MockProvider.createId(atlas1__Dog__c.class), 
+                atlas1__VaccineDueRabies__c = Date.today(), 
+                atlas1__PhysicalExamDue__c = Date.today()
+            )
+        ), new atlas1__Team__c(
+            atlas1__Client__c = MockProvider.createId(Contact.class), 
+            atlas1__Dog__r = new atlas1__Dog__c(
+                atlas1__VaccineDueDA2PP__c = Date.today().addDays(60)
+            )
+        ), new atlas1__Team__c(
+            atlas1__Client__c = MockProvider.createId(Contact.class), 
+            atlas1__Dog__r = new atlas1__Dog__c(
+                atlas1__VaccineDueDA2PP__c = Date.today()
+            )
         ) };
         atlas1__Team__c[] allTeams = new atlas1__Team__c[]{ new atlas1__Team__c(), new atlas1__Team__c(
             atlas1__Dog__r = new atlas1__Dog__c()
-        ), new atlas1__Team__c(
-            atlas1__Dog__r = new atlas1__Dog__c(
-                atlas1__VaccineDueRabies__c = Date.today().addMonths(3), 
-                atlas1__PhysicalExamDue__c = Date.today().addMonths(3)
-            )
         ) };
         allTeams.addAll(teams);
         mocks.expectedCalls.add(new MockCallData(teamRepo, 'getActiveDogs', allTeams));
@@ -340,7 +352,7 @@ private class TeamServiceTest {
         // Assert
         MockCallData call = mocks.findCallByMethod('sendEmail');
         Messaging.SingleEmailMessage[] messages = (Messaging.SingleEmailMessage[])call.args[0];
-        System.Assert.areEqual(4, messages.size(), '4 emails should be sent');
+        System.Assert.areEqual(teams.size(), messages.size(), '7 emails should be sent');
 
         Integer idx = 0;
         for (MockCallData c : mocks.actualCalls) {

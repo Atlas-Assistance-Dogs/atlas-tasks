@@ -84,7 +84,8 @@ public inherited sharing class TeamService {
       }
       atlas1__Dog__c dog = team.atlas1__Dog__r;
       if ((dog.atlas1__VaccineDueRabies__c != null && today.daysBetween(dog.atlas1__VaccineDueRabies__c) <= 60) ||
-        (dog.atlas1__PhysicalExamDue__c != null && today.daysBetween(dog.atlas1__PhysicalExamDue__c) <= 60)) {
+        (dog.atlas1__PhysicalExamDue__c != null && today.daysBetween(dog.atlas1__PhysicalExamDue__c) <= 60) ||
+        (dog.atlas1__VaccineDueDA2PP__c != null && today.daysBetween(dog.atlas1__VaccineDueDA2PP__c) <= 60 )) {
         emails.add(emailServ.createEmail(dog.Id, team.atlas1__Client__c, template.Id));
       }
     }
