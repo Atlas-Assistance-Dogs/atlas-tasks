@@ -9,7 +9,7 @@
       "dependencies": []
     },
     {
-      "path": "unpackaged/pre",
+      "path": "unpackaged/post",
       "default": false
     }
   ],
