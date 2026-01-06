@@ -15,7 +15,7 @@ public inherited sharing class CertificationRepository {
                    atlas1__Approved__c, 
                    atlas1__Contact__c
             FROM atlas1__Certification__c
-            WHERE atlas1__Status__c = 'Current' AND atlas1__Type__c = 'Trainer'];
+            WHERE atlas1__Status__c = 'Active' AND atlas1__Type__c = 'Trainer' AND atlas1__Contact__r.atlas1__IsTrainer__c = true AND atlas1__Contact__r.atlas1__TrainerStatus__c = 'Certified-Active'];
   }
 
 }
