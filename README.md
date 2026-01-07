@@ -35,7 +35,7 @@ Name                          Value
  Tag                                                                                                             
  Branch                                                                                                          
  Created Date                  2025-07-31 21:57                                                                  
- Installation URL              https://login.salesforce.com/packaging/installPackage.apexp?p0=04tRg000000bz7lIAA 
+ Installation URL              https://login.salesforce.com/packaging/installPackage.apexp?p0=04tRg000000p7c9IAA 
  Created By                    0054x000003UWrpAAG                                                                
  
  ## List package versions
