@@ -43,6 +43,8 @@ public with sharing class CertificationService {
     emailServ.sendEmail(emails);
   }
 
+  final Integer requiredCEUs = 10;
+
   /* Send reminder emails and tasks related to Trainer renewal:
    - exactly 1 month before Trainer Certification Valid Until- "1 month email"
    - exactly 2 weeks before Trainer Certification Valid Until- "2 week email"
@@ -60,14 +62,6 @@ public with sharing class CertificationService {
     User trainerManager = taskRepo.getTaskUser('Trainer Manager');
     User admin = taskRepo.getTaskUser('Administrator');
 
-    // get the email templates
-    EmailTemplate monthBefore = emailServ.getTemplate('TrainerMonthBefore');
-    EmailTemplate twoWeeksBefore = emailServ.getTemplate('Trainer2WeeksBefore');
-    EmailTemplate weekBefore = emailServ.getTemplate('TrainerWeekBefore');
-    EmailTemplate today = emailServ.getTemplate('TrainerToday');
-    EmailTemplate weekAfter = emailServ.getTemplate('TrainerWeekAfter');
-    EmailTemplate monthAfter = emailServ.getTemplate('TrainerMonthAfter');
-
     atlas1__Certification__c[] certs = certRepo.getActiveTrainerCerts();
     if (certs == null || certs.isEmpty()) {
       return;
@@ -79,10 +73,16 @@ public with sharing class CertificationService {
       // If the Date that calls the method occurs after the secondDate, the return value is negative.
       Integer numberDays = cert.atlas1__End__c.daysBetween(Date.today());
       Id contactId = cert.atlas1__Contact__c;
+      EmailTemplate template;
       switch  on numberDays {
         when  - 30 {
-          if (monthBefore != null) {
-            emails.add(emailServ.createEmail(cert.Id, cert.atlas1__Contact__c, monthBefore.Id));
+          if (cert.atlas1__Approved__c == null || cert.atlas1__Approved__c < requiredCEUs) {
+            template = emailServ.getTemplate('TrainerMonthBeforeCEUs');
+          } else {
+            template = emailServ.getTemplate('TrainerMonthBefore');
+          }
+          if (template != null) {
+            emails.add(emailServ.createEmail(cert.Id, cert.atlas1__Contact__c, template.Id));
           }
           // Create task for invoice
           if (trainerManager != null) {
@@ -97,13 +97,24 @@ public with sharing class CertificationService {
           }
         }
         when  - 14 {
-          if (twoWeeksBefore != null) {
-            emails.add(emailServ.createEmail(cert.Id, cert.atlas1__Contact__c, twoWeeksBefore.Id));
+          if (cert.atlas1__Approved__c == null || cert.atlas1__Approved__c < requiredCEUs) {
+            template = emailServ.getTemplate('Trainer2WeeksBeforeCEUs');
+          } else {
+            template = emailServ.getTemplate('Trainer2WeeksBefore');
+          }
+
+          if (template != null) {
+            emails.add(emailServ.createEmail(cert.Id, cert.atlas1__Contact__c, template.Id));
           }
         }
         when  - 7 {
-          if (weekBefore != null) {
-            emails.add(emailServ.createEmail(cert.Id, cert.atlas1__Contact__c, weekBefore.Id));
+          if (cert.atlas1__Approved__c == null || cert.atlas1__Approved__c < requiredCEUs) {
+            template = emailServ.getTemplate('TrainerWeekBeforeCEUs');
+          } else {
+            template = emailServ.getTemplate('TrainerWeekBefore');
+          }
+          if (template != null) {
+            emails.add(emailServ.createEmail(cert.Id, cert.atlas1__Contact__c, template.Id));
           }
           // Create task for invoice
           if (trainerManager != null) {
@@ -118,14 +129,29 @@ public with sharing class CertificationService {
           }
         }
         when 0 {
-          emails.add(emailServ.createEmail(cert.Id, cert.atlas1__Contact__c, today.Id));
+          if (cert.atlas1__Approved__c == null || cert.atlas1__Approved__c < requiredCEUs) {
+            template = emailServ.getTemplate('TrainerTodayCEUs');
+          } else {
+            template = emailServ.getTemplate('TrainerToday');
+          }
+          if (template != null) {
+            emails.add(emailServ.createEmail(cert.Id, cert.atlas1__Contact__c, template.Id));
+          }
         }
         when 7 {
-          emails.add(emailServ.createEmail(cert.Id, cert.atlas1__Contact__c, weekAfter.Id));
+          if (cert.atlas1__Approved__c == null || cert.atlas1__Approved__c < requiredCEUs) {
+            template = emailServ.getTemplate('TrainerWeekAfterCEUs');
+          } else {
+            template = emailServ.getTemplate('TrainerWeekAfter');
+          }
+          if (template != null) {
+            emails.add(emailServ.createEmail(cert.Id, cert.atlas1__Contact__c, template.Id));
+          }
         }
         when 30 {
-          if (monthAfter != null) {
-            emails.add(emailServ.createEmail(cert.Id, cert.atlas1__Contact__c, monthAfter.Id));
+          template = emailServ.getTemplate('TrainerMonthAfter');
+          if (template != null) {
+            emails.add(emailServ.createEmail(cert.Id, cert.atlas1__Contact__c, template.Id));
           }
           // Create task for decert
           if (trainerManager != null) {
