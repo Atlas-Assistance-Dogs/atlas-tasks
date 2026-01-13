@@ -457,6 +457,62 @@ private class CertificationServiceTest {
   }
 
   @isTest
+  static void remindToRenew_sendsEmailsTasksWhenWeekBefore_whenNotEnoughCEUs() {
+    makeData();
+    setup();
+    atlas1__Certification__c cert = setupCertWithApproved(7, 8);
+    mocks.expectedCalls.add(new MockCallData(certRepo, 'getActiveTrainerCerts', new List<atlas1__Certification__c>{ cert }));
+    mocks.expectedCalls.add(new MockCallData(emailSrv, 'createEmail', new Messaging.SingleEmailMessage()));
+    // act
+    service.remindToRenew();
+    // assert
+    System.assertEquals(7, mocks.actualCalls.size(), 'wrong number of calls');
+    MockCallData call = mocks.findCallByMethod('createEmail');
+    System.Assert.areEqual(new Object[]{ cert.Id, cert.atlas1__Contact__c, weekBeforeCeus.Id }, call.args, 'wrong args');
+    call = mocks.findCallByMethod('sendEmail');
+    System.Assert.isNotNull(call, 'sendEmail not called');
+    call = mocks.findCallByMethod('create');
+    System.Assert.isNotNull(call, 'create not called');
+    Task[] tasks = (Task[])call.args[0];
+    System.Assert.areEqual(new Task[]{ new Task(
+      OwnerId = manager.Id, 
+      Subject = 'Trainer is expiring in 1 week and they haven\'t replied', 
+      Status = 'Open', 
+      Priority = 'Normal', 
+      WhoId = cert.atlas1__Contact__c, 
+      ActivityDate = Date.today()
+    ) }, tasks, 'wrong tasks');
+  }
+
+  @isTest
+  static void remindToRenew_sendsEmailsTasksWhenWeekBefore_whenEnoughCEUs() {
+    makeData();
+    setup();
+    atlas1__Certification__c cert = setupCertWithApproved(7, 12);
+    mocks.expectedCalls.add(new MockCallData(certRepo, 'getActiveTrainerCerts', new List<atlas1__Certification__c>{ cert }));
+    mocks.expectedCalls.add(new MockCallData(emailSrv, 'createEmail', new Messaging.SingleEmailMessage()));
+    // act
+    service.remindToRenew();
+    // assert
+    System.assertEquals(7, mocks.actualCalls.size(), 'wrong number of calls');
+    MockCallData call = mocks.findCallByMethod('createEmail');
+    System.Assert.areEqual(new Object[]{ cert.Id, cert.atlas1__Contact__c, weekBefore.Id }, call.args, 'wrong args');
+    call = mocks.findCallByMethod('sendEmail');
+    System.Assert.isNotNull(call, 'sendEmail not called');
+    call = mocks.findCallByMethod('create');
+    System.Assert.isNotNull(call, 'create not called');
+    Task[] tasks = (Task[])call.args[0];
+    System.Assert.areEqual(new Task[]{ new Task(
+      OwnerId = manager.Id, 
+      Subject = 'Trainer is expiring in 1 week and they haven\'t replied', 
+      Status = 'Open', 
+      Priority = 'Normal', 
+      WhoId = cert.atlas1__Contact__c, 
+      ActivityDate = Date.today()
+    ) }, tasks, 'wrong tasks');
+  }
+
+  @isTest
   static void remindToRenew_sendsEmailWhenDayOf() {
     makeData();
     setup();
@@ -473,6 +529,48 @@ private class CertificationServiceTest {
     System.assertEquals(7, mocks.actualCalls.size(), 'wrong number of calls');
     MockCallData call = mocks.findCallByMethod('createEmail');
     System.Assert.areEqual(new Object[]{ cert.Id, cert.atlas1__Contact__c, todayCeus.Id }, call.args, 'wrong args');
+    call = mocks.findCallByMethod('sendEmail');
+    System.Assert.isNotNull(call, 'sendEmail not called');
+    call = mocks.findCallByMethod('create');
+    System.Assert.isNotNull(call, 'create not called');
+    Task[] tasks = (Task[])call.args[0];
+    System.Assert.areEqual(0, tasks.size(), 'wrong tasks');
+  }
+
+  @isTest
+  static void remindToRenew_sendsEmailWhenDayOf_andNotEnoughCEUs() {
+    makeData();
+    setup();
+    atlas1__Certification__c cert = setupCertWithApproved(0, 6);
+    mocks.expectedCalls.add(new MockCallData(certRepo, 'getActiveTrainerCerts', new List<atlas1__Certification__c>{ cert }));
+    mocks.expectedCalls.add(new MockCallData(emailSrv, 'createEmail', new Messaging.SingleEmailMessage()));
+    // act
+    service.remindToRenew();
+    // assert
+    System.assertEquals(7, mocks.actualCalls.size(), 'wrong number of calls');
+    MockCallData call = mocks.findCallByMethod('createEmail');
+    System.Assert.areEqual(new Object[]{ cert.Id, cert.atlas1__Contact__c, todayCeus.Id }, call.args, 'wrong args');
+    call = mocks.findCallByMethod('sendEmail');
+    System.Assert.isNotNull(call, 'sendEmail not called');
+    call = mocks.findCallByMethod('create');
+    System.Assert.isNotNull(call, 'create not called');
+    Task[] tasks = (Task[])call.args[0];
+    System.Assert.areEqual(0, tasks.size(), 'wrong tasks');
+  }
+
+  @isTest
+  static void remindToRenew_sendsEmailWhenDayOf_andEnoughCEUs() {
+    makeData();
+    setup();
+    atlas1__Certification__c cert = setupCertWithApproved(0, 13);
+    mocks.expectedCalls.add(new MockCallData(certRepo, 'getActiveTrainerCerts', new List<atlas1__Certification__c>{ cert }));
+    mocks.expectedCalls.add(new MockCallData(emailSrv, 'createEmail', new Messaging.SingleEmailMessage()));
+    // act
+    service.remindToRenew();
+    // assert
+    System.assertEquals(7, mocks.actualCalls.size(), 'wrong number of calls');
+    MockCallData call = mocks.findCallByMethod('createEmail');
+    System.Assert.areEqual(new Object[]{ cert.Id, cert.atlas1__Contact__c, today.Id }, call.args, 'wrong args');
     call = mocks.findCallByMethod('sendEmail');
     System.Assert.isNotNull(call, 'sendEmail not called');
     call = mocks.findCallByMethod('create');
@@ -507,6 +605,48 @@ private class CertificationServiceTest {
   }
 
   @isTest
+  static void remindToRenew_sendsEmailWhenWeekAfter_andNotEnoughCEUs() {
+    makeData();
+    setup();
+    atlas1__Certification__c cert = setupCertWithApproved(-7, 3);
+    mocks.expectedCalls.add(new MockCallData(certRepo, 'getActiveTrainerCerts', new List<atlas1__Certification__c>{ cert }));
+    mocks.expectedCalls.add(new MockCallData(emailSrv, 'createEmail', new Messaging.SingleEmailMessage()));
+    // act
+    service.remindToRenew();
+    // assert
+    System.assertEquals(7, mocks.actualCalls.size(), 'wrong number of calls');
+    MockCallData call = mocks.findCallByMethod('createEmail');
+    System.Assert.areEqual(new Object[]{ cert.Id, cert.atlas1__Contact__c, weekAfterCeus.Id }, call.args, 'wrong args');
+    call = mocks.findCallByMethod('sendEmail');
+    System.Assert.isNotNull(call, 'sendEmail not called');
+    call = mocks.findCallByMethod('create');
+    System.Assert.isNotNull(call, 'create not called');
+    Task[] tasks = (Task[])call.args[0];
+    System.Assert.areEqual(0, tasks.size(), 'wrong tasks');
+  }
+
+  @isTest
+  static void remindToRenew_sendsEmailWhenWeekAfter_andEnoughCEUs() {
+    makeData();
+    setup();
+    atlas1__Certification__c cert = setupCertWithApproved(-7, 30);
+    mocks.expectedCalls.add(new MockCallData(certRepo, 'getActiveTrainerCerts', new List<atlas1__Certification__c>{ cert }));
+    mocks.expectedCalls.add(new MockCallData(emailSrv, 'createEmail', new Messaging.SingleEmailMessage()));
+    // act
+    service.remindToRenew();
+    // assert
+    System.assertEquals(7, mocks.actualCalls.size(), 'wrong number of calls');
+    MockCallData call = mocks.findCallByMethod('createEmail');
+    System.Assert.areEqual(new Object[]{ cert.Id, cert.atlas1__Contact__c, weekAfter.Id }, call.args, 'wrong args');
+    call = mocks.findCallByMethod('sendEmail');
+    System.Assert.isNotNull(call, 'sendEmail not called');
+    call = mocks.findCallByMethod('create');
+    System.Assert.isNotNull(call, 'create not called');
+    Task[] tasks = (Task[])call.args[0];
+    System.Assert.areEqual(0, tasks.size(), 'wrong tasks');
+  }
+
+  @isTest
   static void remindToRenew_sendsEmailsTasksWhen30DaysLate() {
     makeData();
     setup();
@@ -515,6 +655,80 @@ private class CertificationServiceTest {
       atlas1__Contact__c = MockProvider.createId(Contact.class), 
       atlas1__End__c = Date.today().addDays(-30)
     );
+    mocks.expectedCalls.add(new MockCallData(certRepo, 'getActiveTrainerCerts', new List<atlas1__Certification__c>{ cert }));
+    mocks.expectedCalls.add(new MockCallData(emailSrv, 'createEmail', new Messaging.SingleEmailMessage()));
+    // act
+    service.remindToRenew();
+    // assert
+    System.assertEquals(7, mocks.actualCalls.size(), 'wrong number of calls');
+    MockCallData call = mocks.findCallByMethod('createEmail');
+    System.Assert.areEqual(new Object[]{ cert.Id, cert.atlas1__Contact__c, monthAfter.Id }, call.args, 'wrong args');
+    call = mocks.findCallByMethod('sendEmail');
+    System.Assert.isNotNull(call, 'sendEmail not called');
+    call = mocks.findCallByMethod('create');
+    System.Assert.isNotNull(call, 'create not called');
+    Task[] tasks = (Task[])call.args[0];
+    System.Assert.areEqual(new Task[]{ new Task(
+      OwnerId = manager.Id, 
+      Subject = 'Trainer Discontinued', 
+      Description = '- Send decert letter to Trainer\n- Change status to Discontinued\n- Remove from Canvas and facebook', 
+      Status = 'Open', 
+      Priority = 'Normal', 
+      WhoId = cert.atlas1__Contact__c, 
+      ActivityDate = Date.today()
+    ), new Task(
+      OwnerId = admin.Id, 
+      Subject = 'Trainer Discontinued', 
+      Description = 'Remove from website', 
+      Status = 'Open', 
+      Priority = 'Normal', 
+      WhoId = cert.atlas1__Contact__c, 
+      ActivityDate = Date.today()
+    ) }, tasks, 'wrong tasks');
+  }
+
+  @isTest
+  static void remindToRenew_sendsEmailsTasksWhen30DaysLate_andNotEnoughCEUs() {
+    makeData();
+    setup();
+    atlas1__Certification__c cert = setupCertWithApproved(-30, 1);
+    mocks.expectedCalls.add(new MockCallData(certRepo, 'getActiveTrainerCerts', new List<atlas1__Certification__c>{ cert }));
+    mocks.expectedCalls.add(new MockCallData(emailSrv, 'createEmail', new Messaging.SingleEmailMessage()));
+    // act
+    service.remindToRenew();
+    // assert
+    System.assertEquals(7, mocks.actualCalls.size(), 'wrong number of calls');
+    MockCallData call = mocks.findCallByMethod('createEmail');
+    System.Assert.areEqual(new Object[]{ cert.Id, cert.atlas1__Contact__c, monthAfter.Id }, call.args, 'wrong args');
+    call = mocks.findCallByMethod('sendEmail');
+    System.Assert.isNotNull(call, 'sendEmail not called');
+    call = mocks.findCallByMethod('create');
+    System.Assert.isNotNull(call, 'create not called');
+    Task[] tasks = (Task[])call.args[0];
+    System.Assert.areEqual(new Task[]{ new Task(
+      OwnerId = manager.Id, 
+      Subject = 'Trainer Discontinued', 
+      Description = '- Send decert letter to Trainer\n- Change status to Discontinued\n- Remove from Canvas and facebook', 
+      Status = 'Open', 
+      Priority = 'Normal', 
+      WhoId = cert.atlas1__Contact__c, 
+      ActivityDate = Date.today()
+    ), new Task(
+      OwnerId = admin.Id, 
+      Subject = 'Trainer Discontinued', 
+      Description = 'Remove from website', 
+      Status = 'Open', 
+      Priority = 'Normal', 
+      WhoId = cert.atlas1__Contact__c, 
+      ActivityDate = Date.today()
+    ) }, tasks, 'wrong tasks');
+  }
+
+  @isTest
+  static void remindToRenew_sendsEmailsTasksWhen30DaysLate_andEnoughCEUs() {
+    makeData();
+    setup();
+    atlas1__Certification__c cert = setupCertWithApproved(-30, 31);
     mocks.expectedCalls.add(new MockCallData(certRepo, 'getActiveTrainerCerts', new List<atlas1__Certification__c>{ cert }));
     mocks.expectedCalls.add(new MockCallData(emailSrv, 'createEmail', new Messaging.SingleEmailMessage()));
     // act
