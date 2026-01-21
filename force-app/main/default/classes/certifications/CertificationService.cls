@@ -44,7 +44,8 @@ public with sharing class CertificationService {
   }
 
   final Integer requiredCEUs = 10;
-
+  final String decertTaskSubject = 'Trainer Deactivated';
+  final String decertTaskDescription = '- Email decert letter\n- Change status to discontinued\n- Remove from Canvas and facebook';
   /* Send reminder emails and tasks related to Trainer renewal:
    - exactly 1 month before Trainer Certification Valid Until- "1 month email"
    - exactly 2 weeks before Trainer Certification Valid Until- "2 week email"
@@ -76,111 +77,141 @@ public with sharing class CertificationService {
       EmailTemplate template;
       switch  on numberDays {
         when  - 30 {
-          if (cert.atlas1__Approved__c == null || cert.atlas1__Approved__c < requiredCEUs) {
-            template = emailServ.getTemplate('TrainerMonthBeforeCEUs');
-          } else {
-            template = emailServ.getTemplate('TrainerMonthBefore');
-          }
-          if (template != null) {
-            emails.add(emailServ.createEmail(cert.Id, cert.atlas1__Contact__c, template.Id));
-          }
+          emails.addAll(monthBeforeEmails(cert, requiredCEUs));
           // Create task for invoice
-          if (trainerManager != null) {
-            tasks.add(new Task(
-              OwnerId = trainerManager.Id, 
-              Subject = 'Trainer due for recertification in 1 month, invoice renewal', 
-              Status = 'Open', 
-              Priority = 'Normal', 
-              WhoId = contactId, 
-              ActivityDate = Date.today()
-            ));
-          }
+          tasks.addAll(monthBeforeTasks(admin, cert));
         }
         when  - 14 {
-          if (cert.atlas1__Approved__c == null || cert.atlas1__Approved__c < requiredCEUs) {
-            template = emailServ.getTemplate('Trainer2WeeksBeforeCEUs');
-          } else {
-            template = emailServ.getTemplate('Trainer2WeeksBefore');
-          }
-
-          if (template != null) {
-            emails.add(emailServ.createEmail(cert.Id, cert.atlas1__Contact__c, template.Id));
-          }
+          emails.addAll(twoWeeksBeforeEmails(cert, requiredCEUs));
         }
         when  - 7 {
-          if (cert.atlas1__Approved__c == null || cert.atlas1__Approved__c < requiredCEUs) {
-            template = emailServ.getTemplate('TrainerWeekBeforeCEUs');
-          } else {
-            template = emailServ.getTemplate('TrainerWeekBefore');
-          }
-          if (template != null) {
-            emails.add(emailServ.createEmail(cert.Id, cert.atlas1__Contact__c, template.Id));
-          }
-          // Create task for invoice
-          if (trainerManager != null) {
-            tasks.add(new Task(
-              OwnerId = trainerManager.Id, 
-              Subject = 'Trainer is expiring in 1 week and they haven\'t replied', 
-              Status = 'Open', 
-              Priority = 'Normal', 
-              WhoId = contactId, 
-              ActivityDate = Date.today()
-            ));
-          }
+          emails.addAll(weekBeforeEmails(cert, requiredCEUS));
+          tasks.addAll(weekBeforeTasks(admin, cert));
         }
         when 0 {
-          if (cert.atlas1__Approved__c == null || cert.atlas1__Approved__c < requiredCEUs) {
-            template = emailServ.getTemplate('TrainerTodayCEUs');
-          } else {
-            template = emailServ.getTemplate('TrainerToday');
-          }
-          if (template != null) {
-            emails.add(emailServ.createEmail(cert.Id, cert.atlas1__Contact__c, template.Id));
-          }
-        }
-        when 7 {
-          if (cert.atlas1__Approved__c == null || cert.atlas1__Approved__c < requiredCEUs) {
-            template = emailServ.getTemplate('TrainerWeekAfterCEUs');
-          } else {
-            template = emailServ.getTemplate('TrainerWeekAfter');
-          }
-          if (template != null) {
-            emails.add(emailServ.createEmail(cert.Id, cert.atlas1__Contact__c, template.Id));
-          }
-        }
-        when 30 {
-          template = emailServ.getTemplate('TrainerMonthAfter');
-          if (template != null) {
-            emails.add(emailServ.createEmail(cert.Id, cert.atlas1__Contact__c, template.Id));
-          }
-          // Create task for decert
-          if (trainerManager != null) {
-            tasks.add(new Task(
-              OwnerId = trainerManager.Id, 
-              Subject = 'Trainer Discontinued', 
-              Description = '- Send decert letter to Trainer\n- Change status to Discontinued\n- Remove from Canvas and facebook', 
-              Status = 'Open', 
-              Priority = 'Normal', 
-              WhoId = contactId, 
-              ActivityDate = Date.today()
-            ));
-          }
-          if (admin != null) {
-            tasks.add(new Task(
-              OwnerId = admin.Id, 
-              Subject = 'Trainer Discontinued', 
-              Description = 'Remove from website', 
-              Status = 'Open', 
-              Priority = 'Normal', 
-              WhoId = contactId, 
-              ActivityDate = Date.today()
-            ));
-          }
+          emails.addAll(dayOfEmails(cert, requiredCEUs));
+          tasks.addAll(dayOfTasks(admin, trainerManager, cert));
         }
       }
     }
     emailServ.sendEmail(emails);
     taskRepo.create(tasks);
+  }
+
+  private Messaging.SingleEmailMessage[] monthBeforeEmails(atlas1__Certification__c cert, Integer requiredCEUs) {
+    List<Messaging.SingleEmailMessage> emails = new List<Messaging.SingleEmailMessage>();
+    EmailTemplate template;
+    if (cert.atlas1__Approved__c == null || cert.atlas1__Approved__c < requiredCEUs) {
+      template = emailServ.getTemplate('TrainerMonthBeforeCEUs');
+    } else {
+      template = emailServ.getTemplate('TrainerMonthBefore');
+    }
+    if (template != null) {
+      emails.add(emailServ.createEmail(cert.Id, cert.atlas1__Contact__c, template.Id));
+    }
+    return emails;
+  }
+
+  private Task[] monthBeforeTasks(User admin, atlas1__Certification__c cert) {
+    Task[] tasks = new List<Task>();
+    if (admin != null) {
+      tasks.add(new Task(
+        OwnerId = admin.Id, 
+        Subject = 'Trainer due for recertification in 1 month, invoice renewal', 
+        Status = 'Open', 
+        Priority = 'Normal', 
+        WhoId = cert.atlas1__Contact__c, 
+        ActivityDate = Date.today()
+      ));
+    }
+    return tasks;
+  }
+
+  private Messaging.SingleEmailMessage[] twoWeeksBeforeEmails(atlas1__Certification__c cert, Integer requiredCEUs) {
+    List<Messaging.SingleEmailMessage> emails = new List<Messaging.SingleEmailMessage>();
+    EmailTemplate template;
+    if (cert.atlas1__Approved__c == null || cert.atlas1__Approved__c < requiredCEUs) {
+      template = emailServ.getTemplate('Trainer2WeeksBeforeCEUs');
+    } else {
+      template = emailServ.getTemplate('Trainer2WeeksBefore');
+    }
+
+    if (template != null) {
+      emails.add(emailServ.createEmail(cert.Id, cert.atlas1__Contact__c, template.Id));
+    }
+    return emails;
+  }
+
+  private Messaging.SingleEmailMessage[] weekBeforeEmails(atlas1__Certification__c cert, Integer requiredCEUs) {
+    List<Messaging.SingleEmailMessage> emails = new List<Messaging.SingleEmailMessage>();
+    EmailTemplate template;
+    if (cert.atlas1__Approved__c == null || cert.atlas1__Approved__c < requiredCEUs) {
+      template = emailServ.getTemplate('TrainerWeekBeforeCEUs');
+    } else {
+      template = emailServ.getTemplate('TrainerWeekBefore');
+    }
+    if (template != null) {
+      emails.add(emailServ.createEmail(cert.Id, cert.atlas1__Contact__c, template.Id));
+    }
+    return emails;
+  }
+
+  private Task[] weekBeforeTasks(User admin, atlas1__Certification__c cert) {
+    Task[] tasks = new List<Task>();
+    // Create task for invoice
+    if (admin != null) {
+      tasks.add(new Task(
+        OwnerId = admin.Id, 
+        Subject = 'Trainer is expiring in 1 week and they haven\'t replied', 
+        Status = 'Open', 
+        Priority = 'Normal', 
+        WhoId = cert.atlas1__Contact__c, 
+        ActivityDate = Date.today()
+      ));
+    }
+    return tasks;
+  }
+
+  private Messaging.SingleEmailMessage[] dayOfEmails(atlas1__Certification__c cert, Integer requiredCEUs) {
+    List<Messaging.SingleEmailMessage> emails = new List<Messaging.SingleEmailMessage>();
+    EmailTemplate template;
+    if (cert.atlas1__Approved__c == null || cert.atlas1__Approved__c < requiredCEUs) {
+      template = emailServ.getTemplate('TrainerTodayCEUs');
+    } else {
+      template = emailServ.getTemplate('TrainerToday');
+    }
+    if (template != null) {
+      emails.add(emailServ.createEmail(cert.Id, cert.atlas1__Contact__c, template.Id));
+    }
+    return emails;
+  }
+
+  private Task[] dayOfTasks(User admin, User trainerManager, atlas1__Certification__c cert) {
+    Task[] tasks = new List<Task>();
+    // Create task for decert
+    if (admin != null) {
+      tasks.add(new Task(
+        OwnerId = admin.Id, 
+        Subject = decertTaskSubject, 
+        Description = decertTaskDescription, 
+        Status = 'Open', 
+        Priority = 'Normal', 
+        WhoId = cert.atlas1__Contact__c, 
+        ActivityDate = Date.today()
+      ));
+    }
+    if (trainerManager != null) {
+      tasks.add(new Task(
+        OwnerId = trainerManager.Id, 
+        Subject = decertTaskSubject, 
+        Description = 'Remove from website', 
+        Status = 'Open', 
+        Priority = 'Normal', 
+        WhoId = cert.atlas1__Contact__c, 
+        ActivityDate = Date.today()
+      ));
+    }
+    return tasks;
   }
 
 }
