@@ -196,7 +196,7 @@ private class CertificationServiceTest {
     // act
     service.remindToRenew();
     // assert
-    System.assertEquals(8, mocks.actualCalls.size(), 'wrong number of calls');
+    System.assertEquals(7, mocks.actualCalls.size(), 'wrong number of calls');
   }
 
   @isTest
@@ -250,7 +250,7 @@ private class CertificationServiceTest {
     System.Assert.isNotNull(call, 'create not called');
     Task[] tasks = (Task[])call.args[0];
     System.Assert.areEqual(new Task[]{ new Task(
-      OwnerId = manager.Id, 
+      OwnerId = admin.Id, 
       Subject = 'Trainer due for recertification in 1 month, invoice renewal', 
       Status = 'Open', 
       Priority = 'Normal', 
@@ -320,7 +320,7 @@ private class CertificationServiceTest {
     System.Assert.isNotNull(call, 'create not called');
     Task[] tasks = (Task[])call.args[0];
     System.Assert.areEqual(new Task[]{ new Task(
-      OwnerId = manager.Id, 
+      OwnerId = admin.Id, 
       Subject = 'Trainer due for recertification in 1 month, invoice renewal', 
       Status = 'Open', 
       Priority = 'Normal', 
@@ -348,7 +348,7 @@ private class CertificationServiceTest {
     System.Assert.isNotNull(call, 'create not called');
     Task[] tasks = (Task[])call.args[0];
     System.Assert.areEqual(new Task[]{ new Task(
-      OwnerId = manager.Id, 
+      OwnerId = admin.Id, 
       Subject = 'Trainer due for recertification in 1 month, invoice renewal', 
       Status = 'Open', 
       Priority = 'Normal', 
@@ -447,7 +447,7 @@ private class CertificationServiceTest {
     System.Assert.isNotNull(call, 'create not called');
     Task[] tasks = (Task[])call.args[0];
     System.Assert.areEqual(new Task[]{ new Task(
-      OwnerId = manager.Id, 
+      OwnerId = admin.Id, 
       Subject = 'Trainer is expiring in 1 week and they haven\'t replied', 
       Status = 'Open', 
       Priority = 'Normal', 
@@ -475,7 +475,7 @@ private class CertificationServiceTest {
     System.Assert.isNotNull(call, 'create not called');
     Task[] tasks = (Task[])call.args[0];
     System.Assert.areEqual(new Task[]{ new Task(
-      OwnerId = manager.Id, 
+      OwnerId = admin.Id, 
       Subject = 'Trainer is expiring in 1 week and they haven\'t replied', 
       Status = 'Open', 
       Priority = 'Normal', 
@@ -503,7 +503,7 @@ private class CertificationServiceTest {
     System.Assert.isNotNull(call, 'create not called');
     Task[] tasks = (Task[])call.args[0];
     System.Assert.areEqual(new Task[]{ new Task(
-      OwnerId = manager.Id, 
+      OwnerId = admin.Id, 
       Subject = 'Trainer is expiring in 1 week and they haven\'t replied', 
       Status = 'Open', 
       Priority = 'Normal', 
@@ -537,6 +537,8 @@ private class CertificationServiceTest {
     System.Assert.areEqual(2, tasks.size(), 'wrong tasks');
   }
 
+  final static String decertTaskSubject = 'Trainer Deactivated';
+  final static String decertTaskDescription = '- Email decert letter\n- Change status to discontinued\n- Remove from Canvas and facebook';
   @isTest
   static void remindToRenew_sendsEmailWhenDayOf_andNotEnoughCEUs() {
     makeData();
@@ -555,7 +557,23 @@ private class CertificationServiceTest {
     call = mocks.findCallByMethod('create');
     System.Assert.isNotNull(call, 'create not called');
     Task[] tasks = (Task[])call.args[0];
-    System.Assert.areEqual(0, tasks.size(), 'wrong tasks');
+    System.Assert.areEqual(new Task[]{ new Task(
+      OwnerId = admin.Id, 
+      Subject = decertTaskSubject, 
+      Description = decertTaskDescription, 
+      Status = 'Open', 
+      Priority = 'Normal', 
+      WhoId = cert.atlas1__Contact__c, 
+      ActivityDate = Date.today()
+    ), new Task(
+      OwnerId = manager.Id, 
+      Subject = decertTaskSubject, 
+      Description = 'Remove from website', 
+      Status = 'Open', 
+      Priority = 'Normal', 
+      WhoId = cert.atlas1__Contact__c, 
+      ActivityDate = Date.today()
+    ) }, tasks, 'wrong tasks');
   }
 
   @isTest
@@ -576,7 +594,23 @@ private class CertificationServiceTest {
     call = mocks.findCallByMethod('create');
     System.Assert.isNotNull(call, 'create not called');
     Task[] tasks = (Task[])call.args[0];
-    System.Assert.areEqual(0, tasks.size(), 'wrong tasks');
+    System.Assert.areEqual(new Task[]{ new Task(
+      OwnerId = admin.Id, 
+      Subject = decertTaskSubject, 
+      Description = decertTaskDescription, 
+      Status = 'Open', 
+      Priority = 'Normal', 
+      WhoId = cert.atlas1__Contact__c, 
+      ActivityDate = Date.today()
+    ), new Task(
+      OwnerId = manager.Id, 
+      Subject = decertTaskSubject, 
+      Description = 'Remove from website', 
+      Status = 'Open', 
+      Priority = 'Normal', 
+      WhoId = cert.atlas1__Contact__c, 
+      ActivityDate = Date.today()
+    ) }, tasks, 'wrong tasks');
   }
 
   @isTest
@@ -593,14 +627,15 @@ private class CertificationServiceTest {
     // act
     service.remindToRenew();
     // assert
-    System.assertEquals(7, mocks.actualCalls.size(), 'wrong number of calls');
+    System.assertEquals(5, mocks.actualCalls.size(), 'wrong number of calls');
     MockCallData call = mocks.findCallByMethod('createEmail');
-    System.Assert.areEqual(new Object[]{ cert.Id, cert.atlas1__Contact__c, weekAfterCeus.Id }, call.args, 'wrong args');
+    System.Assert.isNull(call, 'create email called');
     call = mocks.findCallByMethod('sendEmail');
-    System.Assert.isNotNull(call, 'sendEmail not called');
+    System.Assert.isNull(call, 'sendEmail called');
     call = mocks.findCallByMethod('create');
     System.Assert.isNotNull(call, 'create not called');
     Task[] tasks = (Task[])call.args[0];
     System.Assert.areEqual(0, tasks.size(), 'wrong tasks');
   }
+
 }
