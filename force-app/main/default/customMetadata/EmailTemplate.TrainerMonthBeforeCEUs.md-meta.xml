@@ -2,7 +2,7 @@
 <CustomMetadata xmlns="http://soap.sforce.com/2006/04/metadata"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-    <label>Trainer 1 Month Before</label>
+    <label>Trainer 1 Month Before Need CEUS</label>
     <protected>false</protected>
     <values>
         <field>Template__c</field>

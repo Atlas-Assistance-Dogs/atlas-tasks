@@ -17,7 +17,7 @@ To work on this project in a scratch org:
 
 ## Create a new version
 
-`sf package version create -x -p atlas-tasks`
+`sf package version create -x -w -p atlas-tasks`
 
 Package atlas-tasks is
 
