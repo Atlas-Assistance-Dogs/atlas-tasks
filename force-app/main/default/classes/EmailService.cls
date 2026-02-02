@@ -1,5 +1,10 @@
 public with sharing class EmailService {
-    public Id orgAddressId { get;private  set; }
+    public Id orgAddressId { get; private  set; }
+    private Map<String, EmailTemplate> templateMap = new Map<String, EmailTemplate>();
+
+    public EmailService(Id orgAddressId) {
+        this.orgAddressId = orgAddressId;
+    }
 
     public EmailService() {
 
@@ -16,10 +21,15 @@ public with sharing class EmailService {
         }
     }
 
+    // Return the template from the template map if it's been retrieved already,
+    // otherwise, retrieve it from the database and add it to the map.
     public EmailTemplate getTemplate(String name) {
         EmailTemplate__mdt et = EmailTemplate__mdt.getInstance(name);
         if (et == null) {
             return null;
+        }
+        if (templateMap.containsKey(name)) {
+            return templateMap.get(name);
         }
         EmailTemplate[] templates = [SELECT Id, 
                                             CreatedDate, 
@@ -28,9 +38,11 @@ public with sharing class EmailService {
                                      WHERE DeveloperName = :et.Template__c AND IsActive = true
                                      LIMIT 1];
         if (templates.size() == 0) {
+            templateMap.put(name, null);
             return null;
         }
         EmailTemplate template = templates[0];
+        templateMap.put(name, template);
         return template;
     }
 
