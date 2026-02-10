@@ -39,7 +39,7 @@ private class EmailServiceTest {
     @isTest
     static void getTemplate_returnsTrainerTemplate() {
         EmailTemplate et = new EmailTemplate(
-            DeveloperName = 'Trainer_Month_After', 
+            DeveloperName = 'Trainer_Today', 
             IsActive = true, 
             FolderId = UserInfo.getUserId(), 
             TemplateType = 'Text', 
@@ -48,7 +48,7 @@ private class EmailServiceTest {
         insert et;
 
         EmailService service = new EmailService();
-        EmailTemplate template = service.getTemplate('TrainerMonthAfter');
+        EmailTemplate template = service.getTemplate('TrainerToday');
 
         System.assertEquals(et.Id, template.Id, 'returned wrong template');
     }

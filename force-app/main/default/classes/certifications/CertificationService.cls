@@ -43,7 +43,7 @@ public with sharing class CertificationService {
     emailServ.sendEmail(emails);
   }
 
-  final Integer requiredCEUs = 10;
+  final Integer requiredCEUs = 10;  
   final String decertTaskSubject = 'Trainer Deactivated';
   final String decertTaskDescription = '- Email decert letter\n- Change status to discontinued\n- Remove from Canvas and facebook';
   /* Send reminder emails and tasks related to Trainer renewal:
@@ -51,9 +51,7 @@ public with sharing class CertificationService {
    - exactly 2 weeks before Trainer Certification Valid Until- "2 week email"
    - exactly 1 week before Trainer Certification Valid Until- "1 week email"
    - Day of Trainer Certification Valid Until = " last day email"
-   - 1 week after = "you expired a week ago"
-   - 30 days after Trainer Certification Valid Until-> "decertification email"
-   */
+    */
   public void remindToRenew() {
     List<Messaging.SingleEmailMessage> emails = new List<Messaging.SingleEmailMessage>();
     // Create a list of Tasks
@@ -88,9 +86,9 @@ public with sharing class CertificationService {
           emails.addAll(weekBeforeEmails(cert, requiredCEUS));
           tasks.addAll(weekBeforeTasks(admin, cert));
         }
-        when 0 {
-          emails.addAll(dayOfEmails(cert, requiredCEUs));
-          tasks.addAll(dayOfTasks(admin, trainerManager, cert));
+        when 1 {
+          emails.addAll(dayAfterEmails(cert, requiredCEUs));
+          tasks.addAll(dayAfterTasks(admin, trainerManager, cert));
         }
       }
     }
@@ -163,6 +161,7 @@ public with sharing class CertificationService {
       tasks.add(new Task(
         OwnerId = admin.Id, 
         Subject = 'Trainer is expiring in 1 week and they haven\'t replied', 
+        Description = 'Check on invoice, CEU and renewal status',
         Status = 'Open', 
         Priority = 'Normal', 
         WhoId = cert.atlas1__Contact__c, 
@@ -172,7 +171,7 @@ public with sharing class CertificationService {
     return tasks;
   }
 
-  private Messaging.SingleEmailMessage[] dayOfEmails(atlas1__Certification__c cert, Integer requiredCEUs) {
+  private Messaging.SingleEmailMessage[] dayAfterEmails(atlas1__Certification__c cert, Integer requiredCEUs) {
     List<Messaging.SingleEmailMessage> emails = new List<Messaging.SingleEmailMessage>();
     EmailTemplate template;
     if (cert.atlas1__Approved__c == null || cert.atlas1__Approved__c < requiredCEUs) {
@@ -186,7 +185,7 @@ public with sharing class CertificationService {
     return emails;
   }
 
-  private Task[] dayOfTasks(User admin, User trainerManager, atlas1__Certification__c cert) {
+  private Task[] dayAfterTasks(User admin, User trainerManager, atlas1__Certification__c cert) {
     Task[] tasks = new List<Task>();
     // Create task for decert
     if (admin != null) {

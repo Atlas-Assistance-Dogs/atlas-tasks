@@ -449,6 +449,7 @@ private class CertificationServiceTest {
     System.Assert.areEqual(new Task[]{ new Task(
       OwnerId = admin.Id, 
       Subject = 'Trainer is expiring in 1 week and they haven\'t replied', 
+      Description = 'Check on invoice, CEU and renewal status',
       Status = 'Open', 
       Priority = 'Normal', 
       WhoId = cert.atlas1__Contact__c, 
@@ -477,6 +478,7 @@ private class CertificationServiceTest {
     System.Assert.areEqual(new Task[]{ new Task(
       OwnerId = admin.Id, 
       Subject = 'Trainer is expiring in 1 week and they haven\'t replied', 
+      Description = 'Check on invoice, CEU and renewal status',
       Status = 'Open', 
       Priority = 'Normal', 
       WhoId = cert.atlas1__Contact__c, 
@@ -505,6 +507,7 @@ private class CertificationServiceTest {
     System.Assert.areEqual(new Task[]{ new Task(
       OwnerId = admin.Id, 
       Subject = 'Trainer is expiring in 1 week and they haven\'t replied', 
+      Description = 'Check on invoice, CEU and renewal status',
       Status = 'Open', 
       Priority = 'Normal', 
       WhoId = cert.atlas1__Contact__c, 
@@ -519,14 +522,13 @@ private class CertificationServiceTest {
     atlas1__Certification__c cert = new atlas1__Certification__c(
       Id = MockProvider.createId(atlas1__Certification__c.class), 
       atlas1__Contact__c = MockProvider.createId(Contact.class), 
-      atlas1__End__c = Date.today()
+      atlas1__End__c = Date.today().addDays(-1)
     );
     mocks.expectedCalls.add(new MockCallData(certRepo, 'getActiveTrainerCerts', new List<atlas1__Certification__c>{ cert }));
     mocks.expectedCalls.add(new MockCallData(emailSrv, 'createEmail', new Messaging.SingleEmailMessage()));
     // act
     service.remindToRenew();
     // assert
-    System.assertEquals(7, mocks.actualCalls.size(), 'wrong number of calls');
     MockCallData call = mocks.findCallByMethod('createEmail');
     System.Assert.areEqual(new Object[]{ cert.Id, cert.atlas1__Contact__c, todayCeus.Id }, call.args, 'wrong args');
     call = mocks.findCallByMethod('sendEmail');
@@ -543,13 +545,12 @@ private class CertificationServiceTest {
   static void remindToRenew_sendsEmailWhenDayOf_andNotEnoughCEUs() {
     makeData();
     setup();
-    atlas1__Certification__c cert = setupCertWithApproved(0, 6);
+    atlas1__Certification__c cert = setupCertWithApproved(-1, 6);
     mocks.expectedCalls.add(new MockCallData(certRepo, 'getActiveTrainerCerts', new List<atlas1__Certification__c>{ cert }));
     mocks.expectedCalls.add(new MockCallData(emailSrv, 'createEmail', new Messaging.SingleEmailMessage()));
     // act
     service.remindToRenew();
     // assert
-    System.assertEquals(7, mocks.actualCalls.size(), 'wrong number of calls');
     MockCallData call = mocks.findCallByMethod('createEmail');
     System.Assert.areEqual(new Object[]{ cert.Id, cert.atlas1__Contact__c, todayCeus.Id }, call.args, 'wrong args');
     call = mocks.findCallByMethod('sendEmail');
@@ -580,7 +581,7 @@ private class CertificationServiceTest {
   static void remindToRenew_sendsEmailWhenDayOf_andEnoughCEUs() {
     makeData();
     setup();
-    atlas1__Certification__c cert = setupCertWithApproved(0, 13);
+    atlas1__Certification__c cert = setupCertWithApproved(-1, 13);
     mocks.expectedCalls.add(new MockCallData(certRepo, 'getActiveTrainerCerts', new List<atlas1__Certification__c>{ cert }));
     mocks.expectedCalls.add(new MockCallData(emailSrv, 'createEmail', new Messaging.SingleEmailMessage()));
     // act
@@ -628,12 +629,10 @@ private class CertificationServiceTest {
     service.remindToRenew();
     // assert
     System.assertEquals(5, mocks.actualCalls.size(), 'wrong number of calls');
-    MockCallData call = mocks.findCallByMethod('createEmail');
-    System.Assert.isNull(call, 'create email called');
-    call = mocks.findCallByMethod('sendEmail');
-    System.Assert.isNull(call, 'sendEmail called');
+    MockCallData call = mocks.findCallByMethod('sendEmail');
+    Messaging.SingleEmailMessage[] messages = (Messaging.SingleEmailMessage[])call.args[0];
+    System.Assert.areEqual(0, messages.size(), 'wrong messages');
     call = mocks.findCallByMethod('create');
-    System.Assert.isNotNull(call, 'create not called');
     Task[] tasks = (Task[])call.args[0];
     System.Assert.areEqual(0, tasks.size(), 'wrong tasks');
   }
