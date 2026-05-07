@@ -52,18 +52,18 @@ public with sharing class EmailService {
             mail.setOrgWideEmailAddressId(orgAddressId);
         }
         mail.setTargetObjectId(contactId);
-        // save email as an activity in the recipient's activity history.
-        mail.setSaveAsActivity(true);
-        //Change with Template ID
+        // Change Template ID
         mail.setTemplateId(templateId);
 
-        //Record ID for which letter will be generated
+        // Record ID for which contact or lead will be emailed
         mail.setWhatId(whatId);
         mail.setBccSender(false);
         mail.setUseSignature(false);
         if (orgAddressId == null) {
             mail.setSenderDisplayName('Atlas Assistance Dogs');
         }
+        // save email as an activity in the recipient's activity history.
+        mail.setSaveAsActivity(true);
         return mail;
     }
 
