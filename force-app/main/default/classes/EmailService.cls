@@ -64,7 +64,6 @@ public with sharing class EmailService {
         if (orgAddressId == null) {
             mail.setSenderDisplayName('Atlas Assistance Dogs');
         }
-        mail.setSaveAsActivity(false);
         return mail;
     }
 
