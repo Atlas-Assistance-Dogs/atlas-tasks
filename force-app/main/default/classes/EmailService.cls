@@ -52,6 +52,8 @@ public with sharing class EmailService {
             mail.setOrgWideEmailAddressId(orgAddressId);
         }
         mail.setTargetObjectId(contactId);
+        // save email as an activity in the recipient's activity history.
+        mail.setSaveAsActivity(true);
         //Change with Template ID
         mail.setTemplateId(templateId);
 
