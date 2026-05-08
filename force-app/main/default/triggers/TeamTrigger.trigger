@@ -8,7 +8,6 @@ trigger TeamTrigger on atlas1__Team__c(before update, after update ) {
             String oldStatus = oldTeam.atlas1__Status__c;
             if (team.atlas1__Status__C == 'In Training' && oldStatus == 'Onboarding') {
                 team.atlas1__TrainingStartDate__c = Date.today();
-                TeamTaskService service = new TeamTaskService();
                 service.handleTrainingStart(team);
             }
             if (team.atlas1__Status__c == 'Certified' && oldStatus == 'In Training') {
