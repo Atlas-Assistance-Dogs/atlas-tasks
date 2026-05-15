@@ -274,13 +274,13 @@ public class TeamTaskService {
             }
             atlas1__Dog__c dog = team.atlas1__Dog__r;
             if ((dog.atlas1__VaccineDueRabies__c != null && today == dog.atlas1__VaccineDueRabies__c) || (dog.atlas1__PhysicalExamDue__c != null && today == dog.atlas1__PhysicalExamDue__c) || (dog.atlas1__VaccineDueDA2PP__c != null && today == dog.atlas1__VaccineDueDA2PP__c)) {
-                Task[] matching = taskRepo.getMatchingTasks(team.atlas1__Client__c, '%health records%');
+                Task[] matching = taskRepo.getMatchingTasks(team.atlas1__Client__c, '%veterinary health records%');
                 if (matching.isEmpty()) {
                     tasks.add(new Task(
                         WhatId = team.Id, 
                         WhoId = team.atlas1__Client__c, 
                         OwnerId = admin.Id, 
-                        Subject = 'One or more veterinary health records is now expired for dog: DOGNAME of team: TEAMNAME'.replace('DOGNAME', dog.Name).replace('TEAMNAME', team.Name), 
+                        Subject = String.format('One or more veterinary health records is now expired for dog: {0} of team: {1}', new Object[]{ dog.Name, team.Name }), 
                         Status = 'Not Started', 
                         Priority = 'Normal', 
                         ActivityDate = today
