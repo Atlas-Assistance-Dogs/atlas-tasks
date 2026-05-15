@@ -280,7 +280,7 @@ public class TeamTaskService {
                         WhatId = team.Id, 
                         WhoId = team.atlas1__Client__c, 
                         OwnerId = admin.Id, 
-                        Subject = String.format('One or more veterinary health records is now expired for dog: {0} of team: {1}', new Object[]{ dog.Name, team.Name }), 
+                        Subject = String.format('One or more veterinary health records is now expired for dog: {0} of team: {1}. Reach out to client', new Object[]{ dog.Name, team.Name }), 
                         Status = 'Not Started', 
                         Priority = 'Normal', 
                         ActivityDate = today
