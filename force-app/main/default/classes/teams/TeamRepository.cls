@@ -17,11 +17,13 @@ public inherited sharing class TeamRepository {
 
     public List<atlas1__Team__c> getActiveDogs() {
         String[] active = new String[]{ 'In Training', 'Certified' };
-        return [SELECT Id, 
+        return [SELECT Id, Name,
                        atlas1__Client__c, 
                        atlas1__Dog__c, 
                        atlas1__Dog__r.atlas1__VaccineDueRabies__c,
-                       atlas1__Dog__r.atlas1__PhysicalExamDue__c
+                       atlas1__Dog__r.atlas1__PhysicalExamDue__c,
+                       atlas1__Dog__r.atlas1__VaccineDueDA2PP__c,
+                       atlas1__Dog__r.Name
                 FROM atlas1__Team__c
                 WHERE atlas1__Status__c IN :active];
     }

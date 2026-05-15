@@ -99,6 +99,7 @@ private class TeamTaskServiceTest {
     private static atlas1__Team__c newCertifiedTeam(Integer initialCertYearsAgo, Integer patValidDaysFromToday) {
         return new atlas1__Team__c(
             Id = MockProvider.createId(atlas1__Team__c.class), 
+            Name = 'Fido_Buddy',
             atlas1__Client__c = MockProvider.createId(Contact.class), 
             atlas1__Status__c = STATUS_CERTIFIED, 
             atlas1__InitialCertificationDate__c = initialCertYearsAgo != null ? Date.today().addYears(-initialCertYearsAgo).addMonths(3) : null, 
@@ -130,7 +131,7 @@ private class TeamTaskServiceTest {
         // Act
         service.handleTrainingStart(team);
         // Assert
-        MockCallData createCall = mocks.findCallByMethod('create');
+        MockCallData createCall = mocks.assertMethodCalled('create');
         Task[] tasks = (Task[])createCall.args[0];
         System.assertEquals(1, tasks.size(), 'expected one task');
         assertTask(new Task(
@@ -173,10 +174,10 @@ private class TeamTaskServiceTest {
         // Act
         service.createTrainingTasks();
         // Assert
-        MockCallData data = mocks.findCallByMethod('modify');
+        MockCallData data = mocks.assertMethodCalled('modify');
         atlas1__Team__c actual = (atlas1__Team__c)data.args[0];
         System.assertEquals(Date.today(), actual.atlas1__TrainingStartDate__c, 'date does not match');
-        data = mocks.findCallByMethod('create');
+        data = mocks.assertMethodCalled('create');
         Task[] tasks = (Task[])data.args[0];
         System.assertEquals(1, tasks.size(), 'size should be 1');
         assertTask(new Task(
@@ -202,11 +203,11 @@ private class TeamTaskServiceTest {
         service.createTrainingTasks();
         // Assert
         System.assertEquals(8, mocks.actualCalls.size(), 'size does not match');
-        MockCallData data = mocks.findCallByMethod('getCurrentRelated');
+        MockCallData data = mocks.assertMethodCalled('getCurrentRelated');
         Set<Id> ids = (Set<Id>)data.args[0];
         System.assertEquals(1, ids.size(), 'size should be 1');
         System.assertEquals(team.atlas1__Client__c, ids.iterator().next(), 'id does not match');
-        data = mocks.findCallByMethod('create');
+        data = mocks.assertMethodCalled('create');
         Task[] tasks = (Task[])data.args[0];
         System.assertEquals(1, tasks.size(), 'size should be 1');
         Task task = tasks[0];
@@ -239,11 +240,11 @@ private class TeamTaskServiceTest {
         service.createTrainingTasks();
         // Assert
         System.assertEquals(8, mocks.actualCalls.size(), 'size does not match');
-        MockCallData data = mocks.findCallByMethod('getCurrentRelated');
+        MockCallData data = mocks.assertMethodCalled('getCurrentRelated');
         Set<Id> ids = (Set<Id>)data.args[0];
         System.assertEquals(1, ids.size(), 'size should be 1');
         System.assertEquals(team.atlas1__Client__c, ids.iterator().next(), 'id does not match');
-        data = mocks.findCallByMethod('create');
+        data = mocks.assertMethodCalled('create');
         Task[] tasks = (Task[])data.args[0];
         System.assertEquals(2, tasks.size(), 'size should be 2');
         // check Team Facilitator task here, Client is checked in previous test
@@ -269,7 +270,7 @@ private class TeamTaskServiceTest {
         service.createTrainingTasks();
         // Assert
         System.assertEquals(7, mocks.actualCalls.size(), 'size does not match');
-        MockCallData data = mocks.findCallByMethod('create');
+        MockCallData data = mocks.assertMethodCalled('create');
 
         Task[] tasks = (Task[])data.args[0];
         System.assertEquals(1, tasks.size(), 'size should be 1');
@@ -297,11 +298,11 @@ private class TeamTaskServiceTest {
         service.createTrainingTasks();
         // Assert
         System.assertEquals(8, mocks.actualCalls.size(), 'size does not match');
-        MockCallData data = mocks.findCallByMethod('getCurrentRelated');
+        MockCallData data = mocks.assertMethodCalled('getCurrentRelated');
         Set<Id> ids = (Set<Id>)data.args[0];
         System.assertEquals(1, ids.size(), 'size should be 1');
         System.assertEquals(team.atlas1__Client__c, ids.iterator().next(), 'id does not match');
-        data = mocks.findCallByMethod('create');
+        data = mocks.assertMethodCalled('create');
         Task[] tasks = (Task[])data.args[0];
         System.assertEquals(1, tasks.size(), 'size should be 1');
         Task task = tasks[0];
@@ -310,7 +311,7 @@ private class TeamTaskServiceTest {
             WhatId = team.Id, 
             OwnerId = clientManager.Id, 
             Subject = SUBJECT_5MO_CLIENT, 
-            Description = DESC_5MO_CLIENT,
+            Description = DESC_5MO_CLIENT, 
             ActivityDate = Date.today()
         ), task);
     }
@@ -336,11 +337,11 @@ private class TeamTaskServiceTest {
         service.createTrainingTasks();
         // Assert
         System.assertEquals(8, mocks.actualCalls.size(), 'size does not match');
-        MockCallData data = mocks.findCallByMethod('getCurrentRelated');
+        MockCallData data = mocks.assertMethodCalled('getCurrentRelated');
         Set<Id> ids = (Set<Id>)data.args[0];
         System.assertEquals(1, ids.size(), 'size should be 1');
         System.assertEquals(team.atlas1__Client__c, ids.iterator().next(), 'id does not match');
-        data = mocks.findCallByMethod('create');
+        data = mocks.assertMethodCalled('create');
         Task[] tasks = (Task[])data.args[0];
         System.assertEquals(2, tasks.size(), 'size should be 2');
         // check Team Facilitator task here, Client is checked in previous test
@@ -369,7 +370,7 @@ private class TeamTaskServiceTest {
         service.createTrainingTasks();
         // Assert
         System.assertEquals(8, mocks.actualCalls.size(), 'size does not match');
-        MockCallData data = mocks.findCallByMethod('create');
+        MockCallData data = mocks.assertMethodCalled('create');
         Task[] tasks = (Task[])data.args[0];
         System.assertEquals(1, tasks.size(), 'size should be 1');
         Task task = tasks[0];
@@ -398,7 +399,7 @@ private class TeamTaskServiceTest {
         service.createTrainingTasks();
         // Assert
         System.assertEquals(8, mocks.actualCalls.size(), 'size does not match');
-        MockCallData data = mocks.findCallByMethod('create');
+        MockCallData data = mocks.assertMethodCalled('create');
         Task[] tasks = (Task[])data.args[0];
         System.assertEquals(1, tasks.size(), 'size should be 1');
         Task task = tasks[0];
@@ -427,7 +428,7 @@ private class TeamTaskServiceTest {
         service.createTrainingTasks();
         // Assert
         System.assertEquals(8, mocks.actualCalls.size(), 'size does not match');
-        MockCallData data = mocks.findCallByMethod('create');
+        MockCallData data = mocks.assertMethodCalled('create');
         Task[] tasks = (Task[])data.args[0];
         System.assertEquals(0, tasks.size(), 'size should be 0');
     }
@@ -446,11 +447,11 @@ private class TeamTaskServiceTest {
         service.createTrainingTasks();
         // Assert
         System.assertEquals(8, mocks.actualCalls.size(), 'size does not match');
-        MockCallData data = mocks.findCallByMethod('getCurrentRelated');
+        MockCallData data = mocks.assertMethodCalled('getCurrentRelated');
         Set<Id> ids = (Set<Id>)data.args[0];
         System.assertEquals(1, ids.size(), 'size should be 1');
         System.assertEquals(team.atlas1__Client__c, ids.iterator().next(), 'id does not match');
-        data = mocks.findCallByMethod('create');
+        data = mocks.assertMethodCalled('create');
         Task[] tasks = (Task[])data.args[0];
         System.assertEquals(1, tasks.size(), 'size should be 1');
         Task task = tasks[0];
@@ -459,7 +460,7 @@ private class TeamTaskServiceTest {
             WhatId = team.Id, 
             OwnerId = clientManager.Id, 
             Subject = SUBJECT_8MO_CLIENT, 
-            Description = DESC_8MO_CLIENT,
+            Description = DESC_8MO_CLIENT, 
             ActivityDate = Date.today()
         ), task);
     }
@@ -515,7 +516,7 @@ private class TeamTaskServiceTest {
         makeData();
         service = new TeamTaskService(teamRepo, relationshipRepo, dogRepo, taskRepo, patRepo);
         atlas1__Team__c team = new atlas1__Team__c(
-            Id = MockProvider.createId(atlas1__Team__c.class),
+            Id = MockProvider.createId(atlas1__Team__c.class), 
             Name = 'Test Team'
         );
         Boolean exc = false;
@@ -550,7 +551,7 @@ private class TeamTaskServiceTest {
         setupUserReturns();
         Date initDate = Date.today().addDays(-1);
         atlas1__Team__c team = new atlas1__Team__c(
-            Id = MockProvider.createId(atlas1__Team__c.class),
+            Id = MockProvider.createId(atlas1__Team__c.class), 
             atlas1__InitialCertificationDate__c = initDate
         );
         mocks.expectedCalls.add(new MockCallData(patRepo, 'getFirstPat', new atlas1__PublicAccessTest__c(
@@ -591,7 +592,7 @@ private class TeamTaskServiceTest {
         // Act
         service.handleCertificationStart(team);
         // Assert
-        MockCallData data = mocks.findCallByMethod('create');
+        MockCallData data = mocks.assertMethodCalled('create');
         Task[] tasks = (Task[])data.args[0];
         System.assertEquals(1, tasks.size(), 'size should be 1');
         Task task = tasks[0];
@@ -620,10 +621,10 @@ private class TeamTaskServiceTest {
         service.createCertificationTasks();
         // Assert
         System.assertEquals(8, mocks.actualCalls.size(), 'size does not match');
-        MockCallData data = mocks.findCallByMethod('getMatchingTasks');
+        MockCallData data = mocks.assertMethodCalled('getMatchingTasks');
         System.assertEquals(team.atlas1__Client__c, data.args[0], 'wrong first arg');
         System.assertEquals('%recert due in 3 mo%', data.args[1], 'wrong second arg');
-        data = mocks.findCallByMethod('create');
+        data = mocks.assertMethodCalled('create');
         Task[] tasks = (Task[])data.args[0];
         System.assertEquals(1, tasks.size(), 'size should be 1');
         Task task = tasks[0];
@@ -655,7 +656,7 @@ private class TeamTaskServiceTest {
         // Act
         service.createCertificationTasks();
         // Assert
-        MockCallData data = mocks.findCallByMethod('create');
+        MockCallData data = mocks.assertMethodCalled('create');
         Task[] tasks = (Task[])data.args[0];
         System.assert(tasks.isEmpty(), 'Should not create when matching task exists');
     }
@@ -676,10 +677,10 @@ private class TeamTaskServiceTest {
         service.createCertificationTasks();
         // Assert
         System.assertEquals(8, mocks.actualCalls.size(), 'size does not match');
-        MockCallData data = mocks.findCallByMethod('getMatchingTasks');
+        MockCallData data = mocks.assertMethodCalled('getMatchingTasks');
         System.assertEquals(team.atlas1__Client__c, data.args[0], 'wrong first arg');
         System.assertEquals('%recert due in 3 mo%', data.args[1], 'wrong second arg');
-        data = mocks.findCallByMethod('create');
+        data = mocks.assertMethodCalled('create');
         Task[] tasks = (Task[])data.args[0];
         System.assertEquals(1, tasks.size(), 'size should be 1');
         Task task = tasks[0];
@@ -711,9 +712,344 @@ private class TeamTaskServiceTest {
         // Act
         service.createCertificationTasks();
         // Assert
-        MockCallData data = mocks.findCallByMethod('create');
+        MockCallData data = mocks.assertMethodCalled('create');
         Task[] tasks = (Task[])data.args[0];
         System.assert(tasks.isEmpty(), 'Should not create when matching task exists');
+    }
+
+    @isTest
+    static void createDogTasks_doesNotCreateTasks_whenAdminNotDefined() {
+        // Arrange
+        makeData();
+        atlas1__Team__c team = newCertifiedTeam(5, 0);
+        atlas1__Team__c[] teams = new atlas1__Team__c[]{ team };
+        mocks.expectedCalls.add(new MockCallData(teamRepo, 'getActiveDogs', teams));
+        // creating the service so it gets the users
+        service = new TeamTaskService(teamRepo, relationshipRepo, dogRepo, taskRepo, patRepo);
+        // Act
+        service.createDogTasks();
+        // Assert
+        mocks.assertMethodNotCalled('create');
+    }
+
+    @isTest
+    static void createDogTasks_doesNotCreateTasks_whenNoTeam() {
+        // Arrange
+        makeData();
+        setupUserReturns();
+        atlas1__Team__c[] teams = new atlas1__Team__c[]{  };
+        mocks.expectedCalls.add(new MockCallData(teamRepo, 'getActiveDogs', teams));
+        // Act
+        service.createDogTasks();
+        // Assert
+        mocks.assertMethodNotCalled('create');
+    }
+
+    @isTest
+    static void createDogTasks_doesNotCreateTasks_whenNoDogInTeam() {
+        // Arrange
+        makeData();
+        setupUserReturns();
+
+        atlas1__Team__c[] teams = new atlas1__Team__c[]{ newCertifiedTeam(1, 0) };
+        mocks.expectedCalls.add(new MockCallData(teamRepo, 'getActiveDogs', teams));
+        // Act
+        service.createDogTasks();
+        // Assert
+        MockCallData data = mocks.assertMethodCalled('create');
+        Task[] tasks = (Task[])data.args[0];
+        System.assertEquals(0, tasks.size(), 'Should not create task when no dog in team');
+    }
+
+    @isTest
+    static void createDogTasks_doesNotCreateTasks_whenDogNoVaxDates() {
+        // Arrange
+        makeData();
+        setupUserReturns();
+
+        atlas1__Team__c team = newCertifiedTeam(1, 0);
+        team.atlas1__Dog__r = new atlas1__Dog__c(
+            Id = MockProvider.createId(atlas1__Dog__c.class), 
+            Name = 'Fido'
+        );
+        atlas1__Team__c[] teams = new atlas1__Team__c[]{ team };
+        mocks.expectedCalls.add(new MockCallData(teamRepo, 'getActiveDogs', teams));
+        // Act
+        service.createDogTasks();
+        // Assert
+        MockCallData data = mocks.assertMethodCalled('create');
+        Task[] tasks = (Task[])data.args[0];
+        System.assertEquals(0, tasks.size(), 'Should not create task when dog has no vaccine dates');
+    }
+
+    @isTest
+    static void createDogTasks_doesNotCreateTasks_whenRabiesExpiresTomorrow() {
+        // Arrange
+        makeData();
+        setupUserReturns();
+
+        atlas1__Team__c team = newCertifiedTeam(1, 0);
+        team.atlas1__Dog__r = new atlas1__Dog__c(
+            Id = MockProvider.createId(atlas1__Dog__c.class), 
+            Name = 'Fido', 
+            atlas1__VaccineDueRabies__c = Date.today().addDays(1)
+        );
+        atlas1__Team__c[] teams = new atlas1__Team__c[]{ team };
+        mocks.expectedCalls.add(new MockCallData(teamRepo, 'getActiveDogs', teams));
+        // Act
+        service.createDogTasks();
+        // Assert
+        MockCallData data = mocks.assertMethodCalled('create');
+        Task[] tasks = (Task[])data.args[0];
+        System.assertEquals(0, tasks.size(), 'Should not create task when rabies due tomorrow');
+    }
+
+    @isTest
+    static void createDogTasks_doesNotCreateTasks_whenExamExpiresTomorrow() {
+        // Arrange
+        makeData();
+        setupUserReturns();
+
+        atlas1__Team__c team = newCertifiedTeam(1, 0);
+        team.atlas1__Dog__r = new atlas1__Dog__c(
+            Id = MockProvider.createId(atlas1__Dog__c.class), 
+            Name = 'Fido', 
+            atlas1__PhysicalExamDue__c = Date.today().addDays(1)
+        );
+        atlas1__Team__c[] teams = new atlas1__Team__c[]{ team };
+        mocks.expectedCalls.add(new MockCallData(teamRepo, 'getActiveDogs', teams));
+        // Act
+        service.createDogTasks();
+        // Assert
+        MockCallData data = mocks.assertMethodCalled('create');
+        Task[] tasks = (Task[])data.args[0];
+        System.assertEquals(0, tasks.size(), 'Should not create task when dog exam due tomorrow');
+    }
+
+    @isTest
+    static void createDogTasks_doesNotCreateTasks_whenDA2PPExpiresTomorrow() {
+        // Arrange
+        makeData();
+        setupUserReturns();
+
+        atlas1__Team__c team = newCertifiedTeam(1, 0);
+        team.atlas1__Dog__r = new atlas1__Dog__c(
+            Id = MockProvider.createId(atlas1__Dog__c.class), 
+            Name = 'Fido', 
+            atlas1__VaccineDueDA2PP__c = Date.today().addDays(1)
+        );
+        atlas1__Team__c[] teams = new atlas1__Team__c[]{ team };
+        mocks.expectedCalls.add(new MockCallData(teamRepo, 'getActiveDogs', teams));
+        // Act
+        service.createDogTasks();
+        // Assert
+        MockCallData data = mocks.assertMethodCalled('create');
+        Task[] tasks = (Task[])data.args[0];
+        System.assertEquals(0, tasks.size(), 'Should not create task when dog DA2PP due tomorrow');
+    }
+
+    @isTest
+    static void createDogTasks_doesNotCreateTasks_whenRabiesExpiredYesterday() {
+        // Arrange
+        makeData();
+        setupUserReturns();
+
+        atlas1__Team__c team = newCertifiedTeam(1, 0);
+        team.atlas1__Dog__r = new atlas1__Dog__c(
+            Id = MockProvider.createId(atlas1__Dog__c.class), 
+            Name = 'Fido', 
+            atlas1__VaccineDueRabies__c = Date.today().addDays(-1)
+        );
+        atlas1__Team__c[] teams = new atlas1__Team__c[]{ team };
+        mocks.expectedCalls.add(new MockCallData(teamRepo, 'getActiveDogs', teams));
+        // Act
+        service.createDogTasks();
+        // Assert
+        MockCallData data = mocks.assertMethodCalled('create');
+        Task[] tasks = (Task[])data.args[0];
+        System.assertEquals(0, tasks.size(), 'Should not create task when rabies due yesterday');
+    }
+
+    @isTest
+    static void createDogTasks_doesNotCreateTasks_whenExamExpiredYesterday() {
+        // Arrange
+        makeData();
+        setupUserReturns();
+
+        atlas1__Team__c team = newCertifiedTeam(1, 0);
+        team.atlas1__Dog__r = new atlas1__Dog__c(
+            Id = MockProvider.createId(atlas1__Dog__c.class), 
+            Name = 'Fido', 
+            atlas1__PhysicalExamDue__c = Date.today().addDays(-1)
+        );
+        atlas1__Team__c[] teams = new atlas1__Team__c[]{ team };
+        mocks.expectedCalls.add(new MockCallData(teamRepo, 'getActiveDogs', teams));
+        // Act
+        service.createDogTasks();
+        // Assert
+        MockCallData data = mocks.assertMethodCalled('create');
+        Task[] tasks = (Task[])data.args[0];
+        System.assertEquals(0, tasks.size(), 'Should not create task when dog exam due yesterday');
+    }
+
+    @isTest
+    static void createDogTasks_doesNotCreateTasks_whenDA2PPExpiredYesterday() {
+        // Arrange
+        makeData();
+        setupUserReturns();
+
+        atlas1__Team__c team = newCertifiedTeam(1, 0);
+        team.atlas1__Dog__r = new atlas1__Dog__c(
+            Id = MockProvider.createId(atlas1__Dog__c.class), 
+            Name = 'Fido', 
+            atlas1__VaccineDueDA2PP__c = Date.today().addDays(-1)
+        );
+        atlas1__Team__c[] teams = new atlas1__Team__c[]{ team };
+        mocks.expectedCalls.add(new MockCallData(teamRepo, 'getActiveDogs', teams));
+        // Act
+        service.createDogTasks();
+        // Assert
+        MockCallData data = mocks.assertMethodCalled('create');
+        Task[] tasks = (Task[])data.args[0];
+        System.assertEquals(0, tasks.size(), 'Should not create task when dog DA2PP due yesterday');
+    }
+
+    @isTest
+    static void createDogTasks_doesNotCreateTasks_whenRabiesExpiresToday_andTaskPresent() {
+        // Arrange
+        makeData();
+        setupUserReturns();
+
+        atlas1__Team__c team = newCertifiedTeam(1, 0);
+        team.atlas1__Dog__r = new atlas1__Dog__c(
+            Id = MockProvider.createId(atlas1__Dog__c.class), 
+            Name = 'Fido', 
+            atlas1__VaccineDueRabies__c = Date.today()
+        );
+        atlas1__Team__c[] teams = new atlas1__Team__c[]{ team };
+        mocks.expectedCalls.add(new MockCallData(teamRepo, 'getActiveDogs', teams));
+        mocks.expectedCalls.add(new MockCallData(taskRepo, 'getMatchingTasks', new Task[]{ new Task() }, new List<Object>{ team.atlas1__Client__c, '%veterinary health records%' }));
+        // Act
+        service.createDogTasks();
+        // Assert
+        MockCallData data = mocks.assertMethodCalled('create');
+        Task[] tasks = (Task[])data.args[0];
+        System.assertEquals(0, tasks.size(), 'Should not create task when rabies due today and task exists');
+    }
+
+    @isTest
+    static void createDogTasks_doesNotCreateTasks_whenExamExpiresToday_andTaskPresent() {
+        // Arrange
+        makeData();
+        setupUserReturns();
+
+        atlas1__Team__c team = newCertifiedTeam(1, 0);
+        team.atlas1__Dog__r = new atlas1__Dog__c(
+            Id = MockProvider.createId(atlas1__Dog__c.class), 
+            Name = 'Fido', 
+            atlas1__PhysicalExamDue__c = Date.today()
+        );
+        atlas1__Team__c[] teams = new atlas1__Team__c[]{ team };
+        mocks.expectedCalls.add(new MockCallData(teamRepo, 'getActiveDogs', teams));
+        mocks.expectedCalls.add(new MockCallData(taskRepo, 'getMatchingTasks', new Task[]{ new Task() }, new List<Object>{ team.atlas1__Client__c, '%veterinary health records%' }));
+        // Act
+        service.createDogTasks();
+        // Assert
+        MockCallData data = mocks.assertMethodCalled('create');
+        Task[] tasks = (Task[])data.args[0];
+        System.assertEquals(0, tasks.size(), 'Should not create task when dog exam due today and task exists');
+    }
+
+    @isTest
+    static void createDogTasks_doesNotCreateTasks_whenDA2PPExpiresToday_andTaskPresent() {
+        // Arrange
+        makeData();
+        setupUserReturns();
+
+        atlas1__Team__c team = newCertifiedTeam(1, 0);
+        team.atlas1__Dog__r = new atlas1__Dog__c(
+            Id = MockProvider.createId(atlas1__Dog__c.class), 
+            Name = 'Fido', 
+            atlas1__VaccineDueDA2PP__c = Date.today()
+        );
+        atlas1__Team__c[] teams = new atlas1__Team__c[]{ team };
+        mocks.expectedCalls.add(new MockCallData(teamRepo, 'getActiveDogs', teams));
+        mocks.expectedCalls.add(new MockCallData(taskRepo, 'getMatchingTasks', new Task[]{ new Task() }, new List<Object>{ team.atlas1__Client__c, '%veterinary health records%' }));
+        // Act
+        service.createDogTasks();
+        // Assert
+        MockCallData data = mocks.assertMethodCalled('create');
+        Task[] tasks = (Task[])data.args[0];
+        System.assertEquals(0, tasks.size(), 'Should not create task when dog DA2PP due today and task exists');
+    }
+
+    @isTest
+    static void createDogTasks_creatsTasks_whenRabiesExpiresToday_andNoTaskPresent() {
+        // Arrange
+        makeData();
+        setupUserReturns();
+
+        atlas1__Team__c team = newCertifiedTeam(1, 0);
+        team.atlas1__Dog__r = new atlas1__Dog__c(
+            Id = MockProvider.createId(atlas1__Dog__c.class), 
+            Name = 'Fido', 
+            atlas1__VaccineDueRabies__c = Date.today()
+        );
+        atlas1__Team__c[] teams = new atlas1__Team__c[]{ team };
+        mocks.expectedCalls.add(new MockCallData(teamRepo, 'getActiveDogs', teams));
+        mocks.expectedCalls.add(new MockCallData(taskRepo, 'getMatchingTasks', new Task[]{  }, new List<Object>{ team.atlas1__Client__c, '%veterinary health records%' }));
+        // Act
+        service.createDogTasks();
+        // Assert
+        MockCallData data = mocks.assertMethodCalled('create');
+        Task[] tasks = (Task[])data.args[0];
+        System.assertEquals(1, tasks.size(), 'Should not create task when rabies due today and task exists');
+    }
+
+    @isTest
+    static void createDogTasks_createTasks_whenExamExpiresToday_andNoTaskPresent() {
+        // Arrange
+        makeData();
+        setupUserReturns();
+
+        atlas1__Team__c team = newCertifiedTeam(1, 0);
+        team.atlas1__Dog__r = new atlas1__Dog__c(
+            Id = MockProvider.createId(atlas1__Dog__c.class), 
+            Name = 'Fido', 
+            atlas1__PhysicalExamDue__c = Date.today()
+        );
+        atlas1__Team__c[] teams = new atlas1__Team__c[]{ team };
+        mocks.expectedCalls.add(new MockCallData(teamRepo, 'getActiveDogs', teams));
+        mocks.expectedCalls.add(new MockCallData(taskRepo, 'getMatchingTasks', new Task[]{  }, new List<Object>{ team.atlas1__Client__c, '%veterinary health records%' }));
+        // Act
+        service.createDogTasks();
+        // Assert
+        MockCallData data = mocks.assertMethodCalled('create');
+        Task[] tasks = (Task[])data.args[0];
+        System.assertEquals(1, tasks.size(), 'Should not create task when dog exam due today and task exists');
+    }
+
+    @isTest
+    static void createDogTasks_createTasks_whenDA2PPExpiresToday_andNoTaskPresent() {
+        // Arrange
+        makeData();
+        setupUserReturns();
+
+        atlas1__Team__c team = newCertifiedTeam(1, 0);
+        team.atlas1__Dog__r = new atlas1__Dog__c(
+            Id = MockProvider.createId(atlas1__Dog__c.class), 
+            Name = 'Fido', 
+            atlas1__VaccineDueDA2PP__c = Date.today()
+        );
+        atlas1__Team__c[] teams = new atlas1__Team__c[]{ team };
+        mocks.expectedCalls.add(new MockCallData(teamRepo, 'getActiveDogs', teams));
+        mocks.expectedCalls.add(new MockCallData(taskRepo, 'getMatchingTasks', new Task[]{  }, new List<Object>{ team.atlas1__Client__c, '%veterinary health records%' }));
+        // Act
+        service.createDogTasks();
+        // Assert
+        MockCallData data = mocks.assertMethodCalled('create');
+        Task[] tasks = (Task[])data.args[0];
+        System.assertEquals(1, tasks.size(), 'Should not create task when dog DA2PP due today and task exists');
     }
 
 }

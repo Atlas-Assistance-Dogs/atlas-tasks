@@ -1,3 +1,4 @@
+/* This is intended to be run monthly */
 global class RemindDogStatus implements Schedulable {
     private TeamService service;
 

@@ -1,3 +1,4 @@
+/* this creates tasks and reminder emails for teams.  It is expected to be run daily */
 global class TeamTasks implements Schedulable {
   private TeamTaskService service;
   // default constructor
@@ -14,5 +15,6 @@ global class TeamTasks implements Schedulable {
   global void execute(SchedulableContext SC) {
     service.createTrainingTasks();
     service.createCertificationTasks();
+    service.createDogTasks();
   }
 }
