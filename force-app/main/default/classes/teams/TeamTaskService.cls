@@ -257,4 +257,38 @@ public class TeamTaskService {
         taskRepo.create(tasks);
     }
 
+    // run daily to create admin tasks related to active dogs
+    public void createDogTasks() {
+        if (admin == null) {
+            return;
+        }
+        Date today = Date.today();
+        List<atlas1__Team__c> teams = teamRepo.getActiveDogs();
+        if (teams == null || teams.isEmpty()) {
+            return;
+        }
+        List<Task> tasks = new List<Task>();
+        for (atlas1__Team__c team : teams) {
+            if (team.atlas1__Dog__r == null) {
+                continue; // this shouldn't happen, but checking just to be safe
+            }
+            atlas1__Dog__c dog = team.atlas1__Dog__r;
+            if ((dog.atlas1__VaccineDueRabies__c != null && today == dog.atlas1__VaccineDueRabies__c) || (dog.atlas1__PhysicalExamDue__c != null && today == dog.atlas1__PhysicalExamDue__c) || (dog.atlas1__VaccineDueDA2PP__c != null && today == dog.atlas1__VaccineDueDA2PP__c)) {
+                Task[] matching = taskRepo.getMatchingTasks(team.atlas1__Client__c, '%health records%');
+                if (matching.isEmpty()) {
+                    tasks.add(new Task(
+                        WhatId = team.Id, 
+                        WhoId = team.atlas1__Client__c, 
+                        OwnerId = admin.Id, 
+                        Subject = 'One or more veterinary health records is now expired for dog: DOGNAME of team: TEAMNAME'.replace('DOGNAME', dog.Name).replace('TEAMNAME', team.Name), 
+                        Status = 'Not Started', 
+                        Priority = 'Normal', 
+                        ActivityDate = today
+                    ));
+                }
+            }
+        }
+        taskRepo.create(tasks);
+    }
+
 }
