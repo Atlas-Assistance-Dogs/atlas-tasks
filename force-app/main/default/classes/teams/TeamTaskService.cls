@@ -277,18 +277,26 @@ public class TeamTaskService {
             // this is called by a trigger, so don't need to update here
             team.atlas1__InitialCertificationDate__c = pat.atlas1__DateCompleted__c;
         }
-        TaskFactory tf = new TaskFactory(team, admin);
+        TaskFactory tf;
         List<Task> tasks = new List<Task>();
         if (clientSupportCoordinator != null) {
-            tasks.add(tf.createTask('Begin client checkins', clientSupportCoordinator.Id));
+            tf = new TaskFactory(team, clientSupportCoordinator);
+            Task task = tf.createTask('Begin client checkins', 'Schedule checkins every 3 months, inform Molly');
+            task.ActivityDate = Date.today().addMonths(1);
+            tasks.add(task);
         }
         if (admin != null) {
+            tf = new TaskFactory(team, admin);
             tasks.add(tf.createTask('Assign fitness course', NEWLY_CERTIFIED));
             tasks.add(tf.createTask('Mark assigned program complete', NEWLY_CERTIFIED));
             tasks.add(tf.createTask('Save grade report', NEWLY_CERTIFIED));
         }
         if (adminAssistant != null) {
-            tasks.add(tf.createTask('Cleanup google drive', NEWLY_CERTIFIED, adminAssistant.Id));
+            tf = new TaskFactory(team, adminAssistant);
+            tasks.add(tf.createTask('Cleanup google drive', NEWLY_CERTIFIED));
+        }
+        if (tasks.isEmpty()) {
+            return;
         }
         taskRepo.create(tasks);
     }
