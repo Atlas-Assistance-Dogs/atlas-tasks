@@ -9,6 +9,7 @@
  */
 @SuppressWarnings('ApexCognitiveComplexity')
 public class TeamTaskService {
+	private static final String TEAM_ACCEPTED = 'Team newly accepted';
     private static final String STARTED_TRAINING = 'Client entered training';
     private static final String NEWLY_CERTIFIED = 'Team newly certified';
     // Repositories
@@ -58,9 +59,10 @@ public class TeamTaskService {
     void getUsers() {
         admin = taskRepo.getTaskUser('Administrator');
         adminAssistant = taskRepo.getTaskUser('Admin Assistant');
+        inventoryAdmin = taskRepo.getTaskUser('Inventory Admin');
         clientSupportCoordinator = taskRepo.getTaskUser('Client Support Coordinator');
         clientManager = taskRepo.getTaskUser('Client Manager');
-        inventoryAdmin = taskRepo.getTaskUser('InventoryAdmin');
+        inventoryAdmin = taskRepo.getTaskUser('Inventory Admin');
         tfManager = taskRepo.getTaskUser('TF Manager');
         trainerManager = taskRepo.getTaskUser('Trainer Manager');
     }
@@ -142,28 +144,23 @@ public class TeamTaskService {
      * @example service.T(team);
      */
     public void handleTrainingStart(atlas1__Team__c team) {
-        if (admin == null) {
-            return;
-        }
         Date today = Date.today();
         List<Task> tasks = new List<Task>();
         TaskFactory tf;
+        if (admin != null) {
+            tf = new TaskFactory(team, admin);
+            tasks.add(tf.createTask('Confirm returns forms', STARTED_TRAINING));
+            tasks.add(tf.createTask('Assign courses', STARTED_TRAINING));
+            tasks.add(tf.createTask('Add to office hours', STARTED_TRAINING));
+            tasks.add(tf.createTask('Add training log to google drive', STARTED_TRAINING));
+        }
         if (inventoryAdmin != null) {
             tf = new TaskFactory(team, inventoryAdmin);
-        } else if (admin != null) {
-            tf = new TaskFactory(team, admin);
-        } else {
+            tasks.add(tf.createTask('Send client welcome packet', TEAM_ACCEPTED));
+            tasks.add(tf.createTask('Send TF in-training vest and first aid kit', TEAM_ACCEPTED));
+        }
+        if (tasks.isEmpty()) {
             return;
-        }
-        if (admin != null) {
-            tasks.add(tf.createTask('Confirm returns forms', STARTED_TRAINING, admin.Id));
-            tasks.add(tf.createTask('Assign courses, add to office hours', STARTED_TRAINING, admin.Id));
-            tasks.add(tf.createTask('Add to office hours', STARTED_TRAINING, admin.Id));
-            tasks.add(tf.createTask('Add training log to google drive', STARTED_TRAINING, admin.Id));
-        }
-        if (inventoryAdmin != null) {
-            tasks.add(tf.createTask('Send client welcome packet', 'Team newly accepted', inventoryAdmin.Id));
-            tasks.add(tf.createTask('Send TF in-training vest and first aid kit', 'Team newly accepted', inventoryAdmin.Id));
         }
         taskRepo.create(tasks);
     }
@@ -181,7 +178,6 @@ public class TeamTaskService {
             if (team.atlas1__TrainingStartDate__c == null) {
                 team.atlas1__TrainingStartDate__c = Date.today();
                 teamRepo.modify(team);
-                handleTrainingStart(team);
                 continue;
             }
             tasks.addAll(teamTasks(team));
