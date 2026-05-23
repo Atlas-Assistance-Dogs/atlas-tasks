@@ -21,9 +21,19 @@
                 <label>Administrator</label>
             </value>
             <value>
+                <fullName>Admin Assistant</fullName>
+                <default>false</default>
+                <label>Administrator Assistant</label>
+            </value>
+            <value>
                 <fullName>Client Manager</fullName>
                 <default>false</default>
                 <label>Client Manager</label>
+            </value>
+            <value>
+                <fullName>Inventory Admin</fullName>
+                <default>false</default>
+                <label>Inventory Admin</label>
             </value>
             <value>
                 <fullName>TF Manager</fullName>

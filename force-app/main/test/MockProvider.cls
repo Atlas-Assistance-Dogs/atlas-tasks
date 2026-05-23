@@ -61,14 +61,27 @@ public class MockProvider implements System.StubProvider {
     return null;
   }
 
-  public MockCallData findCallByMethod(String methodName) {
+  // asserts that the method with this name was called
+  public void assertMethodNotCalled(String methodName) {
+    MockCallData data = findCallByName(methodName);
+    System.Assert.isNull(data);
+  }
+
+  // returns call data if method is found null if not
+  public MockCallData findCallByName(String methodName) {
     for (MockCallData c : actualCalls) {
       if (c.methodName == methodName) {
         return c;
       }
     }
-    System.assert(false, 'Expected call not found: ' + methodName);
     return null;
+  }
+
+  // returns call data if method is found and asserts it was found
+  public MockCallData assertMethodCalled(String methodName) {
+    MockCallData data = findCallByName(methodName);
+    System.Assert.isNotNull(data, 'Expected call not found: ' + methodName);
+    return data;
   }
 
   // validate that all actual calls were expected
