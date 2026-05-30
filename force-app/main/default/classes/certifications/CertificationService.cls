@@ -1,21 +1,31 @@
+/**
+ * Service class for managing certification-related operations including
+ * reminders, renewals, and task creation for trainers and facilitators.
+ */
 public with sharing class CertificationService {
   CertificationRepository certRepo;
   EmailService emailServ;
   TaskRepository taskRepo;
 
+  /**
+   * Initializes the CertificationService with default repositories.
+   */
   public CertificationService() {
     certRepo = new CertificationRepository();
     emailServ = new EmailService();
     taskRepo = new TaskRepository();
   }
 
-  @testVisible
+  @TestVisible
   private CertificationService(CertificationRepository certRepo, EmailService emailServ, TaskRepository taskRepo) {
     this.certRepo = certRepo;
     this.emailServ = emailServ;
     this.taskRepo = taskRepo;
   }
 
+  /**
+   * Sends reminders to contacts to obtain their required CEUs.
+   */
   public void remindToGetCeus() {
     atlas1__Certification__c[] certs = certRepo.getActiveCerts();
 
@@ -43,15 +53,18 @@ public with sharing class CertificationService {
     emailServ.sendEmail(emails);
   }
 
-  final Integer requiredCEUs = 10;  
-  final String decertTaskSubject = 'Trainer Deactivated';
-  final String decertTaskDescription = '- Email decert letter\n- Change status to discontinued\n- Remove from Canvas and facebook';
+  final Integer requiredCEUs = 10;
+  final String noRenewSubject = 'Confirm if deactivating trainer';
+  final String decertTaskEmail = 'Email decert letter';
+  final String decertTaskDescription = 'If deactivating, change status to discontinued';
+  final String decertTaskRemoveCanvas = 'Remove from Canvas';
+  final String decertTaskRemoveFacebook = 'Remove from Facebook';
   /* Send reminder emails and tasks related to Trainer renewal:
    - exactly 1 month before Trainer Certification Valid Until- "1 month email"
    - exactly 2 weeks before Trainer Certification Valid Until- "2 week email"
    - exactly 1 week before Trainer Certification Valid Until- "1 week email"
    - Day of Trainer Certification Valid Until = " last day email"
-    */
+   */
   public void remindToRenew() {
     List<Messaging.SingleEmailMessage> emails = new List<Messaging.SingleEmailMessage>();
     // Create a list of Tasks
@@ -161,7 +174,7 @@ public with sharing class CertificationService {
       tasks.add(new Task(
         OwnerId = admin.Id, 
         Subject = 'Trainer is expiring in 1 week and they haven\'t replied', 
-        Description = 'Check on invoice, CEU and renewal status',
+        Description = 'Check on invoice, CEU and renewal status', 
         Status = 'Open', 
         Priority = 'Normal', 
         WhoId = cert.atlas1__Contact__c, 
@@ -191,8 +204,8 @@ public with sharing class CertificationService {
     if (admin != null) {
       tasks.add(new Task(
         OwnerId = admin.Id, 
-        Subject = decertTaskSubject, 
-        Description = decertTaskDescription, 
+        Subject = noRenewSubject, 
+        Description = decertTaskEmail, 
         Status = 'Open', 
         Priority = 'Normal', 
         WhoId = cert.atlas1__Contact__c, 
@@ -202,7 +215,7 @@ public with sharing class CertificationService {
     if (trainerManager != null) {
       tasks.add(new Task(
         OwnerId = trainerManager.Id, 
-        Subject = decertTaskSubject, 
+        Subject = noRenewSubject, 
         Description = 'Remove from website', 
         Status = 'Open', 
         Priority = 'Normal', 
@@ -211,6 +224,74 @@ public with sharing class CertificationService {
       ));
     }
     return tasks;
+  }
+
+  /**
+   * Handle decertification for a contact by creating tasks for administrators
+   * and the trainer manager to process removal actions.
+   * @param contacts changedContact records
+   * @param oldContactMap Map of old contact records for comparison
+   */
+  public void handleDecertification(Contact[] contacts, Map<Id, Contact> oldContactMap) {
+    List<Task> tasks = new List<Task>();
+
+    User trainerManager = taskRepo.getTaskUser('Trainer Manager');
+    User admin = taskRepo.getTaskUser('Administrator');
+
+    for (Contact contact : contacts) {
+      Contact oldContact = oldContactMap.get(contact.Id);
+      // Check if the trainer's status has changed from 'Certified-Active' to 'Discontinued'
+      if (oldContact.atlas1__TrainerStatus__c == 'Certified-Active' && contact.atlas1__TrainerStatus__c == 'Discontinued') {
+        // Create a task to decertify the trainer
+        if (admin != null) {
+          tasks.add(new Task(
+            OwnerId = admin.Id, 
+            Subject = 'Change assigned program to discontinued', 
+            Status = 'Open', 
+            Priority = 'Normal', 
+            WhoId = contact.Id, 
+            ActivityDate = Date.today()
+          ));
+          tasks.add(new Task(
+            OwnerId = admin.Id, 
+            Subject = 'Remove from Canvas', 
+            Status = 'Open', 
+            Priority = 'Normal', 
+            WhoId = contact.Id, 
+            ActivityDate = Date.today()
+          ));
+          tasks.add(new Task(
+            OwnerId = admin.Id, 
+            Subject = 'Remove from Facebook', 
+            Status = 'Open', 
+            Priority = 'Normal', 
+            WhoId = contact.Id, 
+            ActivityDate = Date.today()
+          ));
+        }
+        if (trainerManager != null) {
+          tasks.add(new Task(
+            OwnerId = trainerManager.Id, 
+            Subject = decertTaskEmail, 
+            Status = 'Open', 
+            Priority = 'Normal', 
+            WhoId = contact.Id, 
+            ActivityDate = Date.today()
+          ));
+          tasks.add(new Task(
+            OwnerId = trainerManager.Id, 
+            Subject = 'Remove from website', 
+            Status = 'Open', 
+            Priority = 'Normal', 
+            WhoId = contact.Id, 
+            ActivityDate = Date.today()
+          ));
+        }
+      }
+    }
+    if (!tasks.isEmpty()) {
+      taskRepo.create(tasks);
+    }
   }
 
 }
