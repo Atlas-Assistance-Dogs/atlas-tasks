@@ -536,13 +536,11 @@ private class CertificationServiceTest {
     call = mocks.assertMethodCalled('create');
     System.Assert.isNotNull(call, 'create not called');
     Task[] tasks = (Task[])call.args[0];
-    System.Assert.areEqual(2, tasks.size(), 'wrong tasks');
+    System.Assert.areEqual(1, tasks.size(), 'wrong tasks');
   }
 
-  final static String decertTaskSubject = 'Trainer Deactivated';
-  final static String decertTaskDescription = '- Email decert letter\n- Change status to discontinued\n- Remove from Canvas and facebook';
   @isTest
-  static void remindToRenew_sendsEmailWhenDayOf_andNotEnoughCEUs() {
+  static void remindToRenew_createsTaskWhenDayOf_andNotEnoughCEUs() {
     makeData();
     setup();
     atlas1__Certification__c cert = setupCertWithApproved(-1, 6);
@@ -560,16 +558,8 @@ private class CertificationServiceTest {
     Task[] tasks = (Task[])call.args[0];
     System.Assert.areEqual(new Task[]{ new Task(
       OwnerId = admin.Id, 
-      Subject = decertTaskSubject, 
-      Description = decertTaskDescription, 
-      Status = 'Open', 
-      Priority = 'Normal', 
-      WhoId = cert.atlas1__Contact__c, 
-      ActivityDate = Date.today()
-    ), new Task(
-      OwnerId = manager.Id, 
-      Subject = decertTaskSubject, 
-      Description = 'Remove from website', 
+      Subject = 'Confirm if deactivating trainer', 
+      Description = 'Change status to discontinued if deactivating', 
       Status = 'Open', 
       Priority = 'Normal', 
       WhoId = cert.atlas1__Contact__c, 
@@ -578,7 +568,7 @@ private class CertificationServiceTest {
   }
 
   @isTest
-  static void remindToRenew_sendsEmailWhenDayOf_andEnoughCEUs() {
+  static void remindToRenew_createsTaskWhenDayOf_andEnoughCEUs() {
     makeData();
     setup();
     atlas1__Certification__c cert = setupCertWithApproved(-1, 13);
@@ -597,16 +587,8 @@ private class CertificationServiceTest {
     Task[] tasks = (Task[])call.args[0];
     System.Assert.areEqual(new Task[]{ new Task(
       OwnerId = admin.Id, 
-      Subject = decertTaskSubject, 
-      Description = decertTaskDescription, 
-      Status = 'Open', 
-      Priority = 'Normal', 
-      WhoId = cert.atlas1__Contact__c, 
-      ActivityDate = Date.today()
-    ), new Task(
-      OwnerId = manager.Id, 
-      Subject = decertTaskSubject, 
-      Description = 'Remove from website', 
+      Subject = 'Confirm if deactivating trainer', 
+      Description = 'Change status to discontinued if deactivating', 
       Status = 'Open', 
       Priority = 'Normal', 
       WhoId = cert.atlas1__Contact__c, 
@@ -635,6 +617,98 @@ private class CertificationServiceTest {
     call = mocks.assertMethodCalled('create');
     Task[] tasks = (Task[])call.args[0];
     System.Assert.areEqual(0, tasks.size(), 'wrong tasks');
+  }
+
+  @IsTest
+  static void handleDecertification_doesNothingWhenNoContactsBeingDecertified() {
+    makeData();
+    setup();
+    Contact contact = new Contact(
+      Id = MockProvider.createId(Contact.class), 
+      atlas1__Positions__c = 'Trainer', 
+      atlas1__TrainerStatus__c = 'Certified-Active'
+    );
+    // act
+    service.handleDecertification(new Contact[]{ contact }, new Map<Id, Contact>{ contact.Id => contact });
+    // assert
+    mocks.assertMethodNotCalled('create');
+  }
+
+  @IsTest
+  static void handleDecertification_doesNothingWhenNoUsers() {
+    makeData();
+    Contact contact = new Contact(
+      Id = MockProvider.createId(Contact.class), 
+      atlas1__Positions__c = 'Trainer', 
+      atlas1__TrainerStatus__c = 'Certified-Active'
+    );
+    Contact nc = new Contact(
+      Id = contact.Id, 
+      atlas1__Positions__c = 'Trainer', 
+      atlas1__TrainerStatus__c = 'Discontinued'
+    );
+    // act
+    // act
+    service.handleDecertification(new Contact[]{ nc }, new Map<Id, Contact>{ contact.Id => contact });
+    // assert
+    mocks.assertMethodNotCalled('create');
+  }
+
+  @IsTest
+  static void handleDecertification_createsTasksWhenUsersDefined() {
+    makeData();
+    setup();
+    Contact contact = new Contact(
+      Id = MockProvider.createId(Contact.class), 
+      atlas1__Positions__c = 'Trainer', 
+      atlas1__TrainerStatus__c = 'Certified-Active'
+    );
+    Contact nc = new Contact(
+      Id = contact.Id, 
+      atlas1__Positions__c = 'Trainer', 
+      atlas1__TrainerStatus__c = 'Discontinued'
+    );
+    // act
+    service.handleDecertification(new Contact[]{ nc }, new Map<Id, Contact>{ contact.Id => contact });
+    // assert
+    MockCallData call = mocks.assertMethodCalled('create');
+    Task[] tasks = (Task[])call.args[0];
+    System.Assert.areEqual(new Task[]{ new Task(
+      OwnerId = admin.Id, 
+      Subject = 'Change assigned program to discontinued', 
+      Status = 'Open', 
+      Priority = 'Normal', 
+      WhoId = contact.Id, 
+      ActivityDate = Date.today()
+    ), new Task(
+      OwnerId = admin.Id, 
+      Subject = 'Remove from Canvas', 
+      Status = 'Open', 
+      Priority = 'Normal', 
+      WhoId = contact.Id, 
+      ActivityDate = Date.today()
+    ), new Task(
+      OwnerId = admin.Id, 
+      Subject = 'Remove from Facebook', 
+      Status = 'Open', 
+      Priority = 'Normal', 
+      WhoId = contact.Id, 
+      ActivityDate = Date.today()
+    ), new Task(
+      OwnerId = manager.Id, 
+      Subject = 'Email decert letter', 
+      Status = 'Open', 
+      Priority = 'Normal', 
+      WhoId = contact.Id, 
+      ActivityDate = Date.today()
+    ), new Task(
+      OwnerId = manager.Id, 
+      Subject = 'Remove from website', 
+      Status = 'Open', 
+      Priority = 'Normal', 
+      WhoId = contact.Id, 
+      ActivityDate = Date.today()
+    ) }, tasks, 'wrong tasks');
   }
 
 }

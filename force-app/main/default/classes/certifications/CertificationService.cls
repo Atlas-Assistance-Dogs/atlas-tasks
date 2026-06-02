@@ -205,18 +205,7 @@ public with sharing class CertificationService {
       tasks.add(new Task(
         OwnerId = admin.Id, 
         Subject = noRenewSubject, 
-        Description = decertTaskEmail, 
-        Status = 'Open', 
-        Priority = 'Normal', 
-        WhoId = cert.atlas1__Contact__c, 
-        ActivityDate = Date.today()
-      ));
-    }
-    if (trainerManager != null) {
-      tasks.add(new Task(
-        OwnerId = trainerManager.Id, 
-        Subject = noRenewSubject, 
-        Description = 'Remove from website', 
+        Description = 'Change status to discontinued if deactivating', 
         Status = 'Open', 
         Priority = 'Normal', 
         WhoId = cert.atlas1__Contact__c, 
@@ -234,6 +223,7 @@ public with sharing class CertificationService {
    */
   public void handleDecertification(Contact[] contacts, Map<Id, Contact> oldContactMap) {
     List<Task> tasks = new List<Task>();
+    System.debug('handling decertification');
 
     User trainerManager = taskRepo.getTaskUser('Trainer Manager');
     User admin = taskRepo.getTaskUser('Administrator');
@@ -242,6 +232,7 @@ public with sharing class CertificationService {
       Contact oldContact = oldContactMap.get(contact.Id);
       // Check if the trainer's status has changed from 'Certified-Active' to 'Discontinued'
       if (oldContact.atlas1__TrainerStatus__c == 'Certified-Active' && contact.atlas1__TrainerStatus__c == 'Discontinued') {
+        System.debug('handling discontinued contact');
         // Create a task to decertify the trainer
         if (admin != null) {
           tasks.add(new Task(
