@@ -80,6 +80,9 @@ private class CertificationServiceTest {
   private static User manager = new User(
     Id = MockProvider.createId(User.class)
   );
+  private static User coordinator = new User(
+    Id = MockProvider.createId(User.class)
+  );
   private static EmailTemplate monthBefore = new EmailTemplate(
     Id = MockProvider.createId(EmailTemplate.class), 
     Name = 'TrainerMonthBefore'
@@ -127,6 +130,7 @@ private class CertificationServiceTest {
   static void setup() {
     mocks.expectedCalls.add(new MockCallData(taskRepo, 'getTaskUser', admin, new Object[]{ 'Administrator' }));
     mocks.expectedCalls.add(new MockCallData(taskRepo, 'getTaskUser', manager, new Object[]{ 'Trainer Manager' }));
+    mocks.expectedCalls.add(new MockCallData(taskRepo, 'getTaskUser', coordinator, new Object[]{ 'Team Training Coordinator' }));
     mocks.expectedCalls.add(new MockCallData(emailSrv, 'getTemplate', monthBefore, new Object[]{ 'TrainerMonthBefore' }));
     mocks.expectedCalls.add(new MockCallData(emailSrv, 'getTemplate', twoWeeksBefore, new Object[]{ 'Trainer2WeeksBefore' }));
     mocks.expectedCalls.add(new MockCallData(emailSrv, 'getTemplate', weekBefore, new Object[]{ 'TrainerWeekBefore' }));
@@ -686,13 +690,13 @@ private class CertificationServiceTest {
       atlas1__TrainerStatus__c = 'Inactive'
     );
     // act
-    service.handleContactChange(new Contact[]{ nc }, new Map<Id, Contact>{ contact.Id => contact });
     // assert
     MockCallData call = mocks.assertMethodCalled('create');
     Task[] tasks = (Task[])call.args[0];
     System.Assert.areEqual(new Task[]{ new Task(
       OwnerId = admin.Id, 
       Subject = 'Remove from Canvas', 
+      Description = service.tfNotAcceptingTaskSubject, 
       Status = 'Open', 
       Priority = 'Normal', 
       WhoId = contact.Id, 
@@ -754,6 +758,104 @@ private class CertificationServiceTest {
       Priority = 'Normal', 
       WhoId = contact.Id, 
       ActivityDate = Date.today()
+    ) }, tasks, 'wrong tasks');
+  }
+
+
+  @IsTest
+  static void handleStatusChange_doesNotCreateTasksWhenContactIsNotTeamFacilitator() {
+    makeData();
+    setup();
+    Contact contact = new Contact(
+      Id = MockProvider.createId(Contact.class), 
+      atlas1__Positions__c = 'Trainer', 
+      atlas1__TrainerStatus__c = 'Certified-Active'
+    );
+    // act
+    service.handleStatusChange(new Contact[]{ contact }, new Map<Id, Contact>{ contact.Id => contact });
+    // assert
+    mocks.assertMethodNotCalled('create');
+  }
+
+  @IsTest
+  static void handleStatusChange_doesNotCreateTasksWhenContactIsNotGoingOnHold() {
+    makeData();
+    setup();
+    Contact contact = new Contact(
+      Id = MockProvider.createId(Contact.class), 
+      atlas1__Positions__c = 'Team Facilitator', 
+      atlas1__FacilitatorStatus__c = 'Certified-Active'
+    );
+    // act
+    service.handleStatusChange(new Contact[]{ contact }, new Map<Id, Contact>{ contact.Id => contact });
+    // assert
+    mocks.assertMethodNotCalled('create');
+  }
+
+  @IsTest
+  static void handleStatusChange_doesNothingWhenNoUsers() {
+    makeData();
+    Contact contact = new Contact(
+      Id = MockProvider.createId(Contact.class), 
+      atlas1__Positions__c = 'Team Facilitator', 
+      atlas1__FacilitatorStatus__c = 'Certified-Active'
+    );
+    Contact nc = new Contact(
+      Id = contact.Id, 
+      atlas1__Positions__c = 'Team Facilitator', 
+      atlas1__FacilitatorStatus__c = 'Certified-Hold'
+    );
+    // act
+    // act
+    service.handleStatusChange(new Contact[]{ nc }, new Map<Id, Contact>{ contact.Id => contact });
+    // assert
+    mocks.assertMethodNotCalled('create');
+  }
+
+  @IsTest
+  static void handleStatusChange_createsTasksWhenUsersDefined() {
+    makeData();
+    setup();
+    Contact contact = new Contact(
+      Id = MockProvider.createId(Contact.class), 
+      atlas1__Positions__c = 'Team Facilitator', 
+      atlas1__FacilitatorStatus__c = 'Certified-Active'
+    );
+    Contact nc = new Contact(
+      Id = contact.Id, 
+      atlas1__Positions__c = 'Team Facilitator', 
+      atlas1__FacilitatorStatus__c = 'Certified-Hold'
+    );
+    // act
+    service.handleStatusChange(new Contact[]{ nc }, new Map<Id, Contact>{ contact.Id => contact });
+    // assert
+    MockCallData call = mocks.assertMethodCalled('create');
+    Task[] tasks = (Task[])call.args[0];
+    System.Assert.areEqual(new Task[]{ new Task(
+      OwnerId = admin.Id, 
+      Subject = 'Remove from service area map', 
+      Description = service.tfNotAcceptingTaskSubject, 
+      Status = 'Open', 
+      Priority = 'Normal', 
+      WhoId = contact.Id, 
+      ActivityDate = Date.today()
+    ), new Task(
+      OwnerId = admin.Id, 
+      Subject = 'Add Availability notes', 
+      Description = service.tfNotAcceptingTaskSubject, 
+      Status = 'Open', 
+      Priority = 'Normal', 
+      WhoId = contact.Id, 
+      ActivityDate = Date.today()
+    ), new Task(
+      OwnerId = coordinator.Id, 
+      Subject = 'Check in regarding availability', 
+      Description = 'If still On hold, follow up with facilitator about status and next steps.', 
+      Status = 'Open', 
+      Priority = 'Normal', 
+      IsReminderSet = true, 
+      WhoId = contact.Id, 
+      ActivityDate = Date.today().addMonths(6)
     ) }, tasks, 'wrong tasks');
   }
 
