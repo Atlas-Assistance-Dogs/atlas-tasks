@@ -620,7 +620,7 @@ private class CertificationServiceTest {
   }
 
   @IsTest
-  static void handleDecertification_doesNothingWhenNoContactsBeingDecertified() {
+  static void handleTrainerChange_doesNothingWhenNoContactsBeingDecertified() {
     makeData();
     setup();
     Contact contact = new Contact(
@@ -629,13 +629,13 @@ private class CertificationServiceTest {
       atlas1__TrainerStatus__c = 'Certified-Active'
     );
     // act
-    service.handleDecertification(new Contact[]{ contact }, new Map<Id, Contact>{ contact.Id => contact });
+    service.handleTrainerChange(new Contact[]{ contact }, new Map<Id, Contact>{ contact.Id => contact });
     // assert
     mocks.assertMethodNotCalled('create');
   }
 
   @IsTest
-  static void handleDecertification_doesNothingWhenNoUsers() {
+  static void handleTrainerChange_doesNothingWhenNoUsers() {
     makeData();
     Contact contact = new Contact(
       Id = MockProvider.createId(Contact.class), 
@@ -649,13 +649,13 @@ private class CertificationServiceTest {
     );
     // act
     // act
-    service.handleDecertification(new Contact[]{ nc }, new Map<Id, Contact>{ contact.Id => contact });
+    service.handleTrainerChange(new Contact[]{ nc }, new Map<Id, Contact>{ contact.Id => contact });
     // assert
     mocks.assertMethodNotCalled('create');
   }
 
   @IsTest
-  static void handleDecertification_createsTasksWhenUsersDefined() {
+  static void hhandleTrainerChange_createsTasksWhenUsersDefined() {
     makeData();
     setup();
     Contact contact = new Contact(
@@ -669,7 +669,7 @@ private class CertificationServiceTest {
       atlas1__TrainerStatus__c = 'Discontinued'
     );
     // act
-    service.handleDecertification(new Contact[]{ nc }, new Map<Id, Contact>{ contact.Id => contact });
+    service.handleTrainerChange(new Contact[]{ nc }, new Map<Id, Contact>{ contact.Id => contact });
     // assert
     MockCallData call = mocks.assertMethodCalled('create');
     Task[] tasks = (Task[])call.args[0];

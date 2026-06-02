@@ -216,12 +216,12 @@ public with sharing class CertificationService {
   }
 
   /**
-   * Handle decertification for a contact by creating tasks for administrators
+   * Handle trainer certification changes for a contact by creating tasks for administrators
    * and the trainer manager to process removal actions.
    * @param contacts changedContact records
    * @param oldContactMap Map of old contact records for comparison
    */
-  public void handleDecertification(Contact[] contacts, Map<Id, Contact> oldContactMap) {
+  public void handleTrainerChange(Contact[] contacts, Map<Id, Contact> oldContactMap) {
     List<Task> tasks = new List<Task>();
     System.debug('handling decertification');
 
