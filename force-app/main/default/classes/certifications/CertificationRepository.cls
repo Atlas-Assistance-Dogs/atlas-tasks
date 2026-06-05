@@ -1,4 +1,11 @@
+/**
+ * @description Repository class for managing certification records
+ */
 public inherited sharing class CertificationRepository {
+  /**
+   * @description Retrieves active facilitator and trainer certifications
+   * @return List of active facilitator and trainer certifications
+   */
   public atlas1__Certification__c[] getActiveCerts() {
     return [SELECT Id, 
                    atlas1__Contact__c, 
@@ -7,15 +14,19 @@ public inherited sharing class CertificationRepository {
                    atlas1__Start__c, 
                    atlas1__End__c
             FROM atlas1__Certification__c
-            WHERE atlas1__Status__c = 'Active' AND ((atlas1__Type__c = 'Facilitator' AND atlas1__Contact__r.atlas1__IsTeamFacilitator__c = true AND atlas1__Contact__r.atlas1__FacilitatorStatus__c = 'Certified-Active') OR (atlas1__Type__c = 'Trainer' AND atlas1__Contact__r.atlas1__IsTrainer__c = true AND atlas1__Contact__r.atlas1__TrainerStatus__c = 'Certified-Active'))];
+            WHERE atlas1__Status__c = 'Active' AND ((atlas1__Type__c = 'Facilitator' AND atlas1__Contact__r.atlas1__IsTeamFacilitator__c = true AND atlas1__Contact__r.atlas1__FacilitatorStatus__c LIKE 'Certified%') OR (atlas1__Type__c = 'Trainer' AND atlas1__Contact__r.atlas1__IsTrainer__c = true AND atlas1__Contact__r.atlas1__TrainerStatus__c LIKE 'Certified%'))];
   }
 
+  /**
+   * @description Retrieves active trainer certifications
+   * @return List of active trainer certifications
+   */
   public atlas1__Certification__c[] getActiveTrainerCerts() {
     return [SELECT atlas1__End__c, 
                    atlas1__Approved__c, 
                    atlas1__Contact__c
             FROM atlas1__Certification__c
-            WHERE atlas1__Status__c = 'Active' AND atlas1__Type__c = 'Trainer' AND atlas1__Contact__r.atlas1__IsTrainer__c = true AND atlas1__Contact__r.atlas1__TrainerStatus__c = 'Certified-Active'];
+            WHERE atlas1__Status__c = 'Active' AND atlas1__Type__c = 'Trainer' AND atlas1__Contact__r.atlas1__IsTrainer__c = true AND atlas1__Contact__r.atlas1__TrainerStatus__c LIKE 'Certified%'];
   }
 
 }
