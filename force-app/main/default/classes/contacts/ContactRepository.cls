@@ -1,5 +1,11 @@
+/** Repository for managing contact data. */
 public inherited sharing class ContactRepository {
 
+  /**
+   * Gets the position status for the specified contact ID.
+   * @param contactId The ID of the contact.
+   * @return The contact with the position status.
+   */
   public Contact getPositionStatusForContact(Id contactId) {
     return [
       SELECT
@@ -19,9 +25,14 @@ public inherited sharing class ContactRepository {
         GW_Volunteers__Volunteer_Status__c
       FROM Contact
       WHERE Id = :contactId
+      WITH SECURITY_ENFORCED
     ];
   }
 
+  /**
+   * Gets the active facilitators.
+   * @return The set of active facilitator IDs.
+   */
   public Set<Id> getActiveFacilitators() {
     List<Contact> active = [
       SELECT Id
@@ -29,6 +40,7 @@ public inherited sharing class ContactRepository {
       WHERE
         atlas1__Positions__c INCLUDES ('Team Facilitator')
         AND atlas1__FacilitatorStatus__c = 'Certified-Active'
+      WITH SECURITY_ENFORCED
     ];
 
     Set<Id> facilitators = new Set<Id>();
@@ -38,6 +50,11 @@ public inherited sharing class ContactRepository {
     return facilitators;
   }
 
+  /**
+   * Gets the client status for the specified contact ID.
+   * @param contactId The ID of the contact.
+   * @return The contact with the client status.
+   */
   public Contact getClientStatus(Id contactId) {
     List<Contact> clients = [
       SELECT
@@ -48,6 +65,7 @@ public inherited sharing class ContactRepository {
         atlas1__ClientInitialCertificationDate__c
       FROM Contact
       WHERE Id = :contactId
+      WITH SECURITY_ENFORCED
     ];
     if (!clients.isEmpty()) {
       return clients[0];
@@ -55,11 +73,20 @@ public inherited sharing class ContactRepository {
     return null;
   }
 
+  /**
+   * Modifies the specified contact.
+   * @param cntct The contact to modify.
+   * @return The modified contact.
+   */
   public Contact modify(Contact cntct) {
     upsert cntct;
     return cntct;
   }
 
+  /**
+   * Gets the contacts that need background checks.
+   * @return The list of contacts that need background checks.
+   */
   public Contact[] getContactsNeedingBackgroundChecks() {
     String[] active = new String[]{'Onboarding', 'In Training', 'Active', 'Certified-Active', 'Certified'};
     String[] inactive = new String[]{'Inactive', 'None'};
@@ -78,6 +105,7 @@ public inherited sharing class ContactRepository {
           (atlas1__Positions__c INCLUDES ('Client') AND atlas1__ClientStatus__c IN :active) OR
           (atlas1__Positions__c INCLUDES ('Staff') AND atlas1__StaffStatus__c NOT IN :inactive)
         )
+        WITH SECURITY_ENFORCED
     ];
   }
 }

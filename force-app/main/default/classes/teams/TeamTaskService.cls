@@ -8,8 +8,9 @@
  * documentation to satisfy Documentation-ApexDoc rule.
  */
 @SuppressWarnings('ApexCognitiveComplexity')
+/** service for creating tasks for teams */
 public class TeamTaskService {
-	private static final String TEAM_ACCEPTED = 'Team newly accepted';
+    private static final String TEAM_ACCEPTED = 'Team newly accepted';
     private static final String STARTED_TRAINING = 'Client entered training';
     private static final String NEWLY_CERTIFIED = 'Team newly certified';
     // Repositories
@@ -18,6 +19,8 @@ public class TeamTaskService {
     DogRepository dogRepo;
     TaskRepository taskRepo;
     PatRepository patRepo;
+    // Services
+    TeamService teamService;
     // Users
     User admin;
     User adminAssistant;
@@ -53,6 +56,7 @@ public class TeamTaskService {
         dogRepo = new DogRepository();
         taskRepo = new TaskRepository();
         patRepo = new PatRepository();
+        teamService = new TeamService();
         getUsers();
     }
 
@@ -74,15 +78,17 @@ public class TeamTaskService {
      * @param dogRepo Dog repository.
      * @param taskRepo Task repository.
      * @param patRepo PAT repositoryƒ.
+     * @param teamService Team service.
      */
     @SuppressWarnings('ExcessiveParameterList')
     @testVisible
-    private TeamTaskService(TeamRepository teamRepo, RelationshipRepository relRepo, DogRepository dogRepo, TaskRepository taskRepo, PatRepository patRepo) {
+    private TeamTaskService(TeamRepository teamRepo, RelationshipRepository relRepo, DogRepository dogRepo, TaskRepository taskRepo, PatRepository patRepo, TeamService teamService) {
         this.teamRepo = teamRepo;
         this.relRepo = relRepo;
         this.dogRepo = dogRepo;
         this.taskRepo = taskRepo;
         this.patRepo = patRepo;
+        this.teamService = teamService;
         getUsers();
     }
 
@@ -157,7 +163,9 @@ public class TeamTaskService {
         if (inventoryAdmin != null) {
             tf = new TaskFactory(team, inventoryAdmin);
             tasks.add(tf.createTask('Send client welcome packet', TEAM_ACCEPTED));
-            tasks.add(tf.createTask('Send TF in-training vest and first aid kit', TEAM_ACCEPTED));
+            Task task = tf.createTask('Send TF in-training vest and first aid kit', TEAM_ACCEPTED);
+            task.WhoId = teamService.getTfForClient(team.atlas1__Client__c);
+            tasks.add(task);
         }
         if (tasks.isEmpty()) {
             return;
@@ -345,7 +353,9 @@ public class TeamTaskService {
         taskRepo.create(tasks);
     }
 
-    // run daily to create admin tasks related to active dogs
+    /**
+     * Runs daily to create admin tasks related to active dogs.
+     */
     public void createDogTasks() {
         if (admin == null) {
             return;

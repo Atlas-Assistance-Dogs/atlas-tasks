@@ -1,22 +1,28 @@
+/** Service for managing team-related operations. */
 public inherited sharing class TeamService {
   TeamRepository teamRepo;
   EmailService emailServ;
   RelationshipRepository relRepo;
 
+  /**
+   * Initializes a new instance of the TeamService class.
+   */
   public TeamService() {
     teamRepo = new TeamRepository();
     emailServ = new EmailService();
     relRepo = new RelationshipRepository();
-   }
+  }
 
-  @testVisible
+  @TestVisible
   private TeamService(TeamRepository teamRepo, EmailService emailServ, RelationshipRepository relRepo) {
     this.teamRepo = teamRepo;
     this.emailServ = emailServ;
     this.relRepo = relRepo;
   }
 
-  // Remind the client in a Team to submit training logs
+  /**
+   * Remind the client in a Team to submit training logs.
+   */
   public void remindClients() {
     List<atlas1__Team__c> teams = teamRepo.getByStatus('In Training');
     if (teams.isEmpty()) {
@@ -32,7 +38,23 @@ public inherited sharing class TeamService {
     emailServ.sendEmail(emails);
   }
 
-  // Remind the client facilitators to submit training logs
+  /**
+   * Returns the current Team Facilitator contact for the given client.
+   *
+   * @param clientId the client Id to find the Team Facilitator for
+   * @return the related Team Facilitator contact Id, or null if none exists
+   */
+  public Id getTfForClient(Id clientId) {
+    List<npe4__Relationship__c> relationships = relRepo.getCurrentRelated(clientId, 'Team Facilitator');
+    if (relationships.isEmpty()) {
+      return null;
+    }
+    return relationships[0].npe4__RelatedContact__c;
+  }
+
+  /**
+   * Sends reminder emails to team facilitators on alternate weeks during training.
+   */
   public void remindFacilitators() {
     List<atlas1__Team__c> teams = teamRepo.getByStatus('In Training');
     if (teams.isEmpty()) {
@@ -66,7 +88,9 @@ public inherited sharing class TeamService {
     emailServ.sendEmail(emails);
   }
 
-  // check the dog status and send any emails needed to the client
+  /**
+   * Checks the status of dogs in teams and sends reminder emails to clients if necessary.
+   */
   public void checkDogStatus() {
     Date today = Date.today();
     List<atlas1__Team__c> teams = teamRepo.getActiveDogs();
@@ -84,8 +108,8 @@ public inherited sharing class TeamService {
       }
       atlas1__Dog__c dog = team.atlas1__Dog__r;
       if ((dog.atlas1__VaccineDueRabies__c != null && today.daysBetween(dog.atlas1__VaccineDueRabies__c) <= 60) ||
-        (dog.atlas1__PhysicalExamDue__c != null && today.daysBetween(dog.atlas1__PhysicalExamDue__c) <= 60) ||
-        (dog.atlas1__VaccineDueDA2PP__c != null && today.daysBetween(dog.atlas1__VaccineDueDA2PP__c) <= 60 )) {
+          (dog.atlas1__PhysicalExamDue__c != null && today.daysBetween(dog.atlas1__PhysicalExamDue__c) <= 60) ||
+          (dog.atlas1__VaccineDueDA2PP__c != null && today.daysBetween(dog.atlas1__VaccineDueDA2PP__c) <= 60)) {
         emails.add(emailServ.createEmail(dog.Id, team.atlas1__Client__c, template.Id));
       }
     }

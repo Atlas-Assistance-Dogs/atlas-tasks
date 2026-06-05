@@ -10,6 +10,7 @@ private class TeamTaskServiceTest {
     private static DogRepository dogRepo;
     private static TaskRepository taskRepo;
     private static PatRepository patRepo;
+    private static TeamService teamService;
     // Users
     private static User admin;
     private static User adminAssistant;
@@ -45,6 +46,7 @@ private class TeamTaskServiceTest {
         dogRepo = (DogRepository)mocks.createMock(DogRepository.class);
         taskRepo = (TaskRepository)mocks.createMock(TaskRepository.class);
         patRepo = (PatRepository)mocks.createMock(PatRepository.class);
+        teamService = (TeamService)mocks.createMock(TeamService.class);
 
         // create the users
         admin = new User(
@@ -86,7 +88,7 @@ private class TeamTaskServiceTest {
         mocks.expectedCalls.add(new MockCallData(taskRepo, 'getTaskUser', trainerManager, new Object[]{ 'Trainer Manager' }));
         mocks.expectedCalls.add(new MockCallData(taskRepo, 'getTaskUser', inventoryAdmin, new Object[]{ 'Inventory Admin' }));
         // creating the service so it gets the users
-        service = new TeamTaskService(teamRepo, relationshipRepo, dogRepo, taskRepo, patRepo);
+        service = new TeamTaskService(teamRepo, relationshipRepo, dogRepo, taskRepo, patRepo, teamService);
     }
 
     private static void assertTask(Task expected, Task t) {
@@ -122,7 +124,7 @@ private class TeamTaskServiceTest {
     @isTest
     static void handleTrainingStart_returnsWhenNoUsers() {
         makeData();
-        service = new TeamTaskService(teamRepo, relationshipRepo, dogRepo, taskRepo, patRepo);
+        service = new TeamTaskService(teamRepo, relationshipRepo, dogRepo, taskRepo, patRepo, teamService);
         atlas1__Team__c team = new atlas1__Team__c(
             Id = MockProvider.createId(atlas1__Team__c.class)
         );
@@ -142,7 +144,7 @@ private class TeamTaskServiceTest {
         // mocks.expectedCalls.add(new MockCallData(taskRepo, 'getTaskUser', tfManager, new Object[]{ 'TF Manager' }));
         // mocks.expectedCalls.add(new MockCallData(taskRepo, 'getTaskUser', trainerManager, new Object[]{ 'Trainer Manager' }));
         // creating the service so it gets the users
-        service = new TeamTaskService(teamRepo, relationshipRepo, dogRepo, taskRepo, patRepo);
+        service = new TeamTaskService(teamRepo, relationshipRepo, dogRepo, taskRepo, patRepo, teamService);
         atlas1__Team__c team = new atlas1__Team__c(
             Id = MockProvider.createId(atlas1__Team__c.class), 
             atlas1__Client__c = mockProvider.createId(Contact.class)
@@ -195,9 +197,11 @@ private class TeamTaskServiceTest {
     static void handleTrainingStart_createsTasksForInventoryAdmin() {
         // Arrang
         makeData();
+        Id tfId = MockProvider.createId(Contact.class);
         mocks.expectedCalls.add(new MockCallData(taskRepo, 'getTaskUser', inventoryAdmin, new Object[]{ 'Inventory Admin' }));
+        mocks.expectedCalls.add(new MockCallData(teamService, 'getTfForClient', tfId));
         // creating the service so it gets the users
-        service = new TeamTaskService(teamRepo, relationshipRepo, dogRepo, taskRepo, patRepo);
+        service = new TeamTaskService(teamRepo, relationshipRepo, dogRepo, taskRepo, patRepo, teamService);
         atlas1__Team__c team = new atlas1__Team__c(
             Id = MockProvider.createId(atlas1__Team__c.class), 
             atlas1__Client__c = mockProvider.createId(Contact.class)
@@ -218,7 +222,7 @@ private class TeamTaskServiceTest {
             ActivityDate = Date.today()
         ), tasks[0]);
         assertTask(new Task(
-            WhoId = team.atlas1__Client__c, 
+            WhoId = tfId, 
             WhatId = team.Id, 
             OwnerId = inventoryAdmin.Id, 
             Status = 'Not Started', 
@@ -576,7 +580,7 @@ private class TeamTaskServiceTest {
     @isTest
     static void handleCertificationStart_throwsExceptionWhenNoPassingPat() {
         makeData();
-        service = new TeamTaskService(teamRepo, relationshipRepo, dogRepo, taskRepo, patRepo);
+        service = new TeamTaskService(teamRepo, relationshipRepo, dogRepo, taskRepo, patRepo, teamService);
         atlas1__Team__c team = new atlas1__Team__c(
             Id = MockProvider.createId(atlas1__Team__c.class), 
             Name = 'Test Team'
@@ -628,7 +632,7 @@ private class TeamTaskServiceTest {
     @isTest
     static void handleCertificationStart_returnsWhenNoUsers() {
         makeData();
-        service = new TeamTaskService(teamRepo, relationshipRepo, dogRepo, taskRepo, patRepo);
+        service = new TeamTaskService(teamRepo, relationshipRepo, dogRepo, taskRepo, patRepo, teamService);
         atlas1__Team__c team = new atlas1__Team__c(
             Id = MockProvider.createId(atlas1__Team__c.class)
         );
@@ -651,7 +655,7 @@ private class TeamTaskServiceTest {
         mocks.expectedCalls.add(new MockCallData(patRepo, 'getFirstPat', new atlas1__PublicAccessTest__c(
             atlas1__DateCompleted__c = Date.today()
         ), new Object[]{ team.Id }));
-        service = new TeamTaskService(teamRepo, relationshipRepo, dogRepo, taskRepo, patRepo);
+        service = new TeamTaskService(teamRepo, relationshipRepo, dogRepo, taskRepo, patRepo, teamService);
         // Act
         service.handleCertificationStart(team);
         // Assert
@@ -682,7 +686,7 @@ private class TeamTaskServiceTest {
         mocks.expectedCalls.add(new MockCallData(patRepo, 'getFirstPat', new atlas1__PublicAccessTest__c(
             atlas1__DateCompleted__c = Date.today()
         ), new Object[]{ team.Id }));
-        service = new TeamTaskService(teamRepo, relationshipRepo, dogRepo, taskRepo, patRepo);
+        service = new TeamTaskService(teamRepo, relationshipRepo, dogRepo, taskRepo, patRepo, teamService);
         // Act
         service.handleCertificationStart(team);
         // Assert
@@ -727,7 +731,7 @@ private class TeamTaskServiceTest {
         mocks.expectedCalls.add(new MockCallData(patRepo, 'getFirstPat', new atlas1__PublicAccessTest__c(
             atlas1__DateCompleted__c = Date.today()
         ), new Object[]{ team.Id }));
-        service = new TeamTaskService(teamRepo, relationshipRepo, dogRepo, taskRepo, patRepo);
+        service = new TeamTaskService(teamRepo, relationshipRepo, dogRepo, taskRepo, patRepo, teamService);
         // Act
         service.handleCertificationStart(team);
         // Assert
@@ -882,7 +886,7 @@ private class TeamTaskServiceTest {
         atlas1__Team__c[] teams = new atlas1__Team__c[]{ team };
         mocks.expectedCalls.add(new MockCallData(teamRepo, 'getActiveDogs', teams));
         // creating the service so it gets the users
-        service = new TeamTaskService(teamRepo, relationshipRepo, dogRepo, taskRepo, patRepo);
+        service = new TeamTaskService(teamRepo, relationshipRepo, dogRepo, taskRepo, patRepo, teamService);
         // Act
         service.createDogTasks();
         // Assert
