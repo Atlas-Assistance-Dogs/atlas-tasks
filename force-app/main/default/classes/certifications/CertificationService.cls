@@ -215,74 +215,90 @@ public with sharing class CertificationService {
     return tasks;
   }
 
+  User trainerManager;
+  User admin;
+
+  private void getUsers() {
+    trainerManager = taskRepo.getTaskUser('Trainer Manager');
+    admin = taskRepo.getTaskUser('Administrator');
+  }
+
   /**
-   * Handle trainer certification changes for a contact by creating tasks for administrators
+   * Handle changes for a contact by creating tasks for administrators
    * and the trainer manager to process removal actions.
    * @param contacts changedContact records
    * @param oldContactMap Map of old contact records for comparison
    */
-  public void handleTrainerChange(Contact[] contacts, Map<Id, Contact> oldContactMap) {
+  public void handleContactChange(Contact[] contacts, Map<Id, Contact> oldContactMap) {
     List<Task> tasks = new List<Task>();
-    System.debug('handling decertification');
 
-    User trainerManager = taskRepo.getTaskUser('Trainer Manager');
-    User admin = taskRepo.getTaskUser('Administrator');
+    getUsers();
 
     for (Contact contact : contacts) {
       Contact oldContact = oldContactMap.get(contact.Id);
       // Check if the trainer's status has changed from 'Certified-Active' to 'Discontinued'
       if (oldContact.atlas1__TrainerStatus__c == 'Certified-Active' && contact.atlas1__TrainerStatus__c == 'Discontinued') {
-        System.debug('handling discontinued contact');
         // Create a task to decertify the trainer
-        if (admin != null) {
-          tasks.add(new Task(
-            OwnerId = admin.Id, 
-            Subject = 'Change assigned program to discontinued', 
-            Status = 'Open', 
-            Priority = 'Normal', 
-            WhoId = contact.Id, 
-            ActivityDate = Date.today()
-          ));
-          tasks.add(new Task(
-            OwnerId = admin.Id, 
-            Subject = 'Remove from Canvas', 
-            Status = 'Open', 
-            Priority = 'Normal', 
-            WhoId = contact.Id, 
-            ActivityDate = Date.today()
-          ));
-          tasks.add(new Task(
-            OwnerId = admin.Id, 
-            Subject = 'Remove from Facebook', 
-            Status = 'Open', 
-            Priority = 'Normal', 
-            WhoId = contact.Id, 
-            ActivityDate = Date.today()
-          ));
-        }
-        if (trainerManager != null) {
-          tasks.add(new Task(
-            OwnerId = trainerManager.Id, 
-            Subject = decertTaskEmail, 
-            Status = 'Open', 
-            Priority = 'Normal', 
-            WhoId = contact.Id, 
-            ActivityDate = Date.today()
-          ));
-          tasks.add(new Task(
-            OwnerId = trainerManager.Id, 
-            Subject = 'Remove from website', 
-            Status = 'Open', 
-            Priority = 'Normal', 
-            WhoId = contact.Id, 
-            ActivityDate = Date.today()
-          ));
-        }
+        tasks.addAll(discontinuationTasks(contact) );
       }
     }
     if (!tasks.isEmpty()) {
       taskRepo.create(tasks);
     }
+  }
+
+  /**
+   * Create tasks for handling trainer discontinuation
+   * @param contact The contact record being discontinued
+   * @return List of tasks for trainer discontinuation process
+   */
+  private List<Task> discontinuationTasks(Contact contact) {
+    List<Task> tasks = new List<Task>();
+    if (admin != null) {
+      tasks.add(new Task(
+        OwnerId = admin.Id, 
+        Subject = 'Change assigned program to discontinued', 
+        Status = 'Open', 
+        Priority = 'Normal', 
+        WhoId = contact.Id, 
+        ActivityDate = Date.today()
+      ));
+      tasks.add(new Task(
+        OwnerId = admin.Id, 
+        Subject = 'Remove from Canvas', 
+        Status = 'Open', 
+        Priority = 'Normal', 
+        WhoId = contact.Id, 
+        ActivityDate = Date.today()
+      ));
+      tasks.add(new Task(
+        OwnerId = admin.Id, 
+        Subject = 'Remove from Facebook', 
+        Status = 'Open', 
+        Priority = 'Normal', 
+        WhoId = contact.Id, 
+        ActivityDate = Date.today()
+      ));
+    }
+    if (trainerManager != null) {
+      tasks.add(new Task(
+        OwnerId = trainerManager.Id, 
+        Subject = decertTaskEmail, 
+        Status = 'Open', 
+        Priority = 'Normal', 
+        WhoId = contact.Id, 
+        ActivityDate = Date.today()
+      ));
+      tasks.add(new Task(
+        OwnerId = trainerManager.Id, 
+        Subject = 'Remove from website', 
+        Status = 'Open', 
+        Priority = 'Normal', 
+        WhoId = contact.Id, 
+        ActivityDate = Date.today()
+      ));
+    }
+    return tasks;
   }
 
 }

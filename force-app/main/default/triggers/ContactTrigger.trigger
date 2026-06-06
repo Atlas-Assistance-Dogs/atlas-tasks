@@ -5,5 +5,5 @@
  */
 trigger ContactTrigger on Contact (after update) {
     CertificationService service = new CertificationService();
-    service.handleDecertification(Trigger.new, Trigger.oldMap);
+    service.handleContactChange(Trigger.new, Trigger.oldMap);
 }

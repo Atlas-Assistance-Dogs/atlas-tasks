@@ -1,7 +1,7 @@
 /**
  * This class contains unit tests for validating the behavior of CertificationService
  */
-@isTest
+@IsTest
 private class CertificationServiceTest {
   private static MockProvider mocks;
   private static CertificationService service;
@@ -18,7 +18,7 @@ private class CertificationServiceTest {
     service = new CertificationService(certRepo, emailSrv, taskRepo);
   }
 
-  @isTest
+  @IsTest
   static void remindToGetCeus_doesNothing_whenNoCerts() {
     makeData();
     mocks.expectedCalls.add(new MockCallData(certRepo, 'getActiveCerts', new List<atlas1__Certification__c>()));
@@ -28,7 +28,7 @@ private class CertificationServiceTest {
     System.assertEquals(1, mocks.actualCalls.size(), 'too many calls');
   }
 
-  @isTest
+  @IsTest
   static void remindToGetCeus_email_whenCerts() {
     makeData();
     atlas1__Certification__c[] certs = new List<atlas1__Certification__c>{ new atlas1__Certification__c(
@@ -140,7 +140,7 @@ private class CertificationServiceTest {
     mocks.expectedCalls.add(new MockCallData(emailSrv, 'getTemplate', weekAfterCeus, new Object[]{ 'TrainerWeekAfterCEUs' }));
   }
 
-  @isTest
+  @IsTest
   static void remindToRenew_getsTemplates() {
     makeData();
     setup();
@@ -150,7 +150,7 @@ private class CertificationServiceTest {
     System.assertEquals(3, mocks.actualCalls.size(), 'wrong number of calls');
   }
 
-  @isTest
+  @IsTest
   static void remindToRenew_continuesWhenNoDate() {
     makeData();
     mocks.expectedCalls.add(new MockCallData(certRepo, 'getActiveTrainerCerts', new List<atlas1__Certification__c>{ new atlas1__Certification__c(
@@ -163,7 +163,7 @@ private class CertificationServiceTest {
     System.assertEquals(5, mocks.actualCalls.size(), 'wrong number of calls');
   }
 
-  @isTest
+  @IsTest
   static void remindToRenew_handlesMissingMonthBefore() {
     makeData();
     mocks.expectedCalls.add(new MockCallData(certRepo, 'getActiveTrainerCerts', new List<atlas1__Certification__c>{ new atlas1__Certification__c(
@@ -177,7 +177,7 @@ private class CertificationServiceTest {
     System.assertEquals(6, mocks.actualCalls.size(), 'wrong number of calls');
   }
 
-  @isTest
+  @IsTest
   static void remindToRenew_handlesMissingTaskUsers() {
     makeData();
     mocks.expectedCalls.add(new MockCallData(certRepo, 'getActiveTrainerCerts', new List<atlas1__Certification__c>{ new atlas1__Certification__c(
@@ -199,7 +199,7 @@ private class CertificationServiceTest {
     System.assertEquals(7, mocks.actualCalls.size(), 'wrong number of calls');
   }
 
-  @isTest
+  @IsTest
   static void remindToRenew_handlesMissing2weeksBefore() {
     makeData();
     mocks.expectedCalls.add(new MockCallData(certRepo, 'getActiveTrainerCerts', new List<atlas1__Certification__c>{ new atlas1__Certification__c(
@@ -213,7 +213,7 @@ private class CertificationServiceTest {
     System.assertEquals(6, mocks.actualCalls.size(), 'wrong number of calls');
   }
 
-  @isTest
+  @IsTest
   static void remindToRenew_handlesMissingWeekBefore() {
     makeData();
     mocks.expectedCalls.add(new MockCallData(certRepo, 'getActiveTrainerCerts', new List<atlas1__Certification__c>{ new atlas1__Certification__c(
@@ -227,7 +227,7 @@ private class CertificationServiceTest {
     System.assertEquals(6, mocks.actualCalls.size(), 'wrong number of calls');
   }
 
-  @isTest
+  @IsTest
   static void remindToRenew_sendsEmailsTasksWhen30DaysBefore() {
     makeData();
     setup();
@@ -301,7 +301,7 @@ private class CertificationServiceTest {
             WHERE Id = :cert.Id];
   }
 
-  @isTest
+  @IsTest
   static void remindToRenew_sendsEmailsTasksWhen30DaysBefore_whenHaveCEUs() {
     makeData();
     setup();
@@ -329,7 +329,7 @@ private class CertificationServiceTest {
     ) }, tasks, 'wrong tasks');
   }
 
-  @isTest
+  @IsTest
   static void remindToRenew_sendsEmailsTasksWhen30DaysBefore_whenNotEnoughCEUs() {
     makeData();
     setup();
@@ -357,7 +357,7 @@ private class CertificationServiceTest {
     ) }, tasks, 'wrong tasks');
   }
 
-  @isTest
+  @IsTest
   static void remindToRenew_sendsEmailWhen14DaysBefore() {
     makeData();
     setup();
@@ -382,7 +382,7 @@ private class CertificationServiceTest {
     System.Assert.areEqual(0, tasks.size(), 'tasks are not empty');
   }
 
-  @isTest
+  @IsTest
   static void remindToRenew_sendsEmailsTasksWhen14DaysBefore_whenHaveCEUs() {
     makeData();
     setup();
@@ -403,7 +403,7 @@ private class CertificationServiceTest {
     System.Assert.areEqual(0, tasks.size(), 'tasks are not empty');
   }
 
-  @isTest
+  @IsTest
   static void remindToRenew_sendsEmailsTasksWhen14DaysBefore_whenNotEnoughCEUs() {
     makeData();
     setup();
@@ -424,7 +424,7 @@ private class CertificationServiceTest {
     System.Assert.areEqual(0, tasks.size(), 'tasks are not empty');
   }
 
-  @isTest
+  @IsTest
   static void remindToRenew_sendsEmailsTasksWhenWeekBefore() {
     makeData();
     setup();
@@ -457,7 +457,7 @@ private class CertificationServiceTest {
     ) }, tasks, 'wrong tasks');
   }
 
-  @isTest
+  @IsTest
   static void remindToRenew_sendsEmailsTasksWhenWeekBefore_whenNotEnoughCEUs() {
     makeData();
     setup();
@@ -486,7 +486,7 @@ private class CertificationServiceTest {
     ) }, tasks, 'wrong tasks');
   }
 
-  @isTest
+  @IsTest
   static void remindToRenew_sendsEmailsTasksWhenWeekBefore_whenEnoughCEUs() {
     makeData();
     setup();
@@ -515,7 +515,7 @@ private class CertificationServiceTest {
     ) }, tasks, 'wrong tasks');
   }
 
-  @isTest
+  @IsTest
   static void remindToRenew_sendsEmailWhenDayOf() {
     makeData();
     setup();
@@ -539,7 +539,7 @@ private class CertificationServiceTest {
     System.Assert.areEqual(1, tasks.size(), 'wrong tasks');
   }
 
-  @isTest
+  @IsTest
   static void remindToRenew_createsTaskWhenDayOf_andNotEnoughCEUs() {
     makeData();
     setup();
@@ -567,7 +567,7 @@ private class CertificationServiceTest {
     ) }, tasks, 'wrong tasks');
   }
 
-  @isTest
+  @IsTest
   static void remindToRenew_createsTaskWhenDayOf_andEnoughCEUs() {
     makeData();
     setup();
@@ -596,7 +596,7 @@ private class CertificationServiceTest {
     ) }, tasks, 'wrong tasks');
   }
 
-  @isTest
+  @IsTest
   static void remindToRenew_doesNotSendEmailWhenWeekAfter() {
     makeData();
     setup();
@@ -620,7 +620,7 @@ private class CertificationServiceTest {
   }
 
   @IsTest
-  static void handleTrainerChange_doesNothingWhenNoContactsBeingDecertified() {
+  static void handleContactChange_doesNothingWhenNoContactsBeingDecertified() {
     makeData();
     setup();
     Contact contact = new Contact(
@@ -629,13 +629,13 @@ private class CertificationServiceTest {
       atlas1__TrainerStatus__c = 'Certified-Active'
     );
     // act
-    service.handleTrainerChange(new Contact[]{ contact }, new Map<Id, Contact>{ contact.Id => contact });
+    service.handleContactChange(new Contact[]{ contact }, new Map<Id, Contact>{ contact.Id => contact });
     // assert
     mocks.assertMethodNotCalled('create');
   }
 
   @IsTest
-  static void handleTrainerChange_doesNothingWhenNoUsers() {
+  static void handleContactChange_doesNothingWhenNoUsers() {
     makeData();
     Contact contact = new Contact(
       Id = MockProvider.createId(Contact.class), 
@@ -649,13 +649,13 @@ private class CertificationServiceTest {
     );
     // act
     // act
-    service.handleTrainerChange(new Contact[]{ nc }, new Map<Id, Contact>{ contact.Id => contact });
+    service.handleContactChange(new Contact[]{ nc }, new Map<Id, Contact>{ contact.Id => contact });
     // assert
     mocks.assertMethodNotCalled('create');
   }
 
   @IsTest
-  static void hhandleTrainerChange_createsTasksWhenUsersDefined() {
+  static void hhandleContactChange_createsTasksWhenUsersDefined() {
     makeData();
     setup();
     Contact contact = new Contact(
@@ -669,7 +669,7 @@ private class CertificationServiceTest {
       atlas1__TrainerStatus__c = 'Discontinued'
     );
     // act
-    service.handleTrainerChange(new Contact[]{ nc }, new Map<Id, Contact>{ contact.Id => contact });
+    service.handleContactChange(new Contact[]{ nc }, new Map<Id, Contact>{ contact.Id => contact });
     // assert
     MockCallData call = mocks.assertMethodCalled('create');
     Task[] tasks = (Task[])call.args[0];
