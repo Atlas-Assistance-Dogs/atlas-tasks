@@ -1,11 +1,20 @@
-public with sharing class EmailService {
-    public Id orgAddressId { get; private  set; }
-    private Map<String, EmailTemplate> templateMap = new Map<String, EmailTemplate>();
+/** class for managing email operations. */
+public inherited sharing class EmailService {
+    /** Gets or sets the ID of the organization-wide email address. */
+    public Id orgAddressId { get;private  set; }
 
+    private Map<String, EmailTemplate> templateMap = new Map<String, EmailTemplate>();
+    /**
+     * Initializes a new instance of the EmailService class with the specified organization-wide email address ID.
+     * @param orgAddressId The ID of the organization-wide email address.
+     */
     public EmailService(Id orgAddressId) {
         this.orgAddressId = orgAddressId;
     }
 
+    /**
+     * Initializes a new instance of the EmailService class.
+     */
     public EmailService() {
 
         atlas1__AtlasSettings__c settings = atlas1__AtlasSettings__c.getOrgDefaults();
@@ -15,14 +24,19 @@ public with sharing class EmailService {
         }
         OrgWideEmailAddress[] addresses = [SELECT Id
                                            FROM OrgWideEmailAddress
-                                           WHERE DisplayName = :emailName];
+                                           WHERE DisplayName = :emailName
+                                           WITH SECURITY_ENFORCED];
         if (addresses.size() > 0) {
             orgAddressId = addresses[0].Id;
         }
     }
 
-    // Return the template from the template map if it's been retrieved already,
-    // otherwise, retrieve it from the database and add it to the map.
+    /**
+     * Return the template from the template map if it's been retrieved already,
+     * otherwise, retrieve it from the database and add it to the map.
+     * @param name The name of the template to retrieve.
+     * @return The retrieved email template or null if not found.
+     */
     public EmailTemplate getTemplate(String name) {
         EmailTemplate__mdt et = EmailTemplate__mdt.getInstance(name);
         if (et == null) {
@@ -36,6 +50,7 @@ public with sharing class EmailService {
                                             DeveloperName
                                      FROM EmailTemplate
                                      WHERE DeveloperName = :et.Template__c AND IsActive = true
+                                     WITH SECURITY_ENFORCED
                                      LIMIT 1];
         if (templates.size() == 0) {
             templateMap.put(name, null);
@@ -46,6 +61,13 @@ public with sharing class EmailService {
         return template;
     }
 
+    /**
+     * Creates an email message.
+     * @param whatId The ID of the record to which the email belongs.
+     * @param contactId The ID of the contact to whom the email will be sent.
+     * @param templateId The ID of the email template to use.
+     * @return The created email message.
+     */
     public Messaging.SingleEmailMessage createEmail(Id whatId, Id contactId, Id templateId) {
         Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
         if (orgAddressId != null) {
@@ -67,7 +89,10 @@ public with sharing class EmailService {
         return mail;
     }
 
-    // send email to contact.  Create EmailError records for failed emails.
+    /**
+     * Sends email to contact.  Create EmailError records for failed emails.
+     * @param emails The list of email messages to send.
+     */
     public void sendEmail(List<Messaging.SingleEmailMessage> emails) {
         // the second parameter is "allOrNothing" and defaults to true
         Messaging.SendEmailResult[] result = Messaging.sendEmail(emails, false);
@@ -84,7 +109,9 @@ public with sharing class EmailService {
                 }
             }
         }
-        insert errors;
+        if (!errors.isEmpty() && Schema.sObjectType.EmailError__c.isCreateable()) {
+            insert errors;
+        }
     }
 
 }
