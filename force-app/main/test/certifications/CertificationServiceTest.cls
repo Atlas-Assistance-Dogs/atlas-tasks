@@ -628,7 +628,7 @@ private class CertificationServiceTest {
       atlas1__Positions__c = 'Trainer', 
       atlas1__TrainerStatus__c = 'Certified-Active'
     );
-    
+
     // act
     service.handleContactChange(new Contact[]{ contact }, new Map<Id, Contact>{ contact.Id => contact });
     // assert
@@ -672,7 +672,7 @@ private class CertificationServiceTest {
   }
 
   @IsTest
-  static void hhandleContactChange_createsTasksWhenUsersDefinedToInactive() {
+  static void handleContactChange_createsTasksWhenUsersDefinedToInactive() {
     makeData();
     setup();
     Contact contact = new Contact(
@@ -721,7 +721,7 @@ private class CertificationServiceTest {
     ) }, tasks, 'wrong tasks');
   }
 @IsTest
-  static void hhandleContactChange_createsTasksWhenUsersDefinedToDiscontinued() {
+  static void handleContactChange_createsTasksWhenUsersDefinedToDiscontinued() {
     makeData();
     setup();
     Contact contact = new Contact(
