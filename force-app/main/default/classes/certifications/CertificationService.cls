@@ -205,7 +205,7 @@ public with sharing class CertificationService {
       tasks.add(new Task(
         OwnerId = admin.Id, 
         Subject = noRenewSubject, 
-        Description = 'Change status to discontinued if deactivating', 
+        Description = 'Change status to inactive if deactivating', 
         Status = 'Open', 
         Priority = 'Normal', 
         WhoId = cert.atlas1__Contact__c, 
@@ -236,9 +236,13 @@ public with sharing class CertificationService {
 
     for (Contact contact : contacts) {
       Contact oldContact = oldContactMap.get(contact.Id);
-      // Check if the trainer's status has changed from 'Certified-Active' to 'Discontinued'
-      if (oldContact.atlas1__TrainerStatus__c == 'Certified-Active' && contact.atlas1__TrainerStatus__c == 'Discontinued') {
+      // Check if the trainer's status has changed from 'Certified-Active' to 'Inactive'
+      if (oldContact.atlas1__TrainerStatus__c == 'Certified-Active' && contact.atlas1__TrainerStatus__c == 'Inactive') {
         // Create a task to decertify the trainer
+        tasks.addAll(deactivationTasks(contact) );
+      }
+      if (oldContact.atlas1__TrainerStatus__c == 'In Training' && contact.atlas1__TrainerStatus__c == 'Discontinued') {
+        // Create a task to discontinue the trainer
         tasks.addAll(discontinuationTasks(contact) );
       }
     }
@@ -248,21 +252,13 @@ public with sharing class CertificationService {
   }
 
   /**
-   * Create tasks for handling trainer discontinuation
-   * @param contact The contact record being discontinued
-   * @return List of tasks for trainer discontinuation process
+   * Create tasks for handling trainer deactivation
+   * @param contact The contact record being deactivated
+   * @return List of tasks for trainer deactivation process
    */
-  private List<Task> discontinuationTasks(Contact contact) {
+  private List<Task> deactivationTasks(Contact contact) {
     List<Task> tasks = new List<Task>();
     if (admin != null) {
-      tasks.add(new Task(
-        OwnerId = admin.Id, 
-        Subject = 'Change assigned program to discontinued', 
-        Status = 'Open', 
-        Priority = 'Normal', 
-        WhoId = contact.Id, 
-        ActivityDate = Date.today()
-      ));
       tasks.add(new Task(
         OwnerId = admin.Id, 
         Subject = 'Remove from Canvas', 
@@ -300,5 +296,31 @@ public with sharing class CertificationService {
     }
     return tasks;
   }
-
+  /**
+   * Create tasks for handling trainer discontinuation
+   * @param contact The contact record being discontinued
+   * @return List of tasks for trainer discontinuation process
+   */
+  private List<Task> discontinuationTasks(Contact contact) {
+    List<Task> tasks = new List<Task>();
+    if (admin != null) {
+      tasks.add(new Task(
+        OwnerId = admin.Id, 
+        Subject = 'Remove from Canvas', 
+        Status = 'Open', 
+        Priority = 'Normal', 
+        WhoId = contact.Id, 
+        ActivityDate = Date.today()
+      ));
+      tasks.add(new Task(
+        OwnerId = admin.Id, 
+        Subject = 'Remove from Facebook', 
+        Status = 'Open', 
+        Priority = 'Normal', 
+        WhoId = contact.Id, 
+        ActivityDate = Date.today()
+      ));
+    }
+    return tasks;
+  }
 }

@@ -559,7 +559,7 @@ private class CertificationServiceTest {
     System.Assert.areEqual(new Task[]{ new Task(
       OwnerId = admin.Id, 
       Subject = 'Confirm if deactivating trainer', 
-      Description = 'Change status to discontinued if deactivating', 
+      Description = 'Change status to inactive if deactivating', 
       Status = 'Open', 
       Priority = 'Normal', 
       WhoId = cert.atlas1__Contact__c, 
@@ -588,7 +588,7 @@ private class CertificationServiceTest {
     System.Assert.areEqual(new Task[]{ new Task(
       OwnerId = admin.Id, 
       Subject = 'Confirm if deactivating trainer', 
-      Description = 'Change status to discontinued if deactivating', 
+      Description = 'Change status to inactive if deactivating', 
       Status = 'Open', 
       Priority = 'Normal', 
       WhoId = cert.atlas1__Contact__c, 
@@ -628,6 +628,23 @@ private class CertificationServiceTest {
       atlas1__Positions__c = 'Trainer', 
       atlas1__TrainerStatus__c = 'Certified-Active'
     );
+    
+    // act
+    service.handleContactChange(new Contact[]{ contact }, new Map<Id, Contact>{ contact.Id => contact });
+    // assert
+    mocks.assertMethodNotCalled('create');
+  }
+
+  @IsTest
+  static void handleContactChange_doesNothingWhenNoContactsBeingDiscontinued() {
+    makeData();
+    setup();
+    Contact contact = new Contact(
+      Id = MockProvider.createId(Contact.class), 
+      atlas1__Positions__c = 'Trainer', 
+      atlas1__TrainerStatus__c = 'In Training'
+    );
+
     // act
     service.handleContactChange(new Contact[]{ contact }, new Map<Id, Contact>{ contact.Id => contact });
     // assert
@@ -645,7 +662,7 @@ private class CertificationServiceTest {
     Contact nc = new Contact(
       Id = contact.Id, 
       atlas1__Positions__c = 'Trainer', 
-      atlas1__TrainerStatus__c = 'Discontinued'
+      atlas1__TrainerStatus__c = 'Inactive'
     );
     // act
     // act
@@ -655,7 +672,7 @@ private class CertificationServiceTest {
   }
 
   @IsTest
-  static void hhandleContactChange_createsTasksWhenUsersDefined() {
+  static void hhandleContactChange_createsTasksWhenUsersDefinedToInactive() {
     makeData();
     setup();
     Contact contact = new Contact(
@@ -666,7 +683,7 @@ private class CertificationServiceTest {
     Contact nc = new Contact(
       Id = contact.Id, 
       atlas1__Positions__c = 'Trainer', 
-      atlas1__TrainerStatus__c = 'Discontinued'
+      atlas1__TrainerStatus__c = 'Inactive'
     );
     // act
     service.handleContactChange(new Contact[]{ nc }, new Map<Id, Contact>{ contact.Id => contact });
@@ -674,13 +691,6 @@ private class CertificationServiceTest {
     MockCallData call = mocks.assertMethodCalled('create');
     Task[] tasks = (Task[])call.args[0];
     System.Assert.areEqual(new Task[]{ new Task(
-      OwnerId = admin.Id, 
-      Subject = 'Change assigned program to discontinued', 
-      Status = 'Open', 
-      Priority = 'Normal', 
-      WhoId = contact.Id, 
-      ActivityDate = Date.today()
-    ), new Task(
       OwnerId = admin.Id, 
       Subject = 'Remove from Canvas', 
       Status = 'Open', 
@@ -710,5 +720,39 @@ private class CertificationServiceTest {
       ActivityDate = Date.today()
     ) }, tasks, 'wrong tasks');
   }
-
+@IsTest
+  static void hhandleContactChange_createsTasksWhenUsersDefinedToDiscontinued() {
+    makeData();
+    setup();
+    Contact contact = new Contact(
+      Id = MockProvider.createId(Contact.class), 
+      atlas1__Positions__c = 'Trainer', 
+      atlas1__TrainerStatus__c = 'In Training'
+    );
+    Contact nc = new Contact(
+      Id = contact.Id, 
+      atlas1__Positions__c = 'Trainer', 
+      atlas1__TrainerStatus__c = 'Discontinued'
+    );
+    // act
+    service.handleContactChange(new Contact[]{ nc }, new Map<Id, Contact>{ contact.Id => contact });
+    // assert
+    MockCallData call = mocks.assertMethodCalled('create');
+    Task[] tasks = (Task[])call.args[0];
+    System.Assert.areEqual(new Task[]{ new Task(
+      OwnerId = admin.Id, 
+      Subject = 'Remove from Canvas', 
+      Status = 'Open', 
+      Priority = 'Normal', 
+      WhoId = contact.Id, 
+      ActivityDate = Date.today()
+    ), new Task(
+      OwnerId = admin.Id, 
+      Subject = 'Remove from Facebook', 
+      Status = 'Open', 
+      Priority = 'Normal', 
+      WhoId = contact.Id, 
+      ActivityDate = Date.today()
+    ) }, tasks, 'wrong tasks');
+  }
 }
