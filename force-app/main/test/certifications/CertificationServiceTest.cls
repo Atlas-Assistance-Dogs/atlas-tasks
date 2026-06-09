@@ -720,7 +720,8 @@ private class CertificationServiceTest {
       ActivityDate = Date.today()
     ) }, tasks, 'wrong tasks');
   }
-@IsTest
+
+  @IsTest
   static void handleContactChange_createsTasksWhenUsersDefinedToDiscontinued() {
     makeData();
     setup();
@@ -755,4 +756,5 @@ private class CertificationServiceTest {
       ActivityDate = Date.today()
     ) }, tasks, 'wrong tasks');
   }
+
 }
