@@ -47,11 +47,11 @@ private class CertificationRepositoryTest {
     System.assertEquals(data.cert.atlas1__Contact__c, cert.atlas1__Contact__c, 'wrong contact');
     // second cert
     cert = actual[1];
-    System.assertEquals(cert2.Id, cert.Id, 'wrong cert');
-    System.assertEquals(cert2.atlas1__Type__c, cert.atlas1__Type__c, 'wrong type');
-    System.assertEquals(cert2.atlas1__Start__c, cert.atlas1__Start__c, 'returned wrong start date');
-    System.assertEquals(cert2.atlas1__End__c, cert.atlas1__End__c, 'wrong end date');
-    System.assertEquals(cert2.atlas1__Contact__c, cert.atlas1__Contact__c, 'wrong contact');
+    System.assertEquals(data2.cert.Id, cert.Id, 'wrong cert');
+    System.assertEquals(data2.cert.atlas1__Type__c, cert.atlas1__Type__c, 'wrong type');
+    System.assertEquals(data2.cert.atlas1__Start__c, cert.atlas1__Start__c, 'returned wrong start date');
+    System.assertEquals(data2.cert.atlas1__End__c, cert.atlas1__End__c, 'wrong end date');
+    System.assertEquals(data2.cert.atlas1__Contact__c, cert.atlas1__Contact__c, 'wrong contact');
   }
 
   @IsTest

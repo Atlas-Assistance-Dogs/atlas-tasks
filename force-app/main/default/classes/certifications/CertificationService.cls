@@ -246,7 +246,7 @@ public with sharing class CertificationService {
         // Create tasks to discontinue the trainer
         tasks.addAll(discontinuationTasks(contact) );
       }
-      if (contact.atlas1__Positions__c != null && contact.atlas1__Positions__c.contains('Team Facilitator') && contact.atlas1__FacilitatorStatus__c == 'Certified-Hold' && oldContact.atlas1__FacilitatorStatus__c == 'Certified-Active') {
+      if (contact.atlas1__Positions__c != null && contact.atlas1__Positions__c.contains('Team Facilitator') && contact.atlas1__FacilitatorStatus__c == 'Certified-OnHold' && oldContact.atlas1__FacilitatorStatus__c == 'Certified-Active') {
         tasks.addAll(facilitatorHoldTasks(contact) );
       }
     }

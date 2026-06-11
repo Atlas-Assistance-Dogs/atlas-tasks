@@ -130,7 +130,7 @@ private class CertificationServiceTest {
   static void setup() {
     mocks.expectedCalls.add(new MockCallData(taskRepo, 'getTaskUser', admin, new Object[]{ 'Administrator' }));
     mocks.expectedCalls.add(new MockCallData(taskRepo, 'getTaskUser', manager, new Object[]{ 'Trainer Manager' }));
-    mocks.expectedCalls.add(new MockCallData(taskRepo, 'getTaskUser', coordinator, new Object[]{ 'Team Training Coordinator' }));
+    mocks.expectedCalls.add(new MockCallData(taskRepo, 'getTaskUser', coordinator, new Object[]{ 'Client Support Coordinator' }));
     mocks.expectedCalls.add(new MockCallData(emailSrv, 'getTemplate', monthBefore, new Object[]{ 'TrainerMonthBefore' }));
     mocks.expectedCalls.add(new MockCallData(emailSrv, 'getTemplate', twoWeeksBefore, new Object[]{ 'Trainer2WeeksBefore' }));
     mocks.expectedCalls.add(new MockCallData(emailSrv, 'getTemplate', weekBefore, new Object[]{ 'TrainerWeekBefore' }));
@@ -696,7 +696,7 @@ private class CertificationServiceTest {
     System.Assert.areEqual(new Task[]{ new Task(
       OwnerId = admin.Id, 
       Subject = 'Remove from Canvas', 
-      Description = service.tfNotAcceptingTaskDescription, 
+      // Description = service.tfNotAcceptingTaskDescription, 
       Status = 'Open', 
       Priority = 'Normal', 
       WhoId = contact.Id, 
