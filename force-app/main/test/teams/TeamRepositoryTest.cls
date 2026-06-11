@@ -31,7 +31,7 @@ private class TeamRepositoryTest {
 
   @isTest
   static void getByStatus_returnsEmptyList_whenNoTeams() {
-    List<atlas1__Team__c> result = repo.getByStatus('Certified');
+    List<atlas1__Team__c> result = repo.getByStatus('Certified-Active');
 
     System.assertEquals(new List<atlas1__Team__c>(), result);
   }
@@ -64,7 +64,7 @@ private class TeamRepositoryTest {
     team2.atlas1__Status__c = 'Onboarding';
     update team2;
 
-    List<atlas1__Team__c> result = repo.getByStatus('Certified');
+    List<atlas1__Team__c> result = repo.getByStatus('Certified-Active');
     atlas1__Team__c team = result[0];
 
     System.assertEquals(1, result.size(), 'size should be 1');
@@ -81,7 +81,7 @@ private class TeamRepositoryTest {
     team2.atlas1__Status__c = 'Onboarding';
     update team2;
 
-    List<atlas1__Team__c> result = repo.getByStatus('Certified');
+    List<atlas1__Team__c> result = repo.getByStatus('Certified-Active');
     Set<Id> teamIds = new Set<Id>();
     for (atlas1__Team__c team : result) {
       teamIds.add(team.Id);

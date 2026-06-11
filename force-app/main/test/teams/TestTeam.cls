@@ -23,7 +23,7 @@ public class TestTeam {
       atlas1__PatCount__c = 21,
       atlas1__PrimaryCertification__c = 'Allergen Alert',
       atlas1__SecondaryCertification__c = 'Autism',
-      atlas1__Status__c = 'Certified',
+      atlas1__Status__c = 'Certified-Active',
       atlas1__TrainingStartDate__c = Date.today()
     );
     insert team;

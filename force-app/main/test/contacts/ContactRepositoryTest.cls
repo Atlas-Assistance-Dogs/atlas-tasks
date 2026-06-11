@@ -29,7 +29,7 @@ private class ContactRepositoryTest {
             LastName = 'Heeler', 
             Email = 'bluey@test.com', 
             atlas1__Positions__c = 'Client',
-            atlas1__ClientStatus__c = 'Certified',
+            atlas1__ClientStatus__c = 'Certified-Active',
             BackgroundCheck__c = 'Not Required'
         );
         insert bluey;

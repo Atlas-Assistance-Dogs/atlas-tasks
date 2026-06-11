@@ -669,7 +669,6 @@ private class CertificationServiceTest {
       atlas1__TrainerStatus__c = 'Inactive'
     );
     // act
-    // act
     service.handleContactChange(new Contact[]{ nc }, new Map<Id, Contact>{ contact.Id => contact });
     // assert
     mocks.assertMethodNotCalled('create');
@@ -690,13 +689,14 @@ private class CertificationServiceTest {
       atlas1__TrainerStatus__c = 'Inactive'
     );
     // act
+    service.handleContactChange(new Contact[]{ nc }, new Map<Id, Contact>{ contact.Id => contact });
     // assert
     MockCallData call = mocks.assertMethodCalled('create');
     Task[] tasks = (Task[])call.args[0];
     System.Assert.areEqual(new Task[]{ new Task(
       OwnerId = admin.Id, 
       Subject = 'Remove from Canvas', 
-      Description = service.tfNotAcceptingTaskSubject, 
+      Description = service.tfNotAcceptingTaskDescription, 
       Status = 'Open', 
       Priority = 'Normal', 
       WhoId = contact.Id, 
@@ -761,9 +761,8 @@ private class CertificationServiceTest {
     ) }, tasks, 'wrong tasks');
   }
 
-
   @IsTest
-  static void handleStatusChange_doesNotCreateTasksWhenContactIsNotTeamFacilitator() {
+  static void handleContactChange_doesNotCreateTasksWhenContactIsNotTeamFacilitator() {
     makeData();
     setup();
     Contact contact = new Contact(
@@ -772,13 +771,13 @@ private class CertificationServiceTest {
       atlas1__TrainerStatus__c = 'Certified-Active'
     );
     // act
-    service.handleStatusChange(new Contact[]{ contact }, new Map<Id, Contact>{ contact.Id => contact });
+    service.handleContactChange(new Contact[]{ contact }, new Map<Id, Contact>{ contact.Id => contact });
     // assert
     mocks.assertMethodNotCalled('create');
   }
 
   @IsTest
-  static void handleStatusChange_doesNotCreateTasksWhenContactIsNotGoingOnHold() {
+  static void handleContactChange_doesNotCreateTasksWhenContactIsNotGoingOnHold() {
     makeData();
     setup();
     Contact contact = new Contact(
@@ -787,13 +786,13 @@ private class CertificationServiceTest {
       atlas1__FacilitatorStatus__c = 'Certified-Active'
     );
     // act
-    service.handleStatusChange(new Contact[]{ contact }, new Map<Id, Contact>{ contact.Id => contact });
+    service.handleContactChange(new Contact[]{ contact }, new Map<Id, Contact>{ contact.Id => contact });
     // assert
     mocks.assertMethodNotCalled('create');
   }
 
   @IsTest
-  static void handleStatusChange_doesNothingWhenNoUsers() {
+  static void handleContactChange_doesNothingForFacilitatorWhenNoUsers() {
     makeData();
     Contact contact = new Contact(
       Id = MockProvider.createId(Contact.class), 
@@ -806,14 +805,13 @@ private class CertificationServiceTest {
       atlas1__FacilitatorStatus__c = 'Certified-Hold'
     );
     // act
-    // act
-    service.handleStatusChange(new Contact[]{ nc }, new Map<Id, Contact>{ contact.Id => contact });
+    service.handleContactChange(new Contact[]{ nc }, new Map<Id, Contact>{ contact.Id => contact });
     // assert
     mocks.assertMethodNotCalled('create');
   }
 
   @IsTest
-  static void handleStatusChange_createsTasksWhenUsersDefined() {
+  static void handleContactChange_createsTasksWhenUsersDefined() {
     makeData();
     setup();
     Contact contact = new Contact(
@@ -824,17 +822,17 @@ private class CertificationServiceTest {
     Contact nc = new Contact(
       Id = contact.Id, 
       atlas1__Positions__c = 'Team Facilitator', 
-      atlas1__FacilitatorStatus__c = 'Certified-Hold'
+      atlas1__FacilitatorStatus__c = 'Certified-OnHold'
     );
     // act
-    service.handleStatusChange(new Contact[]{ nc }, new Map<Id, Contact>{ contact.Id => contact });
+    service.handleContactChange(new Contact[]{ nc }, new Map<Id, Contact>{ contact.Id => contact });
     // assert
     MockCallData call = mocks.assertMethodCalled('create');
     Task[] tasks = (Task[])call.args[0];
     System.Assert.areEqual(new Task[]{ new Task(
       OwnerId = admin.Id, 
       Subject = 'Remove from service area map', 
-      Description = service.tfNotAcceptingTaskSubject, 
+      Description = service.tfNotAcceptingTaskDescription, 
       Status = 'Open', 
       Priority = 'Normal', 
       WhoId = contact.Id, 
@@ -842,7 +840,7 @@ private class CertificationServiceTest {
     ), new Task(
       OwnerId = admin.Id, 
       Subject = 'Add Availability notes', 
-      Description = service.tfNotAcceptingTaskSubject, 
+      Description = service.tfNotAcceptingTaskDescription, 
       Status = 'Open', 
       Priority = 'Normal', 
       WhoId = contact.Id, 

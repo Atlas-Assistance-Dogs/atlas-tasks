@@ -21,7 +21,7 @@ private class CertificationRepositoryTest {
   @IsTest
   static void getActiveCerts_returnsOnlyCertsWithActiveContacts() {
     CertificationRepositoryData data = new CertificationRepositoryData();
-    CertificationRepositoryData data2 = new CertificationRepositoryData('Certified-Hold');
+    CertificationRepositoryData data2 = new CertificationRepositoryData('Certified-OnHold');
     Date start = Date.today().addYears(-1).addMonths(3);
     Date ending = start.addYears(1);
     atlas1__Certification__c cert2 = new atlas1__Certification__c(
