@@ -696,7 +696,6 @@ private class CertificationServiceTest {
     System.Assert.areEqual(new Task[]{ new Task(
       OwnerId = admin.Id, 
       Subject = 'Remove from Canvas', 
-      // Description = service.tfNotAcceptingTaskDescription, 
       Status = 'Open', 
       Priority = 'Normal', 
       WhoId = contact.Id, 
