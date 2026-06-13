@@ -240,6 +240,7 @@ public with sharing class CertificationService {
       Contact oldContact = oldContactMap.get(contact.Id);
       // Check if the trainer's status has changed from 'Certified-Active' to 'Inactive'
       if (oldContact.atlas1__TrainerStatus__c == 'Certified-Active' && contact.atlas1__TrainerStatus__c == 'Inactive') {
+        // Create tasks to deactivate the trainer
         tasks.addAll(deactivationTasks(contact) );
       }
       if (oldContact.atlas1__TrainerStatus__c == 'In Training' && contact.atlas1__TrainerStatus__c == 'Discontinued') {
