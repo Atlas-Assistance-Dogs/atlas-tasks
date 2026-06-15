@@ -801,7 +801,7 @@ private class CertificationServiceTest {
     Contact nc = new Contact(
       Id = contact.Id, 
       atlas1__Positions__c = 'Team Facilitator', 
-      atlas1__FacilitatorStatus__c = 'Certified-Hold'
+      atlas1__FacilitatorStatus__c = 'Certified-OnHold'
     );
     // act
     service.handleContactChange(new Contact[]{ nc }, new Map<Id, Contact>{ contact.Id => contact });
