@@ -9,7 +9,10 @@ public class CertificationRepositoryData {
   public atlas1__CeuCertification__c cc;
 
   public CertificationRepositoryData() {
-    con1 = new Contact(FirstName = 'John', LastName = 'Smith', atlas1__Positions__c = 'Team Facilitator;Trainer', atlas1__FacilitatorStatus__c = 'Certified-Active', atlas1__TrainerStatus__c = 'Certified-Active');
+    this('Certified-Active');
+  }
+  public CertificationRepositoryData(String trainerStatus) {
+    con1 = new Contact(FirstName = 'John', LastName = 'Smith', atlas1__Positions__c = 'Team Facilitator;Trainer', atlas1__FacilitatorStatus__c = 'Certified-Active', atlas1__TrainerStatus__c = trainerStatus);
     insert con1;
     Date start = Date.today().addYears(-1).addMonths(3);
     Date ending = start.addYears(1);

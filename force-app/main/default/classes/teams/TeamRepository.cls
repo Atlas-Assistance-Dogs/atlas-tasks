@@ -31,7 +31,7 @@ public inherited sharing class TeamRepository {
      * @return The list of active dogs in teams.
      */
     public List<atlas1__Team__c> getActiveDogs() {
-        String[] active = new String[]{ 'In Training', 'Certified' };
+        String[] active = new String[]{ 'In Training', 'Certified-Active', 'Certified-OnHold' };
         return [SELECT Id, Name,
                        atlas1__Client__c, 
                        atlas1__Dog__c, 

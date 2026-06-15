@@ -217,10 +217,12 @@ public with sharing class CertificationService {
 
   User trainerManager;
   User admin;
+  User coordinator;
 
   private void getUsers() {
     trainerManager = taskRepo.getTaskUser('Trainer Manager');
     admin = taskRepo.getTaskUser('Administrator');
+    coordinator = taskRepo.getTaskUser('Client Support Coordinator');
   }
 
   /**
@@ -238,14 +240,18 @@ public with sharing class CertificationService {
       Contact oldContact = oldContactMap.get(contact.Id);
       // Check if the trainer's status has changed from 'Certified-Active' to 'Inactive'
       if (oldContact.atlas1__TrainerStatus__c == 'Certified-Active' && contact.atlas1__TrainerStatus__c == 'Inactive') {
-        // Create a task to decertify the trainer
+        // Create tasks to deactivate the trainer
         tasks.addAll(deactivationTasks(contact) );
       }
       if (oldContact.atlas1__TrainerStatus__c == 'In Training' && contact.atlas1__TrainerStatus__c == 'Discontinued') {
-        // Create a task to discontinue the trainer
+        // Create tasks to discontinue the trainer
         tasks.addAll(discontinuationTasks(contact) );
       }
+      if (contact.atlas1__Positions__c != null && contact.atlas1__Positions__c.contains('Team Facilitator') && contact.atlas1__FacilitatorStatus__c == 'Certified-OnHold' && oldContact.atlas1__FacilitatorStatus__c == 'Certified-Active') {
+        tasks.addAll(facilitatorHoldTasks(contact) );
+      }
     }
+
     if (!tasks.isEmpty()) {
       taskRepo.create(tasks);
     }
@@ -296,6 +302,7 @@ public with sharing class CertificationService {
     }
     return tasks;
   }
+
   /**
    * Create tasks for handling trainer discontinuation
    * @param contact The contact record being discontinued
@@ -323,4 +330,49 @@ public with sharing class CertificationService {
     }
     return tasks;
   }
+
+  public final String tfNotAcceptingTaskDescription = 'Facilitator on hold, not accepting new clients';
+  /**
+   * Create tasks for handling facilitator on hold status
+   * @param contact The contact record being placed on hold
+   * @return List of tasks for facilitator on hold process
+   */
+  private List<Task> facilitatorHoldTasks(Contact contact) {
+    List<Task> tasks = new List<Task>();
+    // Facilitator certification on hold, create tasks for on hold
+    if (admin != null) {
+      tasks.add(new Task(
+        OwnerId = admin.Id, 
+        Subject = 'Remove from service area map', 
+        Description = tfNotAcceptingTaskDescription, 
+        Status = 'Open', 
+        Priority = 'Normal', 
+        WhoId = contact.Id, 
+        ActivityDate = Date.today()
+      ));
+      tasks.add(new Task(
+        OwnerId = admin.Id, 
+        Subject = 'Add Availability notes', 
+        Description = tfNotAcceptingTaskDescription, 
+        Status = 'Open', 
+        Priority = 'Normal', 
+        WhoId = contact.Id, 
+        ActivityDate = Date.today()
+      ));
+    }
+    if (coordinator != null) {
+      tasks.add(new Task(
+        OwnerId = coordinator.Id, 
+        Subject = 'Check in regarding availability', 
+        Description = 'If still On hold, follow up with facilitator about status and next steps.', 
+        Status = 'Open', 
+        Priority = 'Normal', 
+        IsReminderSet = true, 
+        WhoId = contact.Id, 
+        ActivityDate = Date.today().addMonths(6)
+      ));
+    }
+    return tasks;
+  }
+
 }

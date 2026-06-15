@@ -21,6 +21,7 @@ private class CertificationRepositoryTest {
   @IsTest
   static void getActiveCerts_returnsOnlyCertsWithActiveContacts() {
     CertificationRepositoryData data = new CertificationRepositoryData();
+    CertificationRepositoryData data2 = new CertificationRepositoryData('Certified-OnHold');
     Date start = Date.today().addYears(-1).addMonths(3);
     Date ending = start.addYears(1);
     atlas1__Certification__c cert2 = new atlas1__Certification__c(
@@ -37,13 +38,20 @@ private class CertificationRepositoryTest {
 
     // the trigger adds a cc
     atlas1__Certification__c[] actual = repo.getActiveCerts();
-    System.assertEquals(1, actual.size(), 'wrong number of certs');
+    System.assertEquals(2, actual.size(), 'wrong number of certs');
     atlas1__Certification__c cert = actual[0];
     System.assertEquals(data.cert.Id, cert.Id, 'wrong cert');
     System.assertEquals(data.cert.atlas1__Type__c, cert.atlas1__Type__c, 'wrong type');
     System.assertEquals(data.cert.atlas1__Start__c, cert.atlas1__Start__c, 'returned wrong start date');
     System.assertEquals(data.cert.atlas1__End__c, cert.atlas1__End__c, 'wrong end date');
     System.assertEquals(data.cert.atlas1__Contact__c, cert.atlas1__Contact__c, 'wrong contact');
+    // second cert
+    cert = actual[1];
+    System.assertEquals(data2.cert.Id, cert.Id, 'wrong cert');
+    System.assertEquals(data2.cert.atlas1__Type__c, cert.atlas1__Type__c, 'wrong type');
+    System.assertEquals(data2.cert.atlas1__Start__c, cert.atlas1__Start__c, 'returned wrong start date');
+    System.assertEquals(data2.cert.atlas1__End__c, cert.atlas1__End__c, 'wrong end date');
+    System.assertEquals(data2.cert.atlas1__Contact__c, cert.atlas1__Contact__c, 'wrong contact');
   }
 
   @IsTest
