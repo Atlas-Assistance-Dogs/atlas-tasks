@@ -1,7 +1,7 @@
 /**
  * This class contains unit tests for validating the behavior of Apex class TeamTaskService.
  */
-@isTest
+@IsTest
 private class TeamTaskServiceTest {
     private static MockProvider mocks;
     private static TeamTaskService service;
@@ -20,9 +20,8 @@ private class TeamTaskServiceTest {
     private static User tfManager;
     private static User trainerManager;
     private static final String STATUS_IN_TRAINING = 'In Training';
-    private static final String STATUS_CERTIFIED = 'Certified';
+    private static final String STATUS_CERTIFIED = 'Certified-Active';
     private static final String DESC_TRAINING_START = 'Client entered training';
-    // private static final String DESC_TRAINING_START = 'Confirm returns forms, assign courses, add to office hours';
     private static final String SUBJECT_1MO_CLIENT = '1 mo in-training checkin due';
     private static final String SUBJECT_1MO_TF = '1 mo in-training checkin due for TF';
     private static final String SUBJECT_4P5MO_CLIENT = 'Check on client\'s courses and give Molly status';
@@ -121,7 +120,7 @@ private class TeamTaskServiceTest {
         );
     }
 
-    @isTest
+    @IsTest
     static void handleTrainingStart_returnsWhenNoUsers() {
         makeData();
         service = new TeamTaskService(teamRepo, relationshipRepo, dogRepo, taskRepo, patRepo, teamService);
@@ -133,7 +132,7 @@ private class TeamTaskServiceTest {
         mocks.assertMethodNotCalled('create');
     }
 
-    @isTest
+    @IsTest
     static void handleTrainingStart_createsTasksForAdmin() {
         // Arrang
         makeData();
@@ -193,7 +192,7 @@ private class TeamTaskServiceTest {
         ), tasks[3]);
     }
 
-    @isTest
+    @IsTest
     static void handleTrainingStart_createsTasksForInventoryAdmin() {
         // Arrang
         makeData();
@@ -232,7 +231,7 @@ private class TeamTaskServiceTest {
         ), tasks[1]);
     }
 
-    @isTest
+    @IsTest
     static void createTrainingTasks_returnsWhenNoTeamsInTraining() {
         makeData();
         setupUserReturns();
@@ -245,7 +244,7 @@ private class TeamTaskServiceTest {
         System.assertEquals('In Training', data.args[0], 'status input does not match');
     }
 
-    @isTest
+    @IsTest
     static void createTrainingTasks_leavesTrainingStartToTrigger() {
 
         makeData();
@@ -268,7 +267,7 @@ private class TeamTaskServiceTest {
         System.assertEquals(0, tasks.size(), 'size should be 0');
     }
 
-    @isTest
+    @IsTest
     static void createTrainingTasks_creates1monthTasksForClient() {
         makeData();
         setupUserReturns();
@@ -297,7 +296,7 @@ private class TeamTaskServiceTest {
         ), task);
     }
 
-    @isTest
+    @IsTest
     static void createTrainingTasks_creates1monthTasks() {
         makeData();
         setupUserReturns();
@@ -334,7 +333,7 @@ private class TeamTaskServiceTest {
         ), task);
     }
 
-    @isTest
+    @IsTest
     static void createTrainingTasks_creates4p5monthTasksForClient() {
         makeData();
         setupUserReturns();
@@ -359,7 +358,7 @@ private class TeamTaskServiceTest {
         ), task);
     }
 
-    @isTest
+    @IsTest
     static void createTrainingTasks_creates5monthTasksForClient() {
         makeData();
         setupUserReturns();
@@ -390,7 +389,7 @@ private class TeamTaskServiceTest {
         ), task);
     }
 
-    @isTest
+    @IsTest
     static void createTrainingTasks_creates5monthTasks() {
         makeData();
         setupUserReturns();
@@ -428,7 +427,7 @@ private class TeamTaskServiceTest {
         ), task);
     }
 
-    @isTest
+    @IsTest
     static void createTrainingTasks_creates6monthTaskForClient() {
         makeData();
         setupUserReturns();
@@ -455,7 +454,7 @@ private class TeamTaskServiceTest {
         ), task);
     }
 
-    @isTest
+    @IsTest
     static void createTrainingTasks_creates6monthTaskForClient_whenSpayStatusFalse() {
         makeData();
         setupUserReturns();
@@ -483,7 +482,7 @@ private class TeamTaskServiceTest {
         ), task);
     }
 
-    @isTest
+    @IsTest
     static void createTrainingTasks_doesNotCreate6monthTaskForClient_whenSpayStatusTrue() {
         makeData();
         setupUserReturns();
@@ -503,7 +502,7 @@ private class TeamTaskServiceTest {
         System.assertEquals(0, tasks.size(), 'size should be 0');
     }
 
-    @isTest
+    @IsTest
     static void createTrainingTasks_creates8monthTasksForClient() {
         makeData();
         setupUserReturns();
@@ -534,7 +533,7 @@ private class TeamTaskServiceTest {
         ), task);
     }
 
-    @isTest
+    @IsTest
     static void createTrainingTasks_creates8monthTasks() {
         makeData();
         setupUserReturns();
@@ -577,7 +576,7 @@ private class TeamTaskServiceTest {
         ), task);
     }
 
-    @isTest
+    @IsTest
     static void handleCertificationStart_throwsExceptionWhenNoPassingPat() {
         makeData();
         service = new TeamTaskService(teamRepo, relationshipRepo, dogRepo, taskRepo, patRepo, teamService);
@@ -595,7 +594,7 @@ private class TeamTaskServiceTest {
         System.assert(exc, 'Exception was not thrown');
     }
 
-    @isTest
+    @IsTest
     static void handleCertificationStart_setsInitialCertificationDateWhenPassingPat() {
         makeData();
         setupUserReturns();
@@ -611,7 +610,7 @@ private class TeamTaskServiceTest {
         System.assertEquals(Date.today(), team.atlas1__InitialCertificationDate__c, 'Initial Certification Date does not match');
     }
 
-    @isTest
+    @IsTest
     static void handleCertificationStart_doesNotSetsInitialCertificationDateWhenAlreadySet() {
         makeData();
         setupUserReturns();
@@ -629,7 +628,7 @@ private class TeamTaskServiceTest {
         System.assertEquals(initDate, team.atlas1__InitialCertificationDate__c, 'Initial Certification Date does not match');
     }
 
-    @isTest
+    @IsTest
     static void handleCertificationStart_returnsWhenNoUsers() {
         makeData();
         service = new TeamTaskService(teamRepo, relationshipRepo, dogRepo, taskRepo, patRepo, teamService);
@@ -644,7 +643,7 @@ private class TeamTaskServiceTest {
         mocks.assertMethodNotCalled('create');
     }
 
-    @isTest
+    @IsTest
     static void handleCertificationStart_createsTasksForCoordinator() {
         makeData();
         atlas1__Team__c team = new atlas1__Team__c(
@@ -675,7 +674,7 @@ private class TeamTaskServiceTest {
 
     private static final String STARTED_TRAINING = 'Client entered training';
     private static final String NEWLY_CERTIFIED = 'Team newly certified';
-    @isTest
+    @IsTest
     static void handleCertificationStart_createsTasksForAdmin() {
         makeData();
         atlas1__Team__c team = new atlas1__Team__c(
@@ -720,7 +719,7 @@ private class TeamTaskServiceTest {
         ), tasks[2]);
     }
 
-    @isTest
+    @IsTest
     static void handleCertificationStart_createsTasksForAdminAssistant() {
         makeData();
         atlas1__Team__c team = new atlas1__Team__c(
@@ -749,7 +748,7 @@ private class TeamTaskServiceTest {
         ), tasks[0]);
     }
 
-    @isTest
+    @IsTest
     static void handleCertificationStart_createsAllTasksWhenAllDefined() {
         makeData();
         setupUserReturns();
@@ -768,7 +767,7 @@ private class TeamTaskServiceTest {
         System.assertEquals(5, tasks.size(), 'size should be 5');
     }
 
-    @isTest
+    @IsTest
     static void createCertificationTasks_createsFirstReminderTask_whenNoMatching() {
         makeData();
         setupUserReturns();
@@ -778,7 +777,7 @@ private class TeamTaskServiceTest {
             Id = MockProvider.createId(Contact.class)
         );
 
-        mocks.expectedCalls.add(new MockCallData(teamRepo, 'getByStatus', teams, new Object[]{ 'Certified' }));
+        mocks.expectedCalls.add(new MockCallData(teamRepo, 'getByStatus', teams, new Object[]{ STATUS_CERTIFIED }));
         mocks.expectedCalls.add(new MockCallData(taskRepo, 'getMatchingTasks', new Task[0]));
         // Act
         service.createCertificationTasks();
@@ -800,7 +799,7 @@ private class TeamTaskServiceTest {
         ), task);
     }
 
-    @isTest
+    @IsTest
     static void createCertificationTasks_doesNotCreateFirstReminder_whenMatchingExists() {
         // Arrange
         makeData();
@@ -823,7 +822,7 @@ private class TeamTaskServiceTest {
         System.assert(tasks.isEmpty(), 'Should not create when matching task exists');
     }
 
-    @isTest
+    @IsTest
     static void createCertificationTasks_createsReminderTask_whenNoMatching() {
         makeData();
         setupUserReturns();
@@ -833,7 +832,7 @@ private class TeamTaskServiceTest {
             Id = MockProvider.createId(Contact.class)
         );
 
-        mocks.expectedCalls.add(new MockCallData(teamRepo, 'getByStatus', teams, new Object[]{ 'Certified' }));
+        mocks.expectedCalls.add(new MockCallData(teamRepo, 'getByStatus', teams, new Object[]{ STATUS_CERTIFIED }));
         mocks.expectedCalls.add(new MockCallData(taskRepo, 'getMatchingTasks', new Task[0]));
         // Act
         service.createCertificationTasks();
@@ -855,7 +854,7 @@ private class TeamTaskServiceTest {
         ), task);
     }
 
-    @isTest
+    @IsTest
     static void createCertificationTasks_doesNotCreateReminder_whenMatchingExists() {
         // Arrange
         makeData();
@@ -878,7 +877,7 @@ private class TeamTaskServiceTest {
         System.assert(tasks.isEmpty(), 'Should not create when matching task exists');
     }
 
-    @isTest
+    @IsTest
     static void createDogTasks_doesNotCreateTasks_whenAdminNotDefined() {
         // Arrange
         makeData();
@@ -893,7 +892,7 @@ private class TeamTaskServiceTest {
         mocks.assertMethodNotCalled('create');
     }
 
-    @isTest
+    @IsTest
     static void createDogTasks_doesNotCreateTasks_whenNoTeam() {
         // Arrange
         makeData();
@@ -906,7 +905,7 @@ private class TeamTaskServiceTest {
         mocks.assertMethodNotCalled('create');
     }
 
-    @isTest
+    @IsTest
     static void createDogTasks_doesNotCreateTasks_whenNoDogInTeam() {
         // Arrange
         makeData();
@@ -922,7 +921,7 @@ private class TeamTaskServiceTest {
         System.assertEquals(0, tasks.size(), 'Should not create task when no dog in team');
     }
 
-    @isTest
+    @IsTest
     static void createDogTasks_doesNotCreateTasks_whenDogNoVaxDates() {
         // Arrange
         makeData();
@@ -943,7 +942,7 @@ private class TeamTaskServiceTest {
         System.assertEquals(0, tasks.size(), 'Should not create task when dog has no vaccine dates');
     }
 
-    @isTest
+    @IsTest
     static void createDogTasks_doesNotCreateTasks_whenRabiesExpiresTomorrow() {
         // Arrange
         makeData();
@@ -965,7 +964,7 @@ private class TeamTaskServiceTest {
         System.assertEquals(0, tasks.size(), 'Should not create task when rabies due tomorrow');
     }
 
-    @isTest
+    @IsTest
     static void createDogTasks_doesNotCreateTasks_whenExamExpiresTomorrow() {
         // Arrange
         makeData();
@@ -987,7 +986,7 @@ private class TeamTaskServiceTest {
         System.assertEquals(0, tasks.size(), 'Should not create task when dog exam due tomorrow');
     }
 
-    @isTest
+    @IsTest
     static void createDogTasks_doesNotCreateTasks_whenDA2PPExpiresTomorrow() {
         // Arrange
         makeData();
@@ -1009,7 +1008,7 @@ private class TeamTaskServiceTest {
         System.assertEquals(0, tasks.size(), 'Should not create task when dog DA2PP due tomorrow');
     }
 
-    @isTest
+    @IsTest
     static void createDogTasks_doesNotCreateTasks_whenRabiesExpiredYesterday() {
         // Arrange
         makeData();
@@ -1031,7 +1030,7 @@ private class TeamTaskServiceTest {
         System.assertEquals(0, tasks.size(), 'Should not create task when rabies due yesterday');
     }
 
-    @isTest
+    @IsTest
     static void createDogTasks_doesNotCreateTasks_whenExamExpiredYesterday() {
         // Arrange
         makeData();
@@ -1053,7 +1052,7 @@ private class TeamTaskServiceTest {
         System.assertEquals(0, tasks.size(), 'Should not create task when dog exam due yesterday');
     }
 
-    @isTest
+    @IsTest
     static void createDogTasks_doesNotCreateTasks_whenDA2PPExpiredYesterday() {
         // Arrange
         makeData();
@@ -1075,7 +1074,7 @@ private class TeamTaskServiceTest {
         System.assertEquals(0, tasks.size(), 'Should not create task when dog DA2PP due yesterday');
     }
 
-    @isTest
+    @IsTest
     static void createDogTasks_doesNotCreateTasks_whenRabiesExpiresToday_andTaskPresent() {
         // Arrange
         makeData();
@@ -1098,7 +1097,7 @@ private class TeamTaskServiceTest {
         System.assertEquals(0, tasks.size(), 'Should not create task when rabies due today and task exists');
     }
 
-    @isTest
+    @IsTest
     static void createDogTasks_doesNotCreateTasks_whenExamExpiresToday_andTaskPresent() {
         // Arrange
         makeData();
@@ -1121,7 +1120,7 @@ private class TeamTaskServiceTest {
         System.assertEquals(0, tasks.size(), 'Should not create task when dog exam due today and task exists');
     }
 
-    @isTest
+    @IsTest
     static void createDogTasks_doesNotCreateTasks_whenDA2PPExpiresToday_andTaskPresent() {
         // Arrange
         makeData();
@@ -1144,7 +1143,7 @@ private class TeamTaskServiceTest {
         System.assertEquals(0, tasks.size(), 'Should not create task when dog DA2PP due today and task exists');
     }
 
-    @isTest
+    @IsTest
     static void createDogTasks_creatsTasks_whenRabiesExpiresToday_andNoTaskPresent() {
         // Arrange
         makeData();
@@ -1167,7 +1166,7 @@ private class TeamTaskServiceTest {
         System.assertEquals(1, tasks.size(), 'Should not create task when rabies due today and task exists');
     }
 
-    @isTest
+    @IsTest
     static void createDogTasks_createTasks_whenExamExpiresToday_andNoTaskPresent() {
         // Arrange
         makeData();
@@ -1190,7 +1189,7 @@ private class TeamTaskServiceTest {
         System.assertEquals(1, tasks.size(), 'Should not create task when dog exam due today and task exists');
     }
 
-    @isTest
+    @IsTest
     static void createDogTasks_createTasks_whenDA2PPExpiresToday_andNoTaskPresent() {
         // Arrange
         makeData();

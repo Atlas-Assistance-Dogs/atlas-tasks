@@ -81,7 +81,7 @@ public class TeamTaskService {
      * @param teamService Team service.
      */
     @SuppressWarnings('ExcessiveParameterList')
-    @testVisible
+    @TestVisible
     private TeamTaskService(TeamRepository teamRepo, RelationshipRepository relRepo, DogRepository dogRepo, TaskRepository taskRepo, PatRepository patRepo, TeamService teamService) {
         this.teamRepo = teamRepo;
         this.relRepo = relRepo;
@@ -267,6 +267,26 @@ public class TeamTaskService {
     }
 
     /**
+     * Handle changes to team records.
+     * @param newTeams the updated team records
+     * @param oldTeamMap the map of old team records
+     */
+    public void handleTeamChanges(List<atlas1__Team__c> newTeams, Map<Id, atlas1__Team__c> oldTeamMap) {
+        for (atlas1__Team__c team : newTeams) {
+            atlas1__Team__c oldTeam = oldTeamMap.get(team.Id);
+
+            String oldStatus = oldTeam.atlas1__Status__c;
+            if (team.atlas1__Status__c == 'In Training' && oldStatus == 'Onboarding') {
+                team.atlas1__TrainingStartDate__c = Date.today();
+                handleTrainingStart(team);
+            }
+            if (team.atlas1__Status__c != null && team.atlas1__Status__c.contains('Certified') && oldStatus == 'In Training') {
+                handleCertificationStart(team);
+            }
+        }
+    }
+
+    /**
      * Create tasks related to teams when certification starts.
      * @param team the Team record for which certification is starting
      */
@@ -316,7 +336,7 @@ public class TeamTaskService {
         if (clientManager == null) {
             return;
         }
-        List<atlas1__Team__c> teams = teamRepo.getByStatus('Certified');
+        List<atlas1__Team__c> teams = teamRepo.getByStatus('Certified-Active');
         Date today = Date.today();
         List<Task> tasks = new List<Task>();
         for (atlas1__Team__c team : teams) {
