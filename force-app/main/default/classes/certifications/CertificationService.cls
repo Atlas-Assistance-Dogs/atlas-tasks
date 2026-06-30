@@ -59,11 +59,12 @@ public with sharing class CertificationService {
   final String decertTaskDescription = 'If deactivating, change status to discontinued';
   final String decertTaskRemoveCanvas = 'Remove from Canvas';
   final String decertTaskRemoveFacebook = 'Remove from Facebook';
-  /* Send reminder emails and tasks related to Trainer renewal:
-   - exactly 1 month before Trainer Certification Valid Until- "1 month email"
-   - exactly 2 weeks before Trainer Certification Valid Until- "2 week email"
-   - exactly 1 week before Trainer Certification Valid Until- "1 week email"
-   - Day of Trainer Certification Valid Until = " last day email"
+  /**
+   * Send reminder emails and tasks related to Trainer renewal:
+   * - exactly 1 month before Trainer Certification Valid Until- "1 month email"
+   * - exactly 2 weeks before Trainer Certification Valid Until- "2 week email"
+   * - exactly 1 week before Trainer Certification Valid Until- "1 week email"
+   * - Day of Trainer Certification Valid Until = " last day email"
    */
   public void remindToRenew() {
     List<Messaging.SingleEmailMessage> emails = new List<Messaging.SingleEmailMessage>();
@@ -218,11 +219,13 @@ public with sharing class CertificationService {
   User trainerManager;
   User admin;
   User coordinator;
+  User tfManager;
 
   private void getUsers() {
     trainerManager = taskRepo.getTaskUser('Trainer Manager');
     admin = taskRepo.getTaskUser('Administrator');
     coordinator = taskRepo.getTaskUser('Client Support Coordinator');
+    tfManager = taskRepo.getTaskUser('TF Manager');
   }
 
   /**
@@ -247,13 +250,13 @@ public with sharing class CertificationService {
         // Create tasks to discontinue the trainer
         tasks.addAll(discontinuationTasks(contact) );
       }
-      if (contact.atlas1__Positions__c != null && contact.atlas1__Positions__c.contains('Team Facilitator') && contact.atlas1__FacilitatorStatus__c == 'Certified-OnHold' && oldContact.atlas1__FacilitatorStatus__c == 'Certified-Active') {
-        tasks.addAll(facilitatorHoldTasks(contact) );
+      if (contact.atlas1__Positions__c != null && contact.atlas1__Positions__c.contains('Team Facilitator')) {
+        tasks.addAll(facilitatorChangeTasks(contact, oldContact));
       }
-    }
 
-    if (!tasks.isEmpty()) {
-      taskRepo.create(tasks);
+      if (!tasks.isEmpty()) {
+        taskRepo.create(tasks);
+      }
     }
   }
 
@@ -331,7 +334,49 @@ public with sharing class CertificationService {
     return tasks;
   }
 
+  /**
+   * Description for tasks related to facilitator not accepting new clients
+   */
   public final String tfNotAcceptingTaskDescription = 'Facilitator on hold, not accepting new clients';
+  /**
+   * Create facilitator tasks for facilitator status changes.
+   * @param contact The updated contact record
+   * @param oldContact The contact record before the update
+   * @return List of tasks needed for the facilitator status transition
+   */
+  private List<Task> facilitatorChangeTasks(Contact contact, Contact oldContact) {
+    List<Task> tasks = new List<Task>();
+    if (contact.atlas1__FacilitatorStatus__c == 'Certified-Active' && oldContact.atlas1__FacilitatorStatus__c != 'Certified-Active') {
+      // Facilitator is back to active, create tasks to remove on hold tasks
+      tasks.addAll(facilitatorActiveTasks(contact) );
+    }
+    if (contact.atlas1__FacilitatorStatus__c == 'Certified-OnHold' && oldContact.atlas1__FacilitatorStatus__c == 'Certified-Active') {
+      tasks.addAll(facilitatorHoldTasks(contact) );
+    }
+    return tasks;
+  }
+
+  /**
+   * Create tasks for a facilitator who is returning to active status.
+   * @param contact The updated contact record
+   * @return List of tasks to update facilitator availability and service area status
+   */
+  private List<Task> facilitatorActiveTasks(Contact contact) {
+    List<Task> tasks = new List<Task>();
+    if (admin != null) {
+      tasks.add(new Task(
+        OwnerId = admin.Id, 
+        Subject = 'Add to service area map', 
+        Description = 'Facilitator now accepting new clients, update service area map accordingly.', 
+        Status = 'Open', 
+        Priority = 'Normal', 
+        WhoId = contact.Id, 
+        ActivityDate = Date.today()
+      ));
+    }
+    return tasks;
+  }
+
   /**
    * Create tasks for handling facilitator on hold status
    * @param contact The contact record being placed on hold
@@ -350,8 +395,10 @@ public with sharing class CertificationService {
         WhoId = contact.Id, 
         ActivityDate = Date.today()
       ));
+    }
+    if (tfManager != null) {
       tasks.add(new Task(
-        OwnerId = admin.Id, 
+        OwnerId = tfManager.Id, 
         Subject = 'Add Availability notes', 
         Description = tfNotAcceptingTaskDescription, 
         Status = 'Open', 
@@ -359,10 +406,8 @@ public with sharing class CertificationService {
         WhoId = contact.Id, 
         ActivityDate = Date.today()
       ));
-    }
-    if (coordinator != null) {
       tasks.add(new Task(
-        OwnerId = coordinator.Id, 
+        OwnerId = tfManager.Id, 
         Subject = 'Check in regarding availability', 
         Description = 'If still On hold, follow up with facilitator about status and next steps.', 
         Status = 'Open', 

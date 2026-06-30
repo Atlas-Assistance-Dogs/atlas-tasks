@@ -83,6 +83,9 @@ private class CertificationServiceTest {
   private static User coordinator = new User(
     Id = MockProvider.createId(User.class)
   );
+  private static User tfManager = new User(
+    Id = MockProvider.createId(User.class)
+  );
   private static EmailTemplate monthBefore = new EmailTemplate(
     Id = MockProvider.createId(EmailTemplate.class), 
     Name = 'TrainerMonthBefore'
@@ -131,6 +134,7 @@ private class CertificationServiceTest {
     mocks.expectedCalls.add(new MockCallData(taskRepo, 'getTaskUser', admin, new Object[]{ 'Administrator' }));
     mocks.expectedCalls.add(new MockCallData(taskRepo, 'getTaskUser', manager, new Object[]{ 'Trainer Manager' }));
     mocks.expectedCalls.add(new MockCallData(taskRepo, 'getTaskUser', coordinator, new Object[]{ 'Client Support Coordinator' }));
+    mocks.expectedCalls.add(new MockCallData(taskRepo, 'getTaskUser', tfManager, new Object[]{ 'TF Manager' }));
     mocks.expectedCalls.add(new MockCallData(emailSrv, 'getTemplate', monthBefore, new Object[]{ 'TrainerMonthBefore' }));
     mocks.expectedCalls.add(new MockCallData(emailSrv, 'getTemplate', twoWeeksBefore, new Object[]{ 'Trainer2WeeksBefore' }));
     mocks.expectedCalls.add(new MockCallData(emailSrv, 'getTemplate', weekBefore, new Object[]{ 'TrainerWeekBefore' }));
@@ -837,7 +841,7 @@ private class CertificationServiceTest {
       WhoId = contact.Id, 
       ActivityDate = Date.today()
     ), new Task(
-      OwnerId = admin.Id, 
+      OwnerId = tfManager.Id, 
       Subject = 'Add Availability notes', 
       Description = service.tfNotAcceptingTaskDescription, 
       Status = 'Open', 
@@ -845,7 +849,7 @@ private class CertificationServiceTest {
       WhoId = contact.Id, 
       ActivityDate = Date.today()
     ), new Task(
-      OwnerId = coordinator.Id, 
+      OwnerId = tfManager.Id, 
       Subject = 'Check in regarding availability', 
       Description = 'If still On hold, follow up with facilitator about status and next steps.', 
       Status = 'Open', 
@@ -853,6 +857,36 @@ private class CertificationServiceTest {
       IsReminderSet = true, 
       WhoId = contact.Id, 
       ActivityDate = Date.today().addMonths(6)
+    ) }, tasks, 'wrong tasks');
+  }
+
+  @IsTest
+  static void handleContactChange_createsTasksWhenUsersDefinedTFActive() {
+    makeData();
+    setup();
+    Contact contact = new Contact(
+      Id = MockProvider.createId(Contact.class), 
+      atlas1__Positions__c = 'Team Facilitator', 
+      atlas1__FacilitatorStatus__c = 'In Training'
+    );
+    Contact nc = new Contact(
+      Id = contact.Id, 
+      atlas1__Positions__c = 'Team Facilitator', 
+      atlas1__FacilitatorStatus__c = 'Certified-Active'
+    );
+    // act
+    service.handleContactChange(new Contact[]{ nc }, new Map<Id, Contact>{ contact.Id => contact });
+    // assert
+    MockCallData call = mocks.assertMethodCalled('create');
+    Task[] tasks = (Task[])call.args[0];
+    System.Assert.areEqual(new Task[]{ new Task(
+      OwnerId = admin.Id, 
+      Subject = 'Add to service area map', 
+      Description = 'Facilitator now accepting new clients, update service area map accordingly.', 
+      Status = 'Open', 
+      Priority = 'Normal', 
+      WhoId = contact.Id, 
+      ActivityDate = Date.today()
     ) }, tasks, 'wrong tasks');
   }
 
